@@ -1,0 +1,368 @@
+{
+  "codigo": "psyra_form_v1",
+  "versao": "1.0",
+  "origem": "Google Forms 'Formulário Psyra' (Pedro Octávio) — export de 31/07/2026",
+  "aviso": "Itens transcritos automaticamente do export do formulário. O AGRUPAMENTO em blocos e a POLARIDADE de cada item são inferência técnica e precisam de validação da psicóloga CRP antes de qualquer uso em laudo ou PGR. Os itens do bloco J tocam sinais de saúde — coleta real exige CEP.",
+  "escala": {
+    "tipo": "likert_5",
+    "rotulos": [
+      "Discordo totalmente",
+      "Discordo parcialmente",
+      "Nem concordo nem discordo",
+      "Concordo parcialmente",
+      "Concordo totalmente"
+    ]
+  },
+  "consentimento": "Participação voluntária e anônima. Os resultados são apresentados apenas por grupo (mínimo de 5 respostas), nunca individualmente. Ao continuar, você concorda com a participação.",
+  "campo_grupo": {
+    "pergunta": "Qual o seu setor dentro da Empresa?",
+    "opcoes": [
+      "Administrativo",
+      "Financeiro",
+      "Recursos Humanos (RH)",
+      "Comercial e Vendas",
+      "Marketing",
+      "Operacional",
+      "Tecnologia da Informação (TI)",
+      "Outro"
+    ]
+  },
+  "blocos": [
+    {
+      "codigo": "A",
+      "dimensao": "Apoio social e liderança",
+      "peso": 1.2,
+      "reverso": false,
+      "polaridade_mista": false,
+      "acao_sugerida": "Capacitar lideranças em escuta e criar canal de reporte sem retaliação.",
+      "itens": [
+        {
+          "texto": "Meu gestor/supervisor me oferece suporte quando enfrento dificuldades no trabalho.",
+          "reverso": true,
+          "coluna_csv": 2
+        },
+        {
+          "texto": "Meus colegas de trabalho estão disponíveis para me ajudar quando preciso",
+          "reverso": true,
+          "coluna_csv": 3
+        },
+        {
+          "texto": "A organização disponibiliza recursos adequados para que eu realize minhas tarefas",
+          "reverso": true,
+          "coluna_csv": 4
+        },
+        {
+          "texto": "Sinto que sou ouvido(a) quando apresento dificuldades ou sugestões dentro do meu departamento.",
+          "reverso": true,
+          "coluna_csv": 5
+        },
+        {
+          "texto": "Sinto que sou ouvido(a) quando apresento dificuldades ou sugestões à empresa como um todo.",
+          "reverso": true,
+          "coluna_csv": 6
+        }
+      ]
+    },
+    {
+      "codigo": "B",
+      "dimensao": "Autonomia e controle",
+      "peso": 1.0,
+      "reverso": false,
+      "polaridade_mista": false,
+      "acao_sugerida": "Ampliar margem de decisão do grupo sobre método e ritmo de trabalho.",
+      "itens": [
+        {
+          "texto": "Tenho liberdade para decidir como organizar e executar minhas tarefas diárias",
+          "reverso": true,
+          "coluna_csv": 7
+        },
+        {
+          "texto": "Posso influenciar as decisões que afetam diretamente meu trabalho",
+          "reverso": true,
+          "coluna_csv": 8
+        },
+        {
+          "texto": "Tenho autonomia para gerenciar meu próprio ritmo de trabalho",
+          "reverso": true,
+          "coluna_csv": 9
+        }
+      ]
+    },
+    {
+      "codigo": "C",
+      "dimensao": "Clareza de papel e metas",
+      "peso": 1.0,
+      "reverso": false,
+      "polaridade_mista": false,
+      "acao_sugerida": "Publicar descrição de papel e critérios de avaliação por função.",
+      "itens": [
+        {
+          "texto": "Minhas responsabilidades e atribuições estão claramente definidas.",
+          "reverso": true,
+          "coluna_csv": 10
+        },
+        {
+          "texto": "Sei exatamente o que é esperado de mim no desempenho do meu cargo.",
+          "reverso": true,
+          "coluna_csv": 11
+        },
+        {
+          "texto": "As metas e objetivos do meu trabalho são comunicados de forma clara e objetiva",
+          "reverso": true,
+          "coluna_csv": 12
+        },
+        {
+          "texto": "Considero que o trabalho que desenvolvo corresponde às atribuições do meu cargo e às metas estabelecidas, com qualidade compatível com as minhas funções.",
+          "reverso": true,
+          "coluna_csv": 13
+        }
+      ]
+    },
+    {
+      "codigo": "D",
+      "dimensao": "Carga de trabalho",
+      "peso": 1.2,
+      "reverso": false,
+      "polaridade_mista": true,
+      "acao_sugerida": "Revisar dimensionamento de equipe e distribuição de metas do grupo.",
+      "itens": [
+        {
+          "texto": "A quantidade de tarefas atribuídas a mim é compatível com o tempo disponível para realizá-las.",
+          "reverso": true,
+          "coluna_csv": 14
+        },
+        {
+          "texto": "Frequentemente me sinto sobrecarregado(a) com o volume de trabalho exigido.",
+          "reverso": false,
+          "coluna_csv": 15
+        },
+        {
+          "texto": "O trabalho que realizo desafia minha capacidade de forma saudável, sem gerar esgotamento.",
+          "reverso": true,
+          "coluna_csv": 16
+        },
+        {
+          "texto": "Percebo que tenho tarefas em quantidade insuficiente para manter-me produtivo(a) e engajado(a).",
+          "reverso": false,
+          "coluna_csv": 17
+        }
+      ]
+    },
+    {
+      "codigo": "E",
+      "dimensao": "Reconhecimento e recompensa",
+      "peso": 1.0,
+      "reverso": false,
+      "polaridade_mista": false,
+      "acao_sugerida": "Revisar política de reconhecimento e trilha de desenvolvimento.",
+      "itens": [
+        {
+          "texto": "Meu desempenho e esforço são reconhecidos de forma justa pela organização.",
+          "reverso": true,
+          "coluna_csv": 18
+        },
+        {
+          "texto": "A remuneração que recebo é compatível com as responsabilidades do meu cargo.",
+          "reverso": true,
+          "coluna_csv": 19
+        },
+        {
+          "texto": "Recebo feedback construtivo e regular sobre a qualidade do meu trabalho.",
+          "reverso": true,
+          "coluna_csv": 20
+        }
+      ]
+    },
+    {
+      "codigo": "F",
+      "dimensao": "Relações interpessoais e assédio",
+      "peso": 1.4,
+      "reverso": false,
+      "polaridade_mista": false,
+      "acao_sugerida": "Acionar comitê de ética; reforçar canal de denúncia e protocolo antiassédio.",
+      "itens": [
+        {
+          "texto": "O relacionamento entre colegas no meu ambiente de trabalho é respeitoso e colaborativo.",
+          "reverso": true,
+          "coluna_csv": 21
+        },
+        {
+          "texto": "Nunca fui exposto(a) a situações de constrangimento, humilhação ou intimidação no trabalho.",
+          "reverso": true,
+          "coluna_csv": 22
+        },
+        {
+          "texto": "A liderança da organização trata todos os colaboradores com equidade e respeito",
+          "reverso": true,
+          "coluna_csv": 23
+        },
+        {
+          "texto": "Sinto-me seguro(a) para reportar situações de conflito ou assédio sem medo de retaliação",
+          "reverso": true,
+          "coluna_csv": 24
+        }
+      ]
+    },
+    {
+      "codigo": "G",
+      "dimensao": "Justiça organizacional",
+      "peso": 1.1,
+      "reverso": false,
+      "polaridade_mista": false,
+      "acao_sugerida": "Tornar públicos os critérios de promoção e a aplicação das políticas.",
+      "itens": [
+        {
+          "texto": "As regras e políticas da organização são aplicadas de forma igual para todos os colaboradores.",
+          "reverso": true,
+          "coluna_csv": 25
+        },
+        {
+          "texto": "As decisões de promoção e reconhecimento profissional são tomadas com base em critérios justos e transparentes.",
+          "reverso": true,
+          "coluna_csv": 26
+        },
+        {
+          "texto": "Tenho confiança de que as decisões organizacionais que me afetam são tomadas de forma ética.",
+          "reverso": true,
+          "coluna_csv": 27
+        }
+      ]
+    },
+    {
+      "codigo": "H",
+      "dimensao": "Comunicação e recursos",
+      "peso": 0.9,
+      "reverso": false,
+      "polaridade_mista": false,
+      "acao_sugerida": "Revisar ferramentas e fluxo de informação necessários à operação.",
+      "itens": [
+        {
+          "texto": "As ferramentas e canais de comunicação disponíveis permitem que eu trabalhe de forma eficiente.",
+          "reverso": true,
+          "coluna_csv": 28
+        },
+        {
+          "texto": "Sinto-me conectado(a) à equipe e à organização, independentemente do formato de trabalho (presencial ou remoto).",
+          "reverso": true,
+          "coluna_csv": 29
+        },
+        {
+          "texto": "Tenho acesso fácil às informações necessárias para realizar minhas atividades.",
+          "reverso": true,
+          "coluna_csv": 30
+        }
+      ]
+    },
+    {
+      "codigo": "I",
+      "dimensao": "Equilíbrio trabalho-vida",
+      "peso": 1.1,
+      "reverso": false,
+      "polaridade_mista": true,
+      "acao_sugerida": "Definir política de desconexão e limites de acionamento fora da jornada.",
+      "itens": [
+        {
+          "texto": "Consigo equilibrar de forma adequada minhas responsabilidades profissionais e pessoais.",
+          "reverso": true,
+          "coluna_csv": 31
+        },
+        {
+          "texto": "As demandas do trabalho influenciam de forma negativa as atividades importantes da minha vida pessoal.",
+          "reverso": false,
+          "coluna_csv": 32
+        },
+        {
+          "texto": "Consigo deixar de pensar nas demandas do trabalho durante meus períodos de descanso.",
+          "reverso": true,
+          "coluna_csv": 33
+        },
+        {
+          "texto": "Frequentemente atendo demandas profissionais fora da minha jornada habitual de trabalho.",
+          "reverso": false,
+          "coluna_csv": 34
+        },
+        {
+          "texto": "Fora da minha jornada de trabalho, consigo ter tempo suficiente para me dedicar às pessoas, atividades ou compromissos pessoais.",
+          "reverso": true,
+          "coluna_csv": 35
+        },
+        {
+          "texto": "Percebo que as exigências do trabalho influenciam negativamente a minha qualidade de vida.",
+          "reverso": false,
+          "coluna_csv": 36
+        },
+        {
+          "texto": "Consigo usufruir de momentos de lazer, descanso ou autocuidado sem preocupações constantes do trabalho.",
+          "reverso": true,
+          "coluna_csv": 37
+        },
+        {
+          "texto": "Meu atual modelo de trabalho (presencial, híbrido ou remoto) contribui positivamente para meu bem-estar e qualidade de vida.",
+          "reverso": true,
+          "coluna_csv": 38
+        },
+        {
+          "texto": "Estabeleço limites claros entre minhas atividades profissionais e minha vida pessoal.",
+          "reverso": true,
+          "coluna_csv": 39
+        }
+      ]
+    },
+    {
+      "codigo": "J",
+      "dimensao": "Sinais de saúde e esgotamento",
+      "peso": 1.3,
+      "reverso": false,
+      "polaridade_mista": false,
+      "acao_sugerida": "Encaminhar avaliação clínica coletiva com a psicóloga responsável (CRP).",
+      "itens": [
+        {
+          "texto": "Sinto cansaço físico ao final da jornada de trabalho.",
+          "reverso": false,
+          "coluna_csv": 40
+        },
+        {
+          "texto": "Tenho tido dificuldades para dormir: demoro mais para pegar no sono ou não consigo manter um sono reparador.",
+          "reverso": false,
+          "coluna_csv": 41
+        },
+        {
+          "texto": "Tenho sentido dores musculares, tensão no corpo ou coceiras.",
+          "reverso": false,
+          "coluna_csv": 42
+        },
+        {
+          "texto": "Tenho apresentado dores de cabeça com frequência.",
+          "reverso": false,
+          "coluna_csv": 43
+        },
+        {
+          "texto": "Sinto cansaço mesmo após períodos de descanso.",
+          "reverso": false,
+          "coluna_csv": 44
+        },
+        {
+          "texto": "Tenho percebido alterações no apetite relacionadas ao estresse do trabalho.",
+          "reverso": false,
+          "coluna_csv": 45
+        },
+        {
+          "texto": "Tenho sentido mais irritação, intolerância, ansiedade ou nervosismo relacionados ao trabalho.",
+          "reverso": false,
+          "coluna_csv": 46
+        },
+        {
+          "texto": "Nos últimos meses, percebi alterações em minha saúde física",
+          "reverso": false,
+          "coluna_csv": 47
+        }
+      ]
+    }
+  ],
+  "bloco_texto_livre": {
+    "codigo": "K",
+    "pergunta": "Se desejar, utilize o espaço abaixo para descrever, com suas próprias palavras, como você tem se sentido em relação ao seu trabalho. Não há resposta certa ou errada — este espaço é seu. Sua resposta será analisada de forma anônima e nunca individualizada.",
+    "obrigatorio": false,
+    "aviso": "Não escreva nomes, CPF, e-mail ou telefone. O texto passa por anonimização automática antes de ser armazenado."
+  }
+}

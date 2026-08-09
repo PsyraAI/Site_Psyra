@@ -1,0 +1,150 @@
+{
+  "codigo": "nr1_v2_demo",
+  "versao": "0.1-DEMO",
+  "aviso": "INSTRUMENTO DEMONSTRATIVO. Itens ilustrativos para validar o pipeline técnico. Substituir pelo instrumento validado pela psicóloga CRP e aprovado pelo CEP antes de qualquer coleta com dado real.",
+  "escala": {
+    "tipo": "likert_5",
+    "rotulos": [
+      "Nunca",
+      "Raramente",
+      "Às vezes",
+      "Frequentemente",
+      "Sempre"
+    ]
+  },
+  "consentimento": "Participação voluntária e anônima. Não coletamos dados de saúde. Nenhuma resposta treina modelos de IA nesta fase. Resultados são apresentados apenas por grupo (mínimo de 5 respostas), nunca individualmente. Ao continuar, você concorda com a participação.",
+  "blocos": [
+    {
+      "codigo": "A",
+      "dimensao": "Demandas quantitativas e ritmo",
+      "peso": 1.2,
+      "reverso": false,
+      "itens": [
+        "Preciso trabalhar em ritmo acelerado para dar conta das tarefas.",
+        "O volume de trabalho excede o que consigo concluir na jornada.",
+        "Levo trabalho para casa ou fora do horário para não atrasar.",
+        "Tenho prazos que considero inviáveis.",
+        "Deixo de fazer pausas por causa da carga de trabalho."
+      ]
+    },
+    {
+      "codigo": "B",
+      "dimensao": "Demandas cognitivas e emocionais",
+      "peso": 1.1,
+      "reverso": false,
+      "itens": [
+        "Meu trabalho exige atenção constante e sem interrupções.",
+        "Lido com situações emocionalmente desgastantes no trabalho.",
+        "Preciso esconder o que sinto para atender a demanda.",
+        "Tomo decisões difíceis sob pressão de tempo.",
+        "Termino o dia mentalmente esgotado."
+      ]
+    },
+    {
+      "codigo": "C",
+      "dimensao": "Autonomia e controle",
+      "peso": 1.0,
+      "reverso": true,
+      "itens": [
+        "Posso decidir como executar minhas tarefas.",
+        "Tenho influência sobre o meu ritmo de trabalho.",
+        "Consigo fazer pausas quando preciso.",
+        "Minhas sugestões são consideradas nas decisões da área.",
+        "Tenho previsibilidade sobre minha escala e horários."
+      ]
+    },
+    {
+      "codigo": "D",
+      "dimensao": "Clareza de papel e previsibilidade",
+      "peso": 1.0,
+      "reverso": true,
+      "itens": [
+        "Sei exatamente o que se espera de mim.",
+        "Minhas responsabilidades são claras e não conflitantes.",
+        "Recebo com antecedência informações sobre mudanças que me afetam.",
+        "Sei quais são os critérios usados para avaliar meu trabalho.",
+        "Tenho os recursos necessários para fazer o meu trabalho."
+      ]
+    },
+    {
+      "codigo": "E",
+      "dimensao": "Apoio social e liderança",
+      "peso": 1.2,
+      "reverso": true,
+      "itens": [
+        "Posso contar com apoio da minha liderança quando preciso.",
+        "Minha liderança se preocupa com o bem-estar da equipe.",
+        "Recebo ajuda de colegas diante de dificuldades.",
+        "Sinto-me à vontade para relatar problemas sem medo de retaliação.",
+        "Recebo retorno construtivo sobre o meu trabalho."
+      ]
+    },
+    {
+      "codigo": "F",
+      "dimensao": "Reconhecimento e recompensa",
+      "peso": 0.9,
+      "reverso": true,
+      "itens": [
+        "Meu esforço é reconhecido pela empresa.",
+        "Considero justa a relação entre o que entrego e o que recebo.",
+        "Vejo perspectiva de desenvolvimento aqui.",
+        "Sinto que meu trabalho tem valor para a organização."
+      ]
+    },
+    {
+      "codigo": "G",
+      "dimensao": "Relações interpessoais, assédio e violência",
+      "peso": 1.4,
+      "reverso": false,
+      "itens": [
+        "Presencio ou vivencio situações de humilhação no trabalho.",
+        "Há conflitos frequentes e não resolvidos na equipe.",
+        "Já fui exposto a comentários ofensivos no ambiente de trabalho.",
+        "Sinto que existe cobrança feita de forma agressiva."
+      ]
+    },
+    {
+      "codigo": "H",
+      "dimensao": "Conciliação trabalho-vida",
+      "peso": 1.0,
+      "reverso": false,
+      "itens": [
+        "O trabalho interfere na minha vida pessoal ou familiar.",
+        "Sou acionado fora do meu horário de trabalho.",
+        "Deixo de descansar por causa de demandas do trabalho.",
+        "Tenho dificuldade de me desconectar mentalmente do trabalho."
+      ]
+    },
+    {
+      "codigo": "I",
+      "dimensao": "Insegurança e mudança organizacional",
+      "peso": 1.1,
+      "reverso": false,
+      "itens": [
+        "Preocupo-me com a possibilidade de perder meu emprego.",
+        "As mudanças na empresa são comunicadas de forma confusa.",
+        "Sinto instabilidade quanto ao meu futuro na organização.",
+        "Reestruturações recentes afetaram minha rotina de trabalho."
+      ]
+    },
+    {
+      "codigo": "J",
+      "dimensao": "Bem-estar percebido no trabalho",
+      "peso": 1.3,
+      "reverso": false,
+      "itens": [
+        "Sinto cansaço que não passa com o descanso.",
+        "Tenho dificuldade para dormir por causa do trabalho.",
+        "Sinto irritação ou impaciência relacionadas ao trabalho.",
+        "Penso em pedir desligamento.",
+        "Sinto que meu trabalho afeta negativamente minha disposição."
+      ]
+    }
+  ],
+  "bloco_texto_livre": {
+    "codigo": "K",
+    "pergunta": "Se quiser, descreva com suas palavras como tem sido o seu dia a dia de trabalho nas últimas semanas.",
+    "obrigatorio": false,
+    "aviso": "Não escreva nomes, CPF, e-mail ou telefone. O texto passa por anonimização automática antes de ser armazenado."
+  }
+}

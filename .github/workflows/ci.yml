@@ -1,0 +1,61 @@
+name: CI — MVP Psyra
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+      - name: Lint (ruff)
+        run: ruff check --config pyproject.toml backend/app backend/tests backend/seed.py scripts
+      - name: Formatação (black)
+        run: black --check --line-length 90 backend/app backend/tests backend/seed.py scripts
+      - name: Testes (pytest)
+        run: cd backend && python -m pytest -q
+      - name: Guarda de conformidade — testes de privacidade obrigatórios
+        run: cd backend && python -m pytest tests/test_privacidade.py -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend-react/package-lock.json
+      - name: Instalar e buildar React
+        working-directory: frontend-react
+        run: |
+          npm ci
+          npm run build
+
+  ml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar deps API + ML leve
+        run: |
+          pip install -r requirements.txt
+          pip install pandas openpyxl scikit-learn xgboost
+      - name: Testes de schema ML (sem treino pesado)
+        run: python -m pytest ml/tests/test_risk_pipeline.py::test_xlsx_corresponde_integralmente_ao_instrumento ml/tests/test_risk_pipeline.py::test_formula_respeita_extremos_de_polaridade -q
+
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker
+        run: docker build -t psyra:ci .

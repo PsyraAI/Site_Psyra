@@ -1,0 +1,28 @@
+[tool.ruff]
+line-length = 90
+target-version = "py311"
+extend-exclude = ["*.db"]
+
+[tool.ruff.lint]
+# D* (pydocstyle) fora: as regras assumem docstring em inglês e o projeto escreve em PT-BR.
+select = ["E", "F", "W", "I", "UP", "B", "ANN"]
+ignore = ["ANN401"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "ANN", "E402"]
+"seed.py" = ["E402"]
+"backend/tests/*" = ["D", "ANN", "E402"]
+"scripts/*" = ["D", "ANN", "E402"]
+"backend/criar_superadmin.py" = ["E402"]
+"backend/aplicar_schema_postgres.py" = ["E402"]
+
+[tool.black]
+line-length = 90
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["backend"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "seed"]

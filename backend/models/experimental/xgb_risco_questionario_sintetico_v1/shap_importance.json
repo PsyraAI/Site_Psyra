@@ -1,0 +1,392 @@
+{
+  "features": [
+    {
+      "feature": "bloco_I_media_risco",
+      "group": "I",
+      "mean_abs_shap": 6.1562042236328125,
+      "mean_signed_shap": 3.04673171043396
+    },
+    {
+      "feature": "bloco_A_media_risco",
+      "group": "A",
+      "mean_abs_shap": 3.5855112075805664,
+      "mean_signed_shap": 1.7033005952835083
+    },
+    {
+      "feature": "bloco_F_media_risco",
+      "group": "F",
+      "mean_abs_shap": 3.515187978744507,
+      "mean_signed_shap": 1.669697880744934
+    },
+    {
+      "feature": "bloco_D_media_risco",
+      "group": "D",
+      "mean_abs_shap": 2.8154401779174805,
+      "mean_signed_shap": 1.3543967008590698
+    },
+    {
+      "feature": "bloco_C_media_risco",
+      "group": "C",
+      "mean_abs_shap": 2.665418863296509,
+      "mean_signed_shap": 1.2417304515838623
+    },
+    {
+      "feature": "bloco_G_media_risco",
+      "group": "G",
+      "mean_abs_shap": 2.533639669418335,
+      "mean_signed_shap": 1.194399118423462
+    },
+    {
+      "feature": "bloco_J_media_risco",
+      "group": "J",
+      "mean_abs_shap": 2.1641440391540527,
+      "mean_signed_shap": 1.032566785812378
+    },
+    {
+      "feature": "bloco_E_media_risco",
+      "group": "E",
+      "mean_abs_shap": 2.0903704166412354,
+      "mean_signed_shap": 0.9583366513252258
+    },
+    {
+      "feature": "bloco_B_media_risco",
+      "group": "B",
+      "mean_abs_shap": 2.0563549995422363,
+      "mean_signed_shap": 0.9456225633621216
+    },
+    {
+      "feature": "bloco_H_media_risco",
+      "group": "H",
+      "mean_abs_shap": 1.9469103813171387,
+      "mean_signed_shap": 0.8717314600944519
+    },
+    {
+      "feature": "item_J8_risco",
+      "group": "J",
+      "mean_abs_shap": 0.014315066859126091,
+      "mean_signed_shap": 0.002141062170267105
+    },
+    {
+      "feature": "item_G2_risco",
+      "group": "G",
+      "mean_abs_shap": 0.005536208860576153,
+      "mean_signed_shap": 0.0017314564902335405
+    },
+    {
+      "feature": "item_H3_risco",
+      "group": "H",
+      "mean_abs_shap": 0.004768477287143469,
+      "mean_signed_shap": 0.0005279350443743169
+    },
+    {
+      "feature": "item_G3_risco",
+      "group": "G",
+      "mean_abs_shap": 0.004290190525352955,
+      "mean_signed_shap": 5.506434172275476e-05
+    },
+    {
+      "feature": "item_J4_risco",
+      "group": "J",
+      "mean_abs_shap": 0.004233981482684612,
+      "mean_signed_shap": 0.0004627958405762911
+    },
+    {
+      "feature": "item_E2_risco",
+      "group": "E",
+      "mean_abs_shap": 0.0038338531740009785,
+      "mean_signed_shap": 0.0006672105519101024
+    },
+    {
+      "feature": "item_G1_risco",
+      "group": "G",
+      "mean_abs_shap": 0.0035600420087575912,
+      "mean_signed_shap": 0.0005980813875794411
+    },
+    {
+      "feature": "item_B2_risco",
+      "group": "B",
+      "mean_abs_shap": 0.003344768425449729,
+      "mean_signed_shap": 0.001504459767602384
+    },
+    {
+      "feature": "item_J5_risco",
+      "group": "J",
+      "mean_abs_shap": 0.0032152575440704823,
+      "mean_signed_shap": 0.0008909314638003707
+    },
+    {
+      "feature": "item_J6_risco",
+      "group": "J",
+      "mean_abs_shap": 0.0032119816169142723,
+      "mean_signed_shap": 0.0011497155064716935
+    },
+    {
+      "feature": "item_I9_risco",
+      "group": "I",
+      "mean_abs_shap": 0.0031964124646037817,
+      "mean_signed_shap": 4.1731360397534445e-05
+    },
+    {
+      "feature": "item_I8_risco",
+      "group": "I",
+      "mean_abs_shap": 0.003106295596808195,
+      "mean_signed_shap": 5.357898771762848e-06
+    },
+    {
+      "feature": "item_B3_risco",
+      "group": "B",
+      "mean_abs_shap": 0.002828821772709489,
+      "mean_signed_shap": 0.000597880338318646
+    },
+    {
+      "feature": "item_D2_risco",
+      "group": "D",
+      "mean_abs_shap": 0.002596591366454959,
+      "mean_signed_shap": 0.00020924276032019407
+    },
+    {
+      "feature": "item_B1_risco",
+      "group": "B",
+      "mean_abs_shap": 0.0025823675096035004,
+      "mean_signed_shap": 0.0005649818340316415
+    },
+    {
+      "feature": "item_C3_risco",
+      "group": "C",
+      "mean_abs_shap": 0.002429156331345439,
+      "mean_signed_shap": 0.0007364540942944586
+    },
+    {
+      "feature": "item_J1_risco",
+      "group": "J",
+      "mean_abs_shap": 0.0023922151885926723,
+      "mean_signed_shap": 0.0007338076829910278
+    },
+    {
+      "feature": "item_J7_risco",
+      "group": "J",
+      "mean_abs_shap": 0.002328408183529973,
+      "mean_signed_shap": 0.001084909657947719
+    },
+    {
+      "feature": "item_C2_risco",
+      "group": "C",
+      "mean_abs_shap": 0.0022641029208898544,
+      "mean_signed_shap": 0.00020631590450648218
+    },
+    {
+      "feature": "item_H1_risco",
+      "group": "H",
+      "mean_abs_shap": 0.0021916464902460575,
+      "mean_signed_shap": 0.0005231840768828988
+    },
+    {
+      "feature": "item_J2_risco",
+      "group": "J",
+      "mean_abs_shap": 0.0021778694353997707,
+      "mean_signed_shap": 0.00016089132986962795
+    },
+    {
+      "feature": "item_E3_risco",
+      "group": "E",
+      "mean_abs_shap": 0.0017956310184672475,
+      "mean_signed_shap": 0.0009146294323727489
+    },
+    {
+      "feature": "item_E1_risco",
+      "group": "E",
+      "mean_abs_shap": 0.001770117785781622,
+      "mean_signed_shap": 0.0004817908338736743
+    },
+    {
+      "feature": "item_C4_risco",
+      "group": "C",
+      "mean_abs_shap": 0.0015679036732763052,
+      "mean_signed_shap": -2.6172991056228057e-05
+    },
+    {
+      "feature": "item_A2_risco",
+      "group": "A",
+      "mean_abs_shap": 0.0015206217067316175,
+      "mean_signed_shap": 0.00017006583220791072
+    },
+    {
+      "feature": "item_H2_risco",
+      "group": "H",
+      "mean_abs_shap": 0.0015110524836927652,
+      "mean_signed_shap": 0.0005998869892209768
+    },
+    {
+      "feature": "item_D4_risco",
+      "group": "D",
+      "mean_abs_shap": 0.0014839350478723645,
+      "mean_signed_shap": 0.0002699482429306954
+    },
+    {
+      "feature": "item_F2_risco",
+      "group": "F",
+      "mean_abs_shap": 0.001463179592974484,
+      "mean_signed_shap": 7.156148058129475e-05
+    },
+    {
+      "feature": "item_F1_risco",
+      "group": "F",
+      "mean_abs_shap": 0.0012616049498319626,
+      "mean_signed_shap": 0.0005187158240005374
+    },
+    {
+      "feature": "item_C1_risco",
+      "group": "C",
+      "mean_abs_shap": 0.0012441396247595549,
+      "mean_signed_shap": 0.00024659273913130164
+    },
+    {
+      "feature": "item_J3_risco",
+      "group": "J",
+      "mean_abs_shap": 0.0012083019828423858,
+      "mean_signed_shap": 0.00014422416279558092
+    },
+    {
+      "feature": "item_F4_risco",
+      "group": "F",
+      "mean_abs_shap": 0.0010797491995617747,
+      "mean_signed_shap": 0.00022306543542072177
+    },
+    {
+      "feature": "item_I1_risco",
+      "group": "I",
+      "mean_abs_shap": 0.0010723486775532365,
+      "mean_signed_shap": -6.264082912821323e-05
+    },
+    {
+      "feature": "item_I7_risco",
+      "group": "I",
+      "mean_abs_shap": 0.0010373378172516823,
+      "mean_signed_shap": 3.9188955270219594e-05
+    },
+    {
+      "feature": "item_I4_risco",
+      "group": "I",
+      "mean_abs_shap": 0.000937319768127054,
+      "mean_signed_shap": 1.2390900337777566e-05
+    },
+    {
+      "feature": "item_D3_risco",
+      "group": "D",
+      "mean_abs_shap": 0.0008866845164448023,
+      "mean_signed_shap": 0.00017733055574353784
+    },
+    {
+      "feature": "item_I5_risco",
+      "group": "I",
+      "mean_abs_shap": 0.0008116178796626627,
+      "mean_signed_shap": 0.00016843587218318135
+    },
+    {
+      "feature": "item_A3_risco",
+      "group": "A",
+      "mean_abs_shap": 0.0007093196036294103,
+      "mean_signed_shap": 0.000359723053406924
+    },
+    {
+      "feature": "item_A5_risco",
+      "group": "A",
+      "mean_abs_shap": 0.0006486389902420342,
+      "mean_signed_shap": 0.00013372495595831424
+    },
+    {
+      "feature": "item_A4_risco",
+      "group": "A",
+      "mean_abs_shap": 0.0006404762389138341,
+      "mean_signed_shap": 0.0004470705462154001
+    },
+    {
+      "feature": "item_F3_risco",
+      "group": "F",
+      "mean_abs_shap": 0.0006133258575573564,
+      "mean_signed_shap": 8.776159666012973e-05
+    },
+    {
+      "feature": "item_D1_risco",
+      "group": "D",
+      "mean_abs_shap": 0.0005821186932735145,
+      "mean_signed_shap": 0.00010804334306158125
+    },
+    {
+      "feature": "item_I2_risco",
+      "group": "I",
+      "mean_abs_shap": 0.0005774388555437326,
+      "mean_signed_shap": -0.0001086269476218149
+    },
+    {
+      "feature": "item_I6_risco",
+      "group": "I",
+      "mean_abs_shap": 0.00045436149230226874,
+      "mean_signed_shap": 1.4620566616940778e-05
+    },
+    {
+      "feature": "item_A1_risco",
+      "group": "A",
+      "mean_abs_shap": 0.00040282041300088167,
+      "mean_signed_shap": 3.6208164146955824e-06
+    },
+    {
+      "feature": "item_I3_risco",
+      "group": "I",
+      "mean_abs_shap": 0.00014564937737304717,
+      "mean_signed_shap": 1.0024195944424719e-05
+    }
+  ],
+  "groups": [
+    {
+      "group": "I",
+      "mean_abs_shap_sum": 6.167543005562038,
+      "importance_percent": 20.813082170645806
+    },
+    {
+      "group": "A",
+      "mean_abs_shap_sum": 3.589433084533084,
+      "importance_percent": 12.112954164575584
+    },
+    {
+      "group": "F",
+      "mean_abs_shap_sum": 3.5196058383444324,
+      "importance_percent": 11.877314103150201
+    },
+    {
+      "group": "D",
+      "mean_abs_shap_sum": 2.820989507541526,
+      "importance_percent": 9.519753063747133
+    },
+    {
+      "group": "C",
+      "mean_abs_shap_sum": 2.67292416584678,
+      "importance_percent": 9.020089563948536
+    },
+    {
+      "group": "G",
+      "mean_abs_shap_sum": 2.5470261108130217,
+      "importance_percent": 8.595232118742393
+    },
+    {
+      "group": "J",
+      "mean_abs_shap_sum": 2.197227121447213,
+      "importance_percent": 7.414795257205506
+    },
+    {
+      "group": "E",
+      "mean_abs_shap_sum": 2.097770018619485,
+      "importance_percent": 7.0791658417736105
+    },
+    {
+      "group": "B",
+      "mean_abs_shap_sum": 2.065110957249999,
+      "importance_percent": 6.968954088521744
+    },
+    {
+      "group": "H",
+      "mean_abs_shap_sum": 1.955381557578221,
+      "importance_percent": 6.598659627689487
+    }
+  ]
+}

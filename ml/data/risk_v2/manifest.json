@@ -1,0 +1,30 @@
+{
+  "dataset_id": "psyra_risco_sintetico_v2",
+  "seed": 20260806,
+  "n_samples": 24000,
+  "n_scenarios": 24,
+  "target": "indice_risco_verdadeiro",
+  "target_formula": "media ponderada por bloco do gabarito XLSX",
+  "xlsx_sha256": "96819c556d4ebeb9c8d772d755de6503ab4e34a67eb52aebc6d0c9e28e396bfe",
+  "instrument_sha256": "582cf2373e93fb2e0c6d511e4516d171a2df52682bef41b5131f076930ce10c7",
+  "validation": {
+    "n_itens": 46,
+    "n_protetores": 33,
+    "n_risco": 13,
+    "n_validacoes_crp": 0,
+    "blocos": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J"
+    ]
+  },
+  "pii_generated": false,
+  "clinical_validity": false
+}

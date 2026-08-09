@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: psyra
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health/ready
+    autoDeployTrigger: commit
+    envVars:
+      - key: PSYRA_ENV
+        value: production
+      - key: PSYRA_PUBLIC_URL
+        sync: false
+      - key: PSYRA_DATABASE_URL
+        sync: false
+      - key: PSYRA_CORS
+        sync: false
+      - key: PSYRA_ALLOWED_HOSTS
+        value: "*.onrender.com"
+      - key: PSYRA_JWT_SECRET
+        generateValue: true
+      - key: PSYRA_FORMS_WEBHOOK_SECRET
+        generateValue: true
+      - key: PSYRA_DOCS
+        value: "false"
+      - key: PSYRA_CEP_APROVADO
+        value: "false"
+      - key: PSYRA_ORIGEM_DADOS
+        value: teste
+      - key: PSYRA_N_MINIMO
+        value: "5"
+      - key: PSYRA_RATE_LOGIN
+        value: 5/minute
+      - key: PSYRA_RATE_COLETA
+        value: 30/minute
+      - key: PSYRA_RATE_WEBHOOK
+        value: 60/minute

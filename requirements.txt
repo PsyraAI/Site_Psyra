@@ -1,0 +1,23 @@
+# Psyra AI — MVP S6 (backend + frontend). Python 3.11+
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+email-validator==2.2.0
+python-dotenv==1.0.1
+
+# Postgres / Supabase (ativo quando PSYRA_DATABASE_URL está definido)
+psycopg[binary]==3.2.4
+
+# Observabilidade opcional (ativa só com PSYRA_SENTRY_DSN)
+sentry-sdk[fastapi]==2.19.2
+
+# --- desenvolvimento / CI ---
+pytest==8.3.4
+httpx==0.28.1
+ruff==0.8.4
+black==24.10.0
+
+# --- opcional: anonimização de grau produtivo (obrigatório pós-CEP) ---
+# presidio-analyzer==2.2.355
+# presidio-anonymizer==2.2.355
+# python -m spacy download pt_core_news_lg

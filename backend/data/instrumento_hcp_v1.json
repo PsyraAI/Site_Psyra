@@ -1,0 +1,85 @@
+{
+  "codigo": "hcp_v1",
+  "versao": "0.1-TESTE-DE-CARGA",
+  "aviso": "INSTRUMENTO DERIVADO DE DATASET EXTERNO (Healthcare Workforce Mental Health, 5.000 linhas). NÃO é o instrumento NR-1 e NÃO substitui o instrumento validado pela psicóloga CRP. Existe para exercitar o pipeline com volume e com uma forma de dado diferente. Nenhuma métrica calculada sobre este instrumento é resultado de modelo nem evidência de desempenho do produto: o dataset não tem texto livre, não tem anotação clínica e não é população CLT brasileira.",
+  "escala": {
+    "tipo": "likert_5",
+    "rotulos": [
+      "Muito baixo",
+      "Baixo",
+      "Moderado",
+      "Alto",
+      "Muito alto"
+    ]
+  },
+  "consentimento": "Carga de dados de teste a partir de dataset público. Nenhum dado de colaborador real da Psyra ou de empresa piloto foi utilizado.",
+  "blocos": [
+    {
+      "codigo": "A",
+      "dimensao": "Nível de estresse percebido",
+      "peso": 1.2,
+      "reverso": false,
+      "origem_csv": "Stress Level (4–9, reescalado para 1–5)",
+      "acao_sugerida": "Revisar dimensionamento de escala e distribuição de plantões do grupo.",
+      "itens": [
+        "Nível de estresse relatado no trabalho."
+      ]
+    },
+    {
+      "codigo": "B",
+      "dimensao": "Frequência de esgotamento",
+      "peso": 1.3,
+      "reverso": false,
+      "origem_csv": "Burnout Frequency (Never=1 · Occasionally=3 · Often=5)",
+      "acao_sugerida": "Instituir pausas assistidas e rodízio nas atividades de maior carga emocional.",
+      "itens": [
+        "Frequência com que o esgotamento é relatado."
+      ]
+    },
+    {
+      "codigo": "C",
+      "dimensao": "Satisfação com o trabalho",
+      "peso": 1.0,
+      "reverso": true,
+      "origem_csv": "Job Satisfaction (1–5, dimensão protetora)",
+      "acao_sugerida": "Revisar política de reconhecimento e trilha de desenvolvimento do grupo.",
+      "itens": [
+        "Satisfação declarada com o trabalho."
+      ]
+    },
+    {
+      "codigo": "D",
+      "dimensao": "Afastamentos por saúde mental",
+      "peso": 1.1,
+      "reverso": false,
+      "origem_csv": "Mental Health Absences (0–19 dias, agrupado em 5 faixas)",
+      "acao_sugerida": "Cruzar afastamentos com escala de trabalho e acionar avaliação coletiva.",
+      "itens": [
+        "Dias de afastamento atribuídos à saúde mental."
+      ]
+    },
+    {
+      "codigo": "E",
+      "dimensao": "Acesso a apoio institucional",
+      "peso": 0.9,
+      "reverso": true,
+      "origem_csv": "Access to EAPs (Yes=5 · No=1, dimensão protetora)",
+      "acao_sugerida": "Ampliar cobertura e divulgação do programa de apoio ao colaborador.",
+      "itens": [
+        "Acesso declarado a programa de apoio ao colaborador."
+      ]
+    }
+  ],
+  "bloco_texto_livre": {
+    "codigo": "K",
+    "pergunta": "Não aplicável: o dataset de origem não possui campo de texto livre.",
+    "obrigatorio": false,
+    "aviso": "Sem Bloco K, o sinal de NLP e a divergência do Revelador não são calculáveis. Esta é a principal limitação desta carga."
+  },
+  "campos_nao_mapeados": {
+    "Employee ID": "descartado na fronteira — o schema da Psyra não tem coluna de identificador de respondente",
+    "Employee Type": "redundante: determina Department 1:1, usado apenas para nomear o GHE",
+    "Workplace Factor": "fator declarado único; mantido em staging, não vira item Likert",
+    "Turnover Intention": "desfecho de RH, não é rótulo de risco psicossocial validado; mantido em staging para análise, NUNCA como target de modelo"
+  }
+}
