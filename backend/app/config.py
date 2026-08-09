@@ -75,6 +75,31 @@ class Config:
         if host.strip()
     ]
 
+    def __init__(self) -> None:
+        hosts = list(self.HOSTS_PERMITIDOS)
+        # Render injeta RENDER_EXTERNAL_HOSTNAME automaticamente.
+        for candidato in (
+            os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip(),
+            os.getenv("RENDER_EXTERNAL_URL", "").strip(),
+            self.PUBLIC_URL,
+        ):
+            if not candidato:
+                continue
+            host = candidato
+            if "://" in host:
+                host = host.split("://", 1)[1].split("/", 1)[0]
+            host = host.split(":", 1)[0].strip().lower()
+            if host and host not in hosts:
+                hosts.append(host)
+        if any(h.endswith(".onrender.com") for h in hosts) or os.getenv("RENDER"):
+            if "*.onrender.com" not in hosts:
+                hosts.append("*.onrender.com")
+            if "site-psyra.onrender.com" not in hosts:
+                hosts.append("site-psyra.onrender.com")
+        self.HOSTS_PERMITIDOS = hosts
+        if not self.PUBLIC_URL and os.getenv("RENDER_EXTERNAL_URL"):
+            self.PUBLIC_URL = os.getenv("RENDER_EXTERNAL_URL", "").rstrip("/")
+
     @property
     def em_producao(self) -> bool:
         return self.AMBIENTE == "production"

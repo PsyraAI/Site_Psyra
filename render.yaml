@@ -10,13 +10,13 @@ services:
       - key: PSYRA_ENV
         value: production
       - key: PSYRA_PUBLIC_URL
-        sync: false
+        value: https://site-psyra.onrender.com
       - key: PSYRA_DATABASE_URL
         sync: false
       - key: PSYRA_CORS
-        sync: false
+        value: https://site-psyra.onrender.com
       - key: PSYRA_ALLOWED_HOSTS
-        value: "*.onrender.com"
+        value: site-psyra.onrender.com,*.onrender.com
       - key: PSYRA_JWT_SECRET
         generateValue: true
       - key: PSYRA_FORMS_WEBHOOK_SECRET

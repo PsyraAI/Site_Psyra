@@ -255,11 +255,8 @@ def _migrar_operacao_producao(conexao: Any) -> None:
 def _recriar_view_painel(conexao: Any) -> None:
     """Mantém o limiar SQL sincronizado com PSYRA_N_MINIMO."""
     n = int(config.N_MINIMO_GHE)
-    if _DRIVER == "sqlite":
-        conexao.execute("DROP VIEW IF EXISTS vw_painel_ghe")
-        prefixo = "CREATE VIEW vw_painel_ghe AS"
-    else:
-        prefixo = "CREATE OR REPLACE VIEW vw_painel_ghe AS"
+    conexao.execute("DROP VIEW IF EXISTS vw_painel_ghe")
+    prefixo = "CREATE VIEW vw_painel_ghe AS"
     conexao.execute(
         f"""
         {prefixo}
