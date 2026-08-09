@@ -68,6 +68,26 @@ def _adaptar_sql(sql: str) -> str:
     return "".join(partes)
 
 
+def _normalizar_valor_pg(valor: Any) -> Any:
+    """Converte tipos Postgres (UUID, datetime) para valores usáveis na API/JWT."""
+    if valor is None or isinstance(valor, (str, int, float, bool, bytes)):
+        return valor
+    # uuid.UUID, datetime, date, Decimal, etc.
+    tipo = type(valor)
+    nome = f"{tipo.__module__}.{tipo.__name__}"
+    if nome == "uuid.UUID":
+        return str(valor)
+    if nome.startswith("datetime."):
+        return valor.isoformat()
+    if nome == "decimal.Decimal":
+        return float(valor)
+    return valor
+
+
+def _normalizar_linha_pg(linha: Any) -> dict[str, Any]:
+    return {chave: _normalizar_valor_pg(valor) for chave, valor in dict(linha).items()}
+
+
 class _CursorPg:
     """Cursor fino que devolve rows como dict-like (compatível com sqlite3.Row)."""
 
@@ -78,10 +98,10 @@ class _CursorPg:
         linha = self._cursor.fetchone()
         if linha is None:
             return None
-        return dict(linha)
+        return _normalizar_linha_pg(linha)
 
     def fetchall(self) -> list[dict[str, Any]]:
-        return [dict(linha) for linha in self._cursor.fetchall()]
+        return [_normalizar_linha_pg(linha) for linha in self._cursor.fetchall()]
 
 
 def _partir_sql(script: str) -> list[str]:
