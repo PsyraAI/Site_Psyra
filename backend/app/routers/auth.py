@@ -27,7 +27,8 @@ def login(dados: LoginEntrada, conexao: Conexao) -> LoginSaida:
     """Valida credenciais e emite JWT. Mensagem de erro genérica (anti-enumeração)."""
     usuario = buscar_um(
         conexao,
-        "SELECT u.*, e.razao_social FROM usuario_empresa u "
+        "SELECT u.*, e.razao_social, e.plano AS plano, e.porte AS porte, "
+        "e.atuacao AS atuacao FROM usuario_empresa u "
         "JOIN empresa e ON e.id = u.empresa_id "
         "WHERE u.email = ? AND u.ativo = 1 AND e.ativo = 1",
         (dados.email.lower(),),
@@ -51,6 +52,7 @@ def login(dados: LoginEntrada, conexao: Conexao) -> LoginSaida:
         papel=usuario["papel"],
         empresa_id=usuario["empresa_id"],
         empresa_nome=usuario["razao_social"],
+        plano=str(usuario.get("plano") or "starter"),
     )
 
 
@@ -63,4 +65,7 @@ def perfil(usuario: Usuario) -> dict[str, str]:
         "papel": usuario["papel"],
         "empresa_id": usuario["empresa_id"],
         "empresa_nome": usuario["razao_social"],
+        "plano": str(usuario.get("plano") or "starter"),
+        "porte": str(usuario.get("porte") or "media"),
+        "atuacao": str(usuario.get("atuacao") or "servicos"),
     }

@@ -24,6 +24,8 @@ import {
   Inbox,
   MessageSquareText,
   TrendingUp,
+  Banknote,
+  Lock,
 } from "lucide-react";
 
 import { corDoNivel, formatarIndice } from "../lib/adaptadores";
@@ -308,6 +310,112 @@ export function PlanoAcao({ acoes }) {
           </div>
         ))
       )}
+    </div>
+  );
+}
+
+function formatarBrl(valor) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  }).format(Number(valor) || 0);
+}
+
+/* --------------------------------------------- Capital em risco (pago) */
+export function CapitalRisco({ bloqueado, dados, carregando, erro }) {
+  if (bloqueado) {
+    return (
+      <div className="superficie capital-teaser">
+        <h2 className="secao-titulo">
+          <Lock size={18} aria-hidden="true" /> Capital em risco
+        </h2>
+        <div className="vazio">
+          <Lock size={30} aria-hidden="true" />
+          <p>
+            Estimativa de capital em risco por setor disponível no plano{" "}
+            <strong>Professional</strong>.
+          </p>
+          <p>
+            Mostre ao empresário, por setor, a ordem de grandeza do que a exposição
+            psicossocial pode custar — com base em efetivo, porte e atuação.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (carregando) return <PainelSkeleton />;
+  if (erro) {
+    return (
+      <div className="superficie">
+        <p className="erro" role="alert">
+          {erro}
+        </p>
+      </div>
+    );
+  }
+  if (!dados) return null;
+
+  return (
+    <div>
+      <div className="grade grade--3" style={{ marginBottom: 20 }}>
+        <Kpi
+          rotulo="Perda mensal estimada"
+          valor={formatarBrl(dados.perda_mensal_total)}
+          nota="Soma dos setores visíveis"
+          icone={Banknote}
+        />
+        <Kpi
+          rotulo="Perda anual estimada"
+          valor={formatarBrl(dados.perda_anual_total)}
+          nota={`${dados.total_afetados} pessoas consideradas`}
+          icone={TrendingUp}
+        />
+        <Kpi
+          rotulo="Setores com sinal"
+          valor={String(dados.setores?.length ?? 0)}
+          nota={`${dados.ghes_omitidos_mascarados} grupo(s) ocultos (k-anonimato)`}
+          icone={Users}
+        />
+      </div>
+
+      <div className="superficie">
+        <h2 className="secao-titulo">
+          <Banknote size={18} aria-hidden="true" /> Por setor
+        </h2>
+        <p className="aviso secao-lead">{dados.disclaimer}</p>
+        {(dados.setores ?? []).length === 0 ? (
+          <Vazio icone={Inbox}>
+            Nenhum grupo com n suficiente para estimar capital neste ciclo.
+          </Vazio>
+        ) : (
+          (dados.setores ?? []).map((setor) => (
+            <div className="grupo" key={setor.setor}>
+              <div className="grupo__cabecalho">
+                <div>
+                  <p className="grupo__nome">{setor.setor}</p>
+                  <p className="grupo__setor">
+                    {setor.ghes} grupo(s) · {setor.afetados} afetado(s) est.
+                  </p>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <p className="numero" style={{ margin: 0, fontSize: 18 }}>
+                    {formatarBrl(setor.perda_mensal)}/mês
+                  </p>
+                  <p className="aviso" style={{ margin: 0 }}>
+                    {formatarBrl(setor.perda_anual)}/ano
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+        <p className="aviso" style={{ marginTop: 12 }}>
+          Referência: porte {dados.porte} · atuação {dados.atuacao} ·{" "}
+          <span className="mono">{dados.versao_estimativa}</span>
+        </p>
+      </div>
     </div>
   );
 }

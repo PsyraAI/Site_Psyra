@@ -13,6 +13,7 @@ from ..deps import Conexao, Superadmin
 from ..rate_limit import limitar
 from ..schemas import (
     AtivacaoAdminEntrada,
+    EmpresaAdminAtualizacao,
     EmpresaAdminEntrada,
     EmpresaAdminSaida,
     LoginEntrada,
@@ -85,9 +86,16 @@ def criar_empresa(
     empresa_id = uuid.uuid4().hex
     executar(
         conexao,
-        "INSERT INTO empresa (id, razao_social, cnpj, plano, ativo) "
-        "VALUES (?,?,?,?,1)",
-        (empresa_id, dados.razao_social.strip(), dados.cnpj, dados.plano),
+        "INSERT INTO empresa (id, razao_social, cnpj, plano, porte, atuacao, ativo) "
+        "VALUES (?,?,?,?,?,?,1)",
+        (
+            empresa_id,
+            dados.razao_social.strip(),
+            dados.cnpj,
+            dados.plano,
+            dados.porte,
+            dados.atuacao,
+        ),
     )
     registrar(
         conexao,
@@ -99,6 +107,48 @@ def criar_empresa(
     empresa = buscar_um(
         conexao,
         "SELECT e.*, 0 AS total_usuarios FROM empresa e WHERE e.id = ?",
+        (empresa_id,),
+    )
+    assert empresa is not None
+    return empresa
+
+
+@router.patch("/empresas/{empresa_id}", response_model=EmpresaAdminSaida)
+def atualizar_empresa(
+    empresa_id: str,
+    dados: EmpresaAdminAtualizacao,
+    administrador: Superadmin,
+    conexao: Conexao,
+) -> dict[str, object]:
+    if not buscar_um(conexao, "SELECT id FROM empresa WHERE id = ?", (empresa_id,)):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "empresa nao encontrada")
+    campos: list[str] = []
+    valores: list[object] = []
+    if dados.plano is not None:
+        campos.append("plano = ?")
+        valores.append(dados.plano)
+    if dados.porte is not None:
+        campos.append("porte = ?")
+        valores.append(dados.porte)
+    if dados.atuacao is not None:
+        campos.append("atuacao = ?")
+        valores.append(dados.atuacao)
+    if not campos:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "nenhum campo para atualizar")
+    valores.append(empresa_id)
+    executar(conexao, f"UPDATE empresa SET {', '.join(campos)} WHERE id = ?", tuple(valores))
+    registrar(
+        conexao,
+        ator=administrador["id"],
+        acao="atualizar_empresa",
+        entidade=f"empresa:{empresa_id}",
+        empresa_id=empresa_id,
+    )
+    empresa = buscar_um(
+        conexao,
+        "SELECT e.*, COUNT(u.id) AS total_usuarios FROM empresa e "
+        "LEFT JOIN usuario_empresa u ON u.empresa_id = e.id "
+        "WHERE e.id = ? GROUP BY e.id",
         (empresa_id,),
     )
     assert empresa is not None

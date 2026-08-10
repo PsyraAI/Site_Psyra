@@ -258,6 +258,7 @@ a:hover { text-decoration: underline; }
 
 .grade { display: grid; gap: var(--s4); }
 .grade--4 { grid-template-columns: repeat(4, 1fr); }
+.grade--3 { grid-template-columns: repeat(3, 1fr); }
 .grade--2 { grid-template-columns: repeat(2, 1fr); }
 
 /* ---------- KPI ---------- */
@@ -496,7 +497,7 @@ select:focus-visible, textarea:focus-visible, [role="button"]:focus-visible {
   .nav-item svg { opacity: 1; }
 }
 @media (max-width: 860px) {
-  .grade--4, .grade--2 { grid-template-columns: 1fr; }
+  .grade--4, .grade--3, .grade--2 { grid-template-columns: 1fr; }
   .revelador__par { grid-template-columns: 80px 1fr 52px; }
   .conteudo__corpo { padding: var(--s4); }
   .topbar { padding: var(--s3) var(--s4); }

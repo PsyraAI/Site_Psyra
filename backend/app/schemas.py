@@ -22,6 +22,7 @@ class LoginSaida(BaseModel):
     papel: str
     empresa_id: str
     empresa_nome: str
+    plano: str = "starter"
 
 
 class SuperadminLoginSaida(BaseModel):
@@ -35,6 +36,24 @@ class EmpresaAdminEntrada(BaseModel):
     razao_social: str = Field(min_length=2, max_length=180)
     cnpj: str = Field(pattern=r"^\d{14}$")
     plano: str = Field(default="starter", pattern="^(starter|professional|enterprise)$")
+    porte: str = Field(default="media", pattern="^(micro|pequena|media|grande)$")
+    atuacao: str = Field(
+        default="servicos",
+        pattern="^(saude|industria|servicos|comercio|tecnologia|outro)$",
+    )
+
+
+class EmpresaAdminAtualizacao(BaseModel):
+    plano: str | None = Field(
+        default=None, pattern="^(starter|professional|enterprise)$"
+    )
+    porte: str | None = Field(
+        default=None, pattern="^(micro|pequena|media|grande)$"
+    )
+    atuacao: str | None = Field(
+        default=None,
+        pattern="^(saude|industria|servicos|comercio|tecnologia|outro)$",
+    )
 
 
 class EmpresaAdminSaida(BaseModel):
@@ -42,6 +61,8 @@ class EmpresaAdminSaida(BaseModel):
     razao_social: str
     cnpj: str
     plano: str
+    porte: str = "media"
+    atuacao: str = "servicos"
     ativo: bool
     criado_em: str | datetime
     total_usuarios: int = 0
@@ -174,3 +195,18 @@ class PainelSaida(BaseModel):
     conformidade: dict[str, Any]
     plano_acao: list[dict[str, Any]]
     selo: dict[str, Any]
+
+
+class CapitalRiscoSaida(BaseModel):
+    versao_estimativa: str
+    disclaimer: str
+    porte: str
+    atuacao: str
+    plano: str
+    ghes_considerados: int
+    ghes_omitidos_mascarados: int
+    total_afetados: int
+    perda_mensal_total: float
+    perda_anual_total: float
+    setores: list[dict[str, Any]]
+    ghes: list[dict[str, Any]]

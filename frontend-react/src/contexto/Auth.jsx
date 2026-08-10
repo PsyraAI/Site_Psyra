@@ -21,7 +21,17 @@ export function ProvedorAuth({ children }) {
     }
     api
       .perfil()
-      .then(() => setUsuario(guardado))
+      .then((perfil) => {
+        const atualizado = {
+          ...guardado,
+          plano: perfil.plano ?? guardado.plano ?? "starter",
+          porte: perfil.porte ?? guardado.porte,
+          atuacao: perfil.atuacao ?? guardado.atuacao,
+          empresa_nome: perfil.empresa_nome ?? guardado.empresa_nome,
+        };
+        sessao.gravar(atualizado);
+        setUsuario(atualizado);
+      })
       .catch(() => {
         sessao.limpar();
         setUsuario(null);

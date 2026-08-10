@@ -27,14 +27,20 @@ export const sessao = criarSessao(CHAVE_SESSAO);
 export const sessaoAdmin = criarSessao(CHAVE_ADMIN);
 
 export class ErroApi extends Error {
-  constructor(mensagem, status) {
+  constructor(mensagem, status, detalhe = null) {
     super(mensagem);
     this.status = status;
+    this.detalhe = detalhe;
+    this.codigo = detalhe?.codigo || null;
   }
 }
 
 function mensagemDeErro(detalhe) {
   if (typeof detalhe === "string") return detalhe;
+  if (detalhe && typeof detalhe === "object" && !Array.isArray(detalhe)) {
+    if (typeof detalhe.mensagem === "string") return detalhe.mensagem;
+    if (typeof detalhe.detail === "string") return detalhe.detail;
+  }
   if (Array.isArray(detalhe)) {
     const mensagens = detalhe
       .map((item) => item?.msg)
@@ -63,7 +69,8 @@ async function requisitarComSessao(caminho, opcoes = {}, armazenamento = sessao)
 
   const corpo = await resposta.json().catch(() => ({}));
   if (!resposta.ok) {
-    throw new ErroApi(mensagemDeErro(corpo.detail), resposta.status);
+    const detalhe = corpo.detail ?? corpo;
+    throw new ErroApi(mensagemDeErro(detalhe), resposta.status, detalhe);
   }
   return corpo;
 }
@@ -88,6 +95,8 @@ export const api = {
   // Contrato do painel — o mesmo documentado em fetchPainel() no psyra_dashboard.jsx.
   painel: (empresaId, coletaId) =>
     requisitar(`/v1/empresas/${empresaId}/coletas/${coletaId}/painel`),
+  capitalRisco: (empresaId, coletaId) =>
+    requisitar(`/v1/empresas/${empresaId}/coletas/${coletaId}/capital-risco`),
   googleForm: (empresaId, coletaId) =>
     requisitar(`/v1/empresas/${empresaId}/coletas/${coletaId}/google-form`),
   configurarGoogleForm: (empresaId, coletaId, dados) =>
@@ -115,6 +124,11 @@ export const apiAdmin = {
   criarEmpresa: (dados) =>
     adminRequest("/v1/admin/empresas", {
       method: "POST",
+      body: JSON.stringify(dados),
+    }),
+  atualizarEmpresa: (empresaId, dados) =>
+    adminRequest(`/v1/admin/empresas/${empresaId}`, {
+      method: "PATCH",
       body: JSON.stringify(dados),
     }),
   statusEmpresa: (empresaId, ativo) =>

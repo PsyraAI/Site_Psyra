@@ -17,7 +17,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 _BANCO_TESTE = str(Path(tempfile.gettempdir()) / f"psyra_teste_{uuid.uuid4().hex}.db")
 os.environ["PSYRA_ENV"] = "development"
 os.environ["PSYRA_DB"] = _BANCO_TESTE
-os.environ.pop("PSYRA_DATABASE_URL", None)
+# Impede o dotenv de reaplicar a URI de produção e desvia testes para SQLite.
+os.environ["PSYRA_DATABASE_URL"] = ""
+os.environ.pop("DATABASE_URL", None)
 os.environ["PSYRA_JWT_SECRET"] = "segredo-de-teste"
 os.environ["PSYRA_ALLOWED_HOSTS"] = "localhost,127.0.0.1,testserver"
 os.environ["PSYRA_DOCS"] = "true"

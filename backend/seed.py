@@ -101,8 +101,16 @@ def popular(reset: bool = False) -> None:
     empresa_id = uuid.uuid4().hex
     executar(
         conexao,
-        "INSERT INTO empresa (id, razao_social, cnpj, plano) VALUES (?,?,?,?)",
-        (empresa_id, "Empresa Demonstração Ltda", "00.000.000/0001-00", "professional"),
+        "INSERT INTO empresa (id, razao_social, cnpj, plano, porte, atuacao) "
+        "VALUES (?,?,?,?,?,?)",
+        (
+            empresa_id,
+            "Empresa Demonstração Ltda",
+            "00.000.000/0001-00",
+            "professional",
+            "media",
+            "tecnologia",
+        ),
     )
 
     usuarios = [

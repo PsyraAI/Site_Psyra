@@ -10,6 +10,7 @@ import {
   Sparkles,
   ShieldCheck,
   ClipboardList,
+  Banknote,
   LogOut,
   Lock,
   Link2,
@@ -24,6 +25,7 @@ import {
   Conformidade,
   Grupos,
   PlanoAcao,
+  CapitalRisco,
   Revelador,
   Selo,
   VisaoGeral,
@@ -31,15 +33,20 @@ import {
 } from "../componentes/TelasPainel";
 import { useAuth } from "../contexto/Auth";
 import { adaptarPainel } from "../lib/adaptadores";
-import { api } from "../lib/api";
+import { api, ErroApi } from "../lib/api";
 
 const SECOES = [
   { id: "visao", rotulo: "Visão geral", icone: LayoutDashboard },
   { id: "grupos", rotulo: "Riscos por grupo", icone: Users },
   { id: "revelador", rotulo: "O Revelador", icone: Sparkles },
+  { id: "capital", rotulo: "Capital em risco", icone: Banknote },
   { id: "conformidade", rotulo: "Conformidade NR-1", icone: ShieldCheck },
   { id: "plano", rotulo: "Plano de ação", icone: ClipboardList },
 ];
+
+function planoPermiteCapital(plano) {
+  return plano === "professional" || plano === "enterprise";
+}
 
 export default function Painel() {
   const { usuario, sair } = useAuth();
@@ -55,6 +62,10 @@ export default function Painel() {
   const [urlForms, setUrlForms] = useState("");
   const [salvandoForms, setSalvandoForms] = useState(false);
   const [criandoColeta, setCriandoColeta] = useState(false);
+  const [capital, setCapital] = useState(null);
+  const [capitalCarregando, setCapitalCarregando] = useState(false);
+  const [capitalErro, setCapitalErro] = useState("");
+  const capitalLiberado = planoPermiteCapital(usuario?.plano);
 
   const aoSair = useCallback(() => {
     sair();
@@ -95,6 +106,36 @@ export default function Painel() {
       ativo = false;
     };
   }, [usuario.empresa_id, coletaId]);
+
+  useEffect(() => {
+    if (!coletaId || secao !== "capital") return;
+    if (!capitalLiberado) {
+      setCapital(null);
+      setCapitalErro("");
+      setCapitalCarregando(false);
+      return;
+    }
+    let ativo = true;
+    setCapitalCarregando(true);
+    setCapitalErro("");
+    api
+      .capitalRisco(usuario.empresa_id, coletaId)
+      .then((dados) => {
+        if (ativo) setCapital(dados);
+      })
+      .catch((falha) => {
+        if (!ativo) return;
+        if (falha instanceof ErroApi && falha.codigo === "plano_insuficiente") {
+          setCapital(null);
+          return;
+        }
+        setCapitalErro(falha.message);
+      })
+      .finally(() => ativo && setCapitalCarregando(false));
+    return () => {
+      ativo = false;
+    };
+  }, [usuario.empresa_id, coletaId, secao, capitalLiberado]);
 
   const coletaAtual = coletas.find((coleta) => coleta.id === coletaId);
   const urlQuestionario =
@@ -165,6 +206,15 @@ export default function Painel() {
         return <Conformidade conformidade={painel.conformidade} />;
       case "plano":
         return <PlanoAcao acoes={painel.planoAcao} />;
+      case "capital":
+        return (
+          <CapitalRisco
+            bloqueado={!capitalLiberado}
+            dados={capital}
+            carregando={capitalCarregando}
+            erro={capitalErro}
+          />
+        );
       default:
         return <VisaoGeral resumo={painel.resumo} grupos={painel.grupos} />;
     }

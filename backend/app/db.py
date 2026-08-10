@@ -259,6 +259,13 @@ def _migrar_operacao_producao(conexao: Any) -> None:
             "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS "
             "ativo INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0, 1))"
         )
+        conexao.execute(
+            "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS porte TEXT NOT NULL DEFAULT 'media'"
+        )
+        conexao.execute(
+            "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS "
+            "atuacao TEXT NOT NULL DEFAULT 'servicos'"
+        )
     else:
         colunas = {
             linha["name"]
@@ -268,6 +275,14 @@ def _migrar_operacao_producao(conexao: Any) -> None:
             conexao.execute(
                 "ALTER TABLE empresa ADD COLUMN ativo INTEGER NOT NULL DEFAULT 1 "
                 "CHECK (ativo IN (0, 1))"
+            )
+        if "porte" not in colunas:
+            conexao.execute(
+                "ALTER TABLE empresa ADD COLUMN porte TEXT NOT NULL DEFAULT 'media'"
+            )
+        if "atuacao" not in colunas:
+            conexao.execute(
+                "ALTER TABLE empresa ADD COLUMN atuacao TEXT NOT NULL DEFAULT 'servicos'"
             )
     conexao.commit()
 

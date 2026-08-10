@@ -18,11 +18,12 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, status
 
 from ..auditoria import registrar
+from ..capital_risco import calcular_capital_risco, plano_permite_capital
 from ..config import config
 from ..db import buscar_todos, buscar_um, executar
 from ..deps import Conexao, Usuario, exigir_empresa
 from ..instrumento import carregar_instrumento
-from ..schemas import PainelSaida
+from ..schemas import CapitalRiscoSaida, PainelSaida
 from ..scoring import agregar_ghe, mascarar
 
 logger = logging.getLogger(__name__)
@@ -246,3 +247,80 @@ def obter_painel(
             ),
         },
     )
+
+
+@router.get(
+    "/{empresa_id}/coletas/{coleta_id}/capital-risco",
+    response_model=CapitalRiscoSaida,
+)
+def obter_capital_risco(
+    empresa_id: str, coleta_id: str, usuario: Usuario, conexao: Conexao
+) -> CapitalRiscoSaida:
+    """Estimativa ilustrativa de capital em risco — planos Professional/Enterprise."""
+    exigir_empresa(usuario, empresa_id)
+    empresa = buscar_um(
+        conexao,
+        "SELECT id, plano, porte, atuacao FROM empresa WHERE id = ? AND ativo = 1",
+        (empresa_id,),
+    )
+    if not empresa:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "empresa nao encontrada")
+    plano = str(empresa.get("plano") or "starter")
+    if not plano_permite_capital(plano):
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            detail={
+                "codigo": "plano_insuficiente",
+                "mensagem": (
+                    "Estimativa de capital em risco disponível no plano Professional."
+                ),
+            },
+        )
+
+    coleta = buscar_um(
+        conexao,
+        "SELECT id, instrumento FROM coleta WHERE id = ? AND empresa_id = ?",
+        (coleta_id, empresa_id),
+    )
+    if not coleta:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "coleta nao encontrada")
+
+    _recalcular(conexao, coleta_id, coleta["instrumento"])
+    linhas = buscar_todos(
+        conexao,
+        "SELECT g.codigo AS codigo, g.nome AS nome, g.setor AS setor, "
+        "g.efetivo AS efetivo, r.n_respostas AS n_respostas, "
+        "r.nivel_risco AS nivel_risco, "
+        "CASE WHEN r.n_respostas >= ? THEN 0 ELSE 1 END AS mascarado "
+        "FROM resultado_ghe r "
+        "JOIN ghe g ON g.id = r.ghe_id "
+        "JOIN coleta c ON c.id = r.coleta_id "
+        "WHERE r.coleta_id = ? AND c.empresa_id = ? "
+        "ORDER BY g.codigo",
+        (config.N_MINIMO_GHE, coleta_id, empresa_id),
+    )
+    ghes = [
+        {
+            "codigo": linha["codigo"],
+            "nome": linha["nome"],
+            "setor": linha["setor"],
+            "efetivo": int(linha["efetivo"] or 0),
+            "n_respostas": int(linha["n_respostas"] or 0),
+            "nivel_risco": linha["nivel_risco"],
+            "mascarado": bool(linha["mascarado"]),
+        }
+        for linha in linhas
+    ]
+    resultado = calcular_capital_risco(
+        ghes,
+        porte=str(empresa.get("porte") or "media"),
+        atuacao=str(empresa.get("atuacao") or "servicos"),
+    )
+    registrar(
+        conexao,
+        usuario["id"],
+        "consultar_capital_risco",
+        f"coleta:{coleta_id}",
+        empresa_id,
+    )
+    return CapitalRiscoSaida(plano=plano, **resultado)

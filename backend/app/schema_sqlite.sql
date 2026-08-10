@@ -11,6 +11,12 @@ CREATE TABLE IF NOT EXISTS empresa (
     cnpj         TEXT UNIQUE NOT NULL,
     plano        TEXT NOT NULL DEFAULT 'starter'
                  CHECK (plano IN ('starter', 'professional', 'enterprise')),
+    porte        TEXT NOT NULL DEFAULT 'media'
+                 CHECK (porte IN ('micro', 'pequena', 'media', 'grande')),
+    atuacao      TEXT NOT NULL DEFAULT 'servicos'
+                 CHECK (atuacao IN (
+                     'saude', 'industria', 'servicos', 'comercio', 'tecnologia', 'outro'
+                 )),
     ativo        INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0, 1)),
     criado_em    TEXT NOT NULL DEFAULT (datetime('now'))
 );

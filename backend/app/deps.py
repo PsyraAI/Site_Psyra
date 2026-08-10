@@ -34,7 +34,8 @@ def usuario_atual(
         raise HTTPException(status.HTTP_403_FORBIDDEN, "token fora do escopo")
     usuario = buscar_um(
         conexao,
-        "SELECT u.*, e.razao_social FROM usuario_empresa u "
+        "SELECT u.*, e.razao_social, e.plano AS plano, e.porte AS porte, "
+        "e.atuacao AS atuacao FROM usuario_empresa u "
         "JOIN empresa e ON e.id = u.empresa_id "
         "WHERE u.id = ? AND u.ativo = 1 AND e.ativo = 1",
         (payload.get("sub"),),
