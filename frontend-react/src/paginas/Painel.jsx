@@ -196,6 +196,36 @@ export default function Painel() {
   }, [urlQuestionario]);
 
   const conteudo = () => {
+    if (!coletaId) {
+      return (
+        <div className="superficie">
+          <h2 className="secao-titulo">Nenhum ciclo de coleta ainda</h2>
+          <p className="aviso secao-lead">
+            Crie um ciclo Google Forms para começar a ver riscos, revelador e
+            capital em risco neste painel.
+          </p>
+          <button
+            className="botao"
+            type="button"
+            onClick={criarColetaForms}
+            disabled={criandoColeta}
+          >
+            <Plus size={15} aria-hidden="true" />
+            {criandoColeta ? "Criando…" : "Criar ciclo Google Forms"}
+          </button>
+        </div>
+      );
+    }
+    if (secao === "capital") {
+      return (
+        <CapitalRisco
+          bloqueado={!capitalLiberado}
+          dados={capital}
+          carregando={capitalCarregando}
+          erro={capitalErro}
+        />
+      );
+    }
     if (!painel) return <PainelSkeleton />;
     switch (secao) {
       case "grupos":
@@ -206,15 +236,6 @@ export default function Painel() {
         return <Conformidade conformidade={painel.conformidade} />;
       case "plano":
         return <PlanoAcao acoes={painel.planoAcao} />;
-      case "capital":
-        return (
-          <CapitalRisco
-            bloqueado={!capitalLiberado}
-            dados={capital}
-            carregando={capitalCarregando}
-            erro={capitalErro}
-          />
-        );
       default:
         return <VisaoGeral resumo={painel.resumo} grupos={painel.grupos} />;
     }
@@ -291,10 +312,21 @@ export default function Painel() {
             <div className="pagina-cabecalho__linha">
               <div>
                 <p className="pagina-cabecalho__eyebrow">Painel de risco · NR-1</p>
-                <h1>{painel ? painel.coleta.titulo : "Carregando ciclo…"}</h1>
+                <h1>
+                  {painel
+                    ? painel.coleta.titulo
+                    : coletaId
+                      ? "Carregando ciclo…"
+                      : "Sem ciclo de coleta"}
+                </h1>
                 {painel && (
                   <p className="pagina-cabecalho__aviso">
                     Ciclo {painel.coleta.status} · origem dos dados: {painel.coleta.origemDados}
+                  </p>
+                )}
+                {!coletaId && !erro && (
+                  <p className="pagina-cabecalho__aviso">
+                    Esta empresa ainda não tem coleta. Use o botão abaixo para criar.
                   </p>
                 )}
               </div>
@@ -305,12 +337,17 @@ export default function Painel() {
                   id="seletor-coleta"
                   value={coletaId ?? ""}
                   onChange={(evento) => setColetaId(evento.target.value)}
+                  disabled={!coletas.length}
                 >
-                  {coletas.map((coleta) => (
-                    <option value={coleta.id} key={coleta.id}>
-                      {coleta.titulo} — {coleta.total_respostas} respostas
-                    </option>
-                  ))}
+                  {!coletas.length ? (
+                    <option value="">Nenhum ciclo</option>
+                  ) : (
+                    coletas.map((coleta) => (
+                      <option value={coleta.id} key={coleta.id}>
+                        {coleta.titulo} — {coleta.total_respostas} respostas
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
             </div>
