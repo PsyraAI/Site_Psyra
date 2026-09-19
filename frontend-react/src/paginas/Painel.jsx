@@ -245,7 +245,7 @@ export default function Painel() {
       {/* -------- SIDEBAR -------- */}
       <aside className="sidebar">
         <div className="sidebar__marca">
-          <MarcaLogo className="marca__logo" size={36} />
+          <MarcaLogo className="marca__logo" size={44} />
           <div>
             <div className="marca__nome">Psyra AI</div>
             <div className="sidebar__sub">Risco psicossocial</div>

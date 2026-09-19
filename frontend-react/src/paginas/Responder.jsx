@@ -97,7 +97,7 @@ export default function Responder() {
     <>
       <header className="topo">
         <div className="marca">
-          <MarcaLogo className="marca__logo" size={36} />
+          <MarcaLogo className="marca__logo" size={44} />
           <span className="marca__nome">Psyra AI</span>
         </div>
         <span className="topo__meta">Resposta anônima</span>

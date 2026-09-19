@@ -1,21 +1,19 @@
-// Marca Psyra — logo oficial anexada (perfis + Ψ).
+// Marca Psyra — logo oficial (importada no bundle para não falhar no deploy).
 
-const LOGO_SRC = "/psyra-logo.png";
+import logoUrl from "../assets/psyra-logo.png";
 
-export default function MarcaLogo({ className = "marca__logo", size }) {
-  const style = size ? { width: size, height: size } : undefined;
+export default function MarcaLogo({ className = "marca__logo", size = 40 }) {
   return (
     <img
-      src={LOGO_SRC}
-      alt=""
+      src={logoUrl}
+      alt="Psyra AI"
       className={className}
-      style={style}
-      width={size || undefined}
-      height={size || undefined}
+      style={{ width: size, height: size }}
+      width={size}
+      height={size}
       decoding="async"
-      aria-hidden="true"
     />
   );
 }
 
-export { LOGO_SRC };
+export { logoUrl as LOGO_SRC };

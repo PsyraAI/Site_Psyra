@@ -7,7 +7,7 @@ import { PLANOS } from "../lib/planos";
 import MarcaLogo from "../componentes/MarcaLogo";
 
 function Logo({ className = "lp-logo" }) {
-  return <MarcaLogo className={className} size={36} />;
+  return <MarcaLogo className={className} size={42} />;
 }
 
 function Reveal({ children, delay = 0, className = "" }) {

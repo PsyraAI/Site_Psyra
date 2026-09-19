@@ -1,6 +1,6 @@
 /* ============================================================================
    Psyra AI — Sistema visual. BrandingBook Mai/2026 (roxo/noite).
-   Identidade e símbolo (.marca__psi / Ψ) PRESERVADOS. Refinamento de craft:
+   Identidade visual com logo oficial Psyra (perfis + Ψ). Refinamento de craft:
    shell de app com sidebar, superfícies em camadas, estados e skeletons.
    ========================================================================== */
 
@@ -90,28 +90,27 @@ a:hover { text-decoration: underline; }
 .marca { display: flex; align-items: center; gap: 11px; }
 .marca__nome { font-family: var(--display); font-size: 1.15rem; letter-spacing: -0.02em; }
 .marca__logo {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 0;
   display: block;
   flex-shrink: 0;
-  background: #000;
+  background: transparent;
 }
 .marca__logo--entrada {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
+  width: 56px;
+  height: 56px;
 }
 /* Compatibilidade com classes antigas */
 .marca__psi {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: #000;
+  background: transparent;
 }
 
 /* ---------- shell público (questionário) ---------- */

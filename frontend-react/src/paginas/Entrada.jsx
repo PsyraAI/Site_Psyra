@@ -96,7 +96,7 @@ export default function Entrada() {
         </p>
 
         <div className="entrada__marca rise" style={{ animationDelay: "0.1s" }}>
-          <MarcaLogo className="marca__logo marca__logo--entrada" size={48} />
+          <MarcaLogo className="marca__logo marca__logo--entrada" size={64} />
           <span className="marca__nome">Psyra AI</span>
         </div>
 
