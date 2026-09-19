@@ -141,6 +141,15 @@ export default function Entrada() {
                 </span>
               </button>
             </div>
+
+            <button
+              className="botao botao--fantasma rise"
+              type="button"
+              style={{ width: "100%", marginTop: 16, animationDelay: "0.42s" }}
+              onClick={() => navegar("/")}
+            >
+              <ArrowLeft size={16} aria-hidden="true" /> Voltar à página inicial
+            </button>
           </>
         ) : (
           <div className="entrada__form rise">
@@ -216,6 +225,15 @@ export default function Entrada() {
               }}
             >
               <ArrowLeft size={16} aria-hidden="true" /> Voltar à escolha
+            </button>
+
+            <button
+              className="botao botao--fantasma"
+              type="button"
+              style={{ width: "100%", marginTop: 8 }}
+              onClick={() => navegar("/")}
+            >
+              <ArrowLeft size={16} aria-hidden="true" /> Voltar à página inicial
             </button>
           </div>
         )}

@@ -1,11 +1,9 @@
-// Psyra AI — roteamento da aplicação. Sprint: S6.
-// Entrada unificada escolhe perfil (empresa ou superadmin) e encaminha o login.
-
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { ProvedorAuth, RotaProtegida } from "./contexto/Auth";
 import Admin from "./paginas/Admin";
 import Entrada from "./paginas/Entrada";
+import Landing, { Privacidade } from "./paginas/Landing";
 import Painel from "./paginas/Painel";
 import Responder from "./paginas/Responder";
 
@@ -14,7 +12,9 @@ export default function App() {
     <BrowserRouter>
       <ProvedorAuth>
         <Routes>
-          <Route path="/" element={<Entrada />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/privacidade" element={<Privacidade />} />
+          <Route path="/entrar" element={<Entrada />} />
           <Route path="/admin" element={<Admin />} />
           <Route
             path="/painel"
