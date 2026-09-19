@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Building2, Lock, Shield } from "lucide-react";
 
 import { useAuth } from "../contexto/Auth";
 import { apiAdmin, sessaoAdmin } from "../lib/api";
+import MarcaLogo from "../componentes/MarcaLogo";
 
 const PERFIS = {
   empresa: {
@@ -95,9 +96,7 @@ export default function Entrada() {
         </p>
 
         <div className="entrada__marca rise" style={{ animationDelay: "0.1s" }}>
-          <span className="marca__psi" aria-hidden="true">
-            Ψ
-          </span>
+          <MarcaLogo className="marca__logo marca__logo--entrada" size={48} />
           <span className="marca__nome">Psyra AI</span>
         </div>
 

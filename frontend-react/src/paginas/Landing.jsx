@@ -4,20 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { PLANOS } from "../lib/planos";
+import MarcaLogo from "../componentes/MarcaLogo";
 
 function Logo({ className = "lp-logo" }) {
-  return (
-    <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
-      <g fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round">
-        <path d="M22 16c-6 4-8 10-8 16s3 10 8 12" />
-        <path d="M42 16c6 4 8 10 8 16s-3 10-8 12" />
-        <path d="M32 12v40" />
-        <path d="M24 52h16" />
-      </g>
-      <circle cx="24" cy="30" r="2.5" fill="currentColor" />
-      <circle cx="40" cy="30" r="2.5" fill="currentColor" />
-    </svg>
-  );
+  return <MarcaLogo className={className} size={36} />;
 }
 
 function Reveal({ children, delay = 0, className = "" }) {

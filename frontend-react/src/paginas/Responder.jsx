@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { api } from "../lib/api";
+import MarcaLogo from "../componentes/MarcaLogo";
 
 export default function Responder() {
   const { token = "demo-nr1-2026" } = useParams();
@@ -96,9 +97,7 @@ export default function Responder() {
     <>
       <header className="topo">
         <div className="marca">
-          <span className="marca__psi" aria-hidden="true">
-            Ψ
-          </span>
+          <MarcaLogo className="marca__logo" size={36} />
           <span className="marca__nome">Psyra AI</span>
         </div>
         <span className="topo__meta">Resposta anônima</span>

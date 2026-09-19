@@ -1,6 +1,5 @@
 // Psyra AI — página do painel. Sprint: S6.
 // Shell de app com sidebar. `fetchPainel` real: chama a API, adapta e distribui.
-// Símbolo Ψ (.marca__psi) e camada de dados/auth preservados.
 
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +34,7 @@ import { useAuth } from "../contexto/Auth";
 import { adaptarPainel } from "../lib/adaptadores";
 import { api, ErroApi } from "../lib/api";
 import { planoPermiteCapital } from "../lib/planos";
+import MarcaLogo from "../componentes/MarcaLogo";
 
 const SECOES = [
   { id: "visao", rotulo: "Visão geral", icone: LayoutDashboard },
@@ -245,9 +245,7 @@ export default function Painel() {
       {/* -------- SIDEBAR -------- */}
       <aside className="sidebar">
         <div className="sidebar__marca">
-          <span className="marca__psi" aria-hidden="true">
-            Ψ
-          </span>
+          <MarcaLogo className="marca__logo" size={36} />
           <div>
             <div className="marca__nome">Psyra AI</div>
             <div className="sidebar__sub">Risco psicossocial</div>

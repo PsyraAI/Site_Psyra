@@ -86,16 +86,32 @@ a:hover { text-decoration: underline; }
 ::-webkit-scrollbar-thumb { background: rgba(127, 131, 160, 0.35); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(127, 131, 160, 0.55); background-clip: content-box; }
 
-/* ---------- símbolo da marca (PRESERVADO) ---------- */
+/* ---------- símbolo da marca ---------- */
 .marca { display: flex; align-items: center; gap: 11px; }
 .marca__nome { font-family: var(--display); font-size: 1.15rem; letter-spacing: -0.02em; }
+.marca__logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+  flex-shrink: 0;
+  background: #000;
+}
+.marca__logo--entrada {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+}
+/* Compatibilidade com classes antigas */
 .marca__psi {
-  width: 32px; height: 32px; border-radius: 50%;
-  display: grid; place-items: center;
-  color: var(--noite);
-  font-family: var(--display); font-weight: 700; font-size: 1rem;
-  background: linear-gradient(145deg, var(--roxo) 0%, #d4a8d9 100%);
-  box-shadow: 0 0 0 1px rgba(188, 132, 195, 0.25), 0 6px 16px rgba(188, 132, 195, 0.25);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #000;
 }
 
 /* ---------- shell público (questionário) ---------- */
@@ -391,7 +407,8 @@ select:focus-visible, textarea:focus-visible, [role="button"]:focus-visible {
 .entrada__conteudo { position: relative; width: 100%; max-width: 520px; text-align: center; }
 .entrada__eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ardosia); margin: 0 0 22px; }
 .entrada__marca { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 28px; }
-.entrada__marca .marca__psi { width: 44px; height: 44px; font-size: 1.25rem; }
+.entrada__marca .marca__logo,
+.entrada__marca .marca__psi { width: 48px; height: 48px; }
 .entrada__marca .marca__nome { font-size: clamp(2rem, 4.5vw, 2.75rem); color: var(--branco); }
 .entrada__headline { font-size: var(--fs-hero); color: var(--branco); margin: 0 0 14px; }
 .entrada__headline em { font-style: normal; color: var(--roxo); }
