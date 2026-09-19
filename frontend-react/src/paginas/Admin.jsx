@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 import { apiAdmin, sessaoAdmin } from "../lib/api";
+import { PLANOS, obterPlano, rotuloPlano } from "../lib/planos";
 
 const empresaInicial = {
   razao_social: "",
@@ -16,6 +17,53 @@ const usuarioInicial = {
   senha: "",
   papel: "admin",
 };
+
+function SeletorPlanos({ valor, onChange, nomeGrupo }) {
+  return (
+    <div className="admin-planos" role="radiogroup" aria-label="Plano comercial">
+      {PLANOS.map((plano) => {
+        const selecionado = valor === plano.id;
+        return (
+          <label
+            key={plano.id}
+            className={`admin-plano ${selecionado ? "admin-plano--ativo" : ""} ${
+              plano.destaque ? "admin-plano--destaque" : ""
+            }`}
+          >
+            <input
+              type="radio"
+              name={nomeGrupo}
+              value={plano.id}
+              checked={selecionado}
+              onChange={() => onChange(plano.id)}
+            />
+            <div className="admin-plano__topo">
+              <div>
+                <strong>{plano.nome}</strong>
+                {plano.destaque ? (
+                  <span className="admin-plano__badge">Mais popular</span>
+                ) : null}
+              </div>
+              <p className="admin-plano__preco">
+                <span>{plano.preco}</span>
+                <small>{plano.periodo}</small>
+              </p>
+            </div>
+            <p className="admin-plano__desc">{plano.desc}</p>
+            <ul className="admin-plano__itens">
+              {plano.itens.map((item) => (
+                <li key={item}>
+                  <span aria-hidden="true">✓</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </label>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Admin() {
   const [checando, setChecando] = useState(true);
@@ -148,8 +196,11 @@ export default function Admin() {
   }
 
   if (!autenticado) {
-    return <Navigate to="/?perfil=superadmin" replace />;
+    return <Navigate to="/entrar?perfil=superadmin" replace />;
   }
+
+  const planoFormAtual = obterPlano(empresaForm.plano);
+  const planoEmpresaAtual = empresaAtual ? obterPlano(empresaAtual.plano) : null;
 
   return (
     <main className="container admin">
@@ -157,26 +208,35 @@ export default function Admin() {
         <div>
           <p className="entrada__eyebrow">Operação global</p>
           <h1>Empresas e usuários</h1>
+          <p className="aviso" style={{ marginTop: 8 }}>
+            Cadastre a empresa já com o plano comercial da landing (Sinal, Padrão ou Panorama).
+          </p>
         </div>
-        <button
-          className="botao botao--fantasma"
-          type="button"
-          onClick={() => {
-            sessaoAdmin.limpar();
-            setAutenticado(false);
-          }}
-        >
-          Sair
-        </button>
+        <div className="admin__acoes">
+          <Link className="botao botao--fantasma" to="/">
+            Landing
+          </Link>
+          <button
+            className="botao botao--fantasma"
+            type="button"
+            onClick={() => {
+              sessaoAdmin.limpar();
+              setAutenticado(false);
+            }}
+          >
+            Sair
+          </button>
+        </div>
       </header>
 
       <p className="erro" role="alert">
         {erro}
       </p>
-      <div className="admin__grade">
-        <section className="superficie">
-          <h2 className="secao-titulo">Nova empresa</h2>
-          <form onSubmit={criarEmpresa}>
+
+      <section className="superficie admin__bloco-plano">
+        <h2 className="secao-titulo">Nova empresa</h2>
+        <form onSubmit={criarEmpresa}>
+          <div className="admin__grade-campos">
             <div className="campo">
               <label>Razão social</label>
               <input
@@ -197,19 +257,6 @@ export default function Admin() {
                 }
                 required
               />
-            </div>
-            <div className="campo">
-              <label>Plano</label>
-              <select
-                value={empresaForm.plano}
-                onChange={(e) =>
-                  setEmpresaForm({ ...empresaForm, plano: e.target.value })
-                }
-              >
-                <option value="starter">Starter</option>
-                <option value="professional">Professional</option>
-                <option value="enterprise">Enterprise</option>
-              </select>
             </div>
             <div className="campo">
               <label>Porte</label>
@@ -241,12 +288,32 @@ export default function Admin() {
                 <option value="outro">Outro</option>
               </select>
             </div>
-            <button className="botao" type="submit">
-              Criar empresa
-            </button>
-          </form>
-        </section>
+          </div>
 
+          <div className="campo" style={{ marginTop: 8 }}>
+            <label>Plano e funcionalidades liberadas</label>
+            <p className="aviso" style={{ margin: "6px 0 14px" }}>
+              Escolha o mesmo pacote oferecido na landing. A empresa nasce com essas
+              funcionalidades ativas.
+            </p>
+            <SeletorPlanos
+              nomeGrupo="plano-nova-empresa"
+              valor={empresaForm.plano}
+              onChange={(plano) => setEmpresaForm({ ...empresaForm, plano })}
+            />
+            <p className="admin-plano__resumo">
+              Selecionado: <strong>{planoFormAtual.nome}</strong> ({planoFormAtual.preco}
+              {planoFormAtual.periodo})
+            </p>
+          </div>
+
+          <button className="botao" type="submit">
+            Criar empresa no plano {planoFormAtual.nome}
+          </button>
+        </form>
+      </section>
+
+      <div className="admin__grade">
         <section className="superficie">
           <h2 className="secao-titulo">Empresas</h2>
           <div className="admin__lista">
@@ -258,7 +325,7 @@ export default function Admin() {
                 <button type="button" onClick={() => setEmpresaAtual(empresa)}>
                   <strong>{empresa.razao_social}</strong>
                   <span>
-                    {empresa.total_usuarios} usuário(s) · {empresa.plano} ·{" "}
+                    {empresa.total_usuarios} usuário(s) · {rotuloPlano(empresa.plano)} ·{" "}
                     {empresa.porte || "media"} · {empresa.atuacao || "servicos"}
                   </span>
                 </button>
@@ -273,62 +340,62 @@ export default function Admin() {
             ))}
           </div>
         </section>
+
+        {empresaAtual ? (
+          <section className="superficie">
+            <h2 className="secao-titulo">Alterar plano · {empresaAtual.razao_social}</h2>
+            <form onSubmit={salvarMetaEmpresa}>
+              <SeletorPlanos
+                nomeGrupo="plano-empresa-atual"
+                valor={empresaAtual.plano}
+                onChange={(plano) => setEmpresaAtual({ ...empresaAtual, plano })}
+              />
+              <div className="admin__grade-campos" style={{ marginTop: 16 }}>
+                <div className="campo">
+                  <label>Porte</label>
+                  <select
+                    value={empresaAtual.porte || "media"}
+                    onChange={(e) =>
+                      setEmpresaAtual({ ...empresaAtual, porte: e.target.value })
+                    }
+                  >
+                    <option value="micro">Micro</option>
+                    <option value="pequena">Pequena</option>
+                    <option value="media">Média</option>
+                    <option value="grande">Grande</option>
+                  </select>
+                </div>
+                <div className="campo">
+                  <label>Atuação</label>
+                  <select
+                    value={empresaAtual.atuacao || "servicos"}
+                    onChange={(e) =>
+                      setEmpresaAtual({ ...empresaAtual, atuacao: e.target.value })
+                    }
+                  >
+                    <option value="saude">Saúde</option>
+                    <option value="industria">Indústria</option>
+                    <option value="servicos">Serviços</option>
+                    <option value="comercio">Comércio</option>
+                    <option value="tecnologia">Tecnologia</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+              </div>
+              <p className="admin-plano__resumo">
+                Atual: <strong>{planoEmpresaAtual.nome}</strong> —{" "}
+                {planoEmpresaAtual.itens.length} funcionalidades listadas
+              </p>
+              <button className="botao" type="submit">
+                Salvar plano e perfil
+              </button>
+            </form>
+          </section>
+        ) : null}
       </div>
 
       {empresaAtual ? (
         <div className="admin__grade">
-          <section className="superficie">
-            <h2 className="secao-titulo">Plano e perfil · {empresaAtual.razao_social}</h2>
-            <form onSubmit={salvarMetaEmpresa}>
-              <div className="campo">
-                <label>Plano</label>
-                <select
-                  value={empresaAtual.plano}
-                  onChange={(e) =>
-                    setEmpresaAtual({ ...empresaAtual, plano: e.target.value })
-                  }
-                >
-                  <option value="starter">Starter</option>
-                  <option value="professional">Professional</option>
-                  <option value="enterprise">Enterprise</option>
-                </select>
-              </div>
-              <div className="campo">
-                <label>Porte</label>
-                <select
-                  value={empresaAtual.porte || "media"}
-                  onChange={(e) =>
-                    setEmpresaAtual({ ...empresaAtual, porte: e.target.value })
-                  }
-                >
-                  <option value="micro">Micro</option>
-                  <option value="pequena">Pequena</option>
-                  <option value="media">Média</option>
-                  <option value="grande">Grande</option>
-                </select>
-              </div>
-              <div className="campo">
-                <label>Atuação</label>
-                <select
-                  value={empresaAtual.atuacao || "servicos"}
-                  onChange={(e) =>
-                    setEmpresaAtual({ ...empresaAtual, atuacao: e.target.value })
-                  }
-                >
-                  <option value="saude">Saúde</option>
-                  <option value="industria">Indústria</option>
-                  <option value="servicos">Serviços</option>
-                  <option value="comercio">Comércio</option>
-                  <option value="tecnologia">Tecnologia</option>
-                  <option value="outro">Outro</option>
-                </select>
-              </div>
-              <button className="botao" type="submit">
-                Salvar perfil da empresa
-              </button>
-            </form>
-          </section>
-
           <section className="superficie">
             <h2 className="secao-titulo">Novo usuário · {empresaAtual.razao_social}</h2>
             <form onSubmit={criarUsuario}>

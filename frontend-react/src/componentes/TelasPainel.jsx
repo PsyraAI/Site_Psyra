@@ -334,7 +334,7 @@ export function CapitalRisco({ bloqueado, dados, carregando, erro }) {
           <Lock size={30} aria-hidden="true" />
           <p>
             Estimativa de capital em risco por setor disponível no plano{" "}
-            <strong>Professional</strong>.
+            <strong>Padrão</strong> ou <strong>Panorama</strong>.
           </p>
           <p>
             Mostre ao empresário, por setor, a ordem de grandeza do que a exposição

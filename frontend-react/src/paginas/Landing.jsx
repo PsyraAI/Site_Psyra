@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { PLANOS } from "../lib/planos";
+
 function Logo({ className = "lp-logo" }) {
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
@@ -175,47 +177,7 @@ const passos = [
   },
 ];
 
-const planos = [
-  {
-    nome: "Sinal",
-    preco: "R$ 1.200",
-    desc: "Entrada para empresas menores ou para começar o mapeamento básico de risco psicossocial.",
-    itens: [
-      "Pesquisa anônima com texto livre",
-      "Análise de risco psicossocial por grupo",
-      "Painel com indicadores essenciais",
-      "Relatório básico para NR-1",
-    ],
-    destaque: false,
-  },
-  {
-    nome: "Padrão",
-    preco: "R$ 2.500",
-    desc: "Plano intermediário, com análise aprofundada e relatórios mais completos.",
-    itens: [
-      "Tudo do plano Sinal",
-      "Análise de texto livre com explicabilidade (SHAP)",
-      "Comparativo entre grupos e áreas",
-      "Relatórios periódicos para PGR",
-      "Recomendações de plano de ação",
-    ],
-    destaque: true,
-  },
-  {
-    nome: "Panorama",
-    preco: "R$ 4.500",
-    desc: "Plano completo para empresas maiores, com cobertura total e suporte prioritário.",
-    itens: [
-      "Tudo do plano Padrão",
-      "Cobertura de múltiplas unidades e GHEs",
-      "Relatórios avançados para PGR/NR-1",
-      "Acompanhamento contínuo dos indicadores",
-      "Trilha de auditoria completa",
-      "Suporte prioritário",
-    ],
-    destaque: false,
-  },
-];
+const planos = PLANOS;
 
 export default function Landing() {
   return (
@@ -435,7 +397,7 @@ function Planos() {
                 </div>
                 <p className="lp-plan__price">
                   <span className="lp-metric">{p.preco}</span>
-                  <span>/mês</span>
+                  <span>{p.periodo}</span>
                 </p>
                 <p>{p.desc}</p>
                 <ul>

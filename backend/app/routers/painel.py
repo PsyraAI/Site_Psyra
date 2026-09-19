@@ -272,7 +272,7 @@ def obter_capital_risco(
             detail={
                 "codigo": "plano_insuficiente",
                 "mensagem": (
-                    "Estimativa de capital em risco disponível no plano Professional."
+                    "Estimativa de capital em risco disponível no plano Padrão ou Panorama."
                 ),
             },
         )

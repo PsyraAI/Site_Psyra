@@ -34,6 +34,7 @@ import {
 import { useAuth } from "../contexto/Auth";
 import { adaptarPainel } from "../lib/adaptadores";
 import { api, ErroApi } from "../lib/api";
+import { planoPermiteCapital } from "../lib/planos";
 
 const SECOES = [
   { id: "visao", rotulo: "Visão geral", icone: LayoutDashboard },
@@ -43,10 +44,6 @@ const SECOES = [
   { id: "conformidade", rotulo: "Conformidade NR-1", icone: ShieldCheck },
   { id: "plano", rotulo: "Plano de ação", icone: ClipboardList },
 ];
-
-function planoPermiteCapital(plano) {
-  return plano === "professional" || plano === "enterprise";
-}
 
 export default function Painel() {
   const { usuario, sair } = useAuth();
