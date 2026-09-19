@@ -79,12 +79,15 @@
 }
 
 .lp-logo {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   flex-shrink: 0;
   object-fit: contain;
-  border-radius: 0;
-  background: transparent;
+  border-radius: 0.65rem;
+  background: rgba(240, 236, 246, 0.06);
+  padding: 0.2rem;
+  box-sizing: content-box;
+  border: 1px solid rgba(188, 132, 195, 0.28);
   display: block;
 }
 
