@@ -60,7 +60,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem 0;
+  /* só vertical: o respiro lateral vem de .lp-wrap (antes zerava no celular) */
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
 .lp-brand {
@@ -72,6 +74,7 @@
 }
 
 .lp-brand__name {
+  white-space: nowrap;
   font-family: var(--lp-display);
   font-size: 1.125rem;
   font-weight: 700;
@@ -184,7 +187,8 @@
 .lp-hero__grid {
   display: grid;
   gap: 3rem;
-  padding: 5rem 0;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
   position: relative;
 }
 
@@ -601,6 +605,26 @@
   line-height: 1.55;
 }
 
+.lp-equipe {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.lp-equipe li {
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--lp-primary);
+  color: var(--lp-muted);
+  line-height: 1.45;
+}
+
+.lp-equipe strong {
+  color: var(--lp-mist);
+  font-weight: 600;
+}
+
 .lp-contato-grid {
   display: grid;
   gap: 2.5rem;
@@ -651,7 +675,8 @@
 .lp-footer__grid {
   display: grid;
   gap: 2rem;
-  padding: 3rem 0;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
 }
 
 .lp-footer p,
@@ -710,6 +735,22 @@
 .lp-reveal[data-visible="true"] {
   opacity: 1;
   transform: none;
+}
+
+/* Celular: cabeçalho enxuto — o CTA principal já aparece no hero */
+@media (max-width: 639px) {
+  .lp-header__actions .lp-btn--primary {
+    display: none;
+  }
+
+  .lp-header__actions .lp-btn {
+    padding: 0.55rem 0.9rem;
+  }
+
+  .lp-logo {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
 }
 
 @media (min-width: 640px) {
