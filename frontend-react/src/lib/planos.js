@@ -7,6 +7,7 @@ export const PLANOS = [
     nome: "Sinal",
     preco: "R$ 1.200",
     periodo: "/mês",
+    faixa: "Até 50 colaboradores",
     desc: "Entrada para empresas menores ou para começar o mapeamento básico de risco psicossocial.",
     destaque: false,
     itens: [
@@ -37,6 +38,7 @@ export const PLANOS = [
     nome: "Padrão",
     preco: "R$ 2.500",
     periodo: "/mês",
+    faixa: "Até 200 colaboradores",
     desc: "Plano intermediário, com análise aprofundada e relatórios mais completos.",
     destaque: true,
     itens: [
@@ -69,6 +71,7 @@ export const PLANOS = [
     nome: "Panorama",
     preco: "R$ 4.500",
     periodo: "/mês",
+    faixa: "Até 1.000 colaboradores",
     desc: "Plano completo para empresas maiores, com cobertura total e suporte prioritário.",
     destaque: false,
     itens: [
