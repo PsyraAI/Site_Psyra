@@ -29,7 +29,8 @@ GHES_DEMO = [
 
 TEXTOS = {
     "alto": [
-        "A rotina esta pesada, termino o dia exausto e ainda recebo cobranca fora do horario.",
+        "A rotina esta pesada, termino o dia exausto e ainda recebo cobranca "
+        "fora do horario.",
         "Sobrecarga constante, sem apoio da lideranca. Ja pensei em pedir demissao.",
         "Muita pressao por prazo, clima tenso, ninguem escuta a equipe.",
     ],
@@ -87,9 +88,7 @@ def main() -> None:
     )
 
     # Limpa ciclo demo anterior para recriar limpo
-    antiga = buscar_um(
-        conexao, "SELECT id FROM coleta WHERE token_publico = ?", (TOKEN,)
-    )
+    antiga = buscar_um(conexao, "SELECT id FROM coleta WHERE token_publico = ?", (TOKEN,))
     if antiga:
         executar(conexao, "DELETE FROM coleta WHERE id = ?", (antiga["id"],))
 
@@ -118,9 +117,12 @@ def main() -> None:
             )
 
     # Schema legado no Supabase exige FK em instrumento(codigo).
-    if buscar_um(
-        conexao, "SELECT codigo FROM instrumento WHERE codigo = ?", ("nr1_v2_demo",)
-    ) is None:
+    if (
+        buscar_um(
+            conexao, "SELECT codigo FROM instrumento WHERE codigo = ?", ("nr1_v2_demo",)
+        )
+        is None
+    ):
         try:
             executar(
                 conexao,
@@ -134,9 +136,12 @@ def main() -> None:
         except Exception:
             # tabela pode não existir em SQLite local
             pass
-    if buscar_um(
-        conexao, "SELECT codigo FROM instrumento WHERE codigo = ?", ("psyra_form_v1",)
-    ) is None:
+    if (
+        buscar_um(
+            conexao, "SELECT codigo FROM instrumento WHERE codigo = ?", ("psyra_form_v1",)
+        )
+        is None
+    ):
         try:
             executar(
                 conexao,
