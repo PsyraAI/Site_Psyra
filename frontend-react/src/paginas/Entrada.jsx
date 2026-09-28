@@ -1,28 +1,46 @@
 // Psyra AI — tela de entrada unificada.
-// Fluxo: boas-vindas → escolha de perfil → login → /painel ou /admin.
+// Fluxo: escolha de perfil → login → /painel (empresa) ou /admin (operação Psyra).
+// Contas de empresa são criadas pela equipe Psyra no painel de operação (/admin).
 
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Building2, Lock, Shield } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  ShieldCheck,
+} from "lucide-react";
 
 import { useAuth } from "../contexto/Auth";
 import { apiAdmin, sessaoAdmin } from "../lib/api";
+import AlternarTema from "../componentes/AlternarTema";
 import MarcaLogo from "../componentes/MarcaLogo";
+import "../estilos/operacao.css";
 
 const PERFIS = {
   empresa: {
     id: "empresa",
-    titulo: "Empresa piloto",
-    descricao: "Ver o resultado agregado da pesquisa do formulário.",
-    destino: "/painel",
+    rotulo: "Empresa cliente",
+    titulo: "Entrar no painel",
+    descricao: "Resultados agregados por grupo (n ≥ 5), conformidade NR-1 e plano de ação.",
+    icone: Building2,
+    placeholder: "voce@empresa.com.br",
   },
   superadmin: {
     id: "superadmin",
-    titulo: "Superadmin",
-    descricao: "Operação global: cadastrar empresas e usuários.",
-    destino: "/admin",
+    rotulo: "Operação Psyra",
+    titulo: "Entrar na operação",
+    descricao: "Equipe interna: empresas, planos e contas de acesso.",
+    icone: ShieldCheck,
+    placeholder: "ops@psyra.ai",
   },
 };
+
+const EMAIL_CONTATO = "psyra.ai.io@gmail.com";
 
 export default function Entrada() {
   const { usuario, entrar } = useAuth();
@@ -35,10 +53,10 @@ export default function Entrada() {
       ? "superadmin"
       : null;
 
-  const [etapa, setEtapa] = useState(perfilInicial ? "login" : "escolha");
   const [perfil, setPerfil] = useState(perfilInicial);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [verSenha, setVerSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
 
@@ -58,12 +76,22 @@ export default function Entrada() {
   function escolherPerfil(id) {
     setPerfil(id);
     setErro("");
-    setEtapa("login");
+  }
+
+  function voltarEscolha() {
+    setPerfil(null);
+    setErro("");
+    setSenha("");
+    setVerSenha(false);
   }
 
   async function aoEntrar(evento) {
     evento.preventDefault();
     setErro("");
+    if (!email.trim() || !senha) {
+      setErro("Informe e-mail e senha.");
+      return;
+    }
     setEnviando(true);
     try {
       if (perfil === "superadmin") {
@@ -84,163 +112,148 @@ export default function Entrada() {
   const perfilAtual = perfil ? PERFIS[perfil] : null;
 
   return (
-    <main className="entrada">
+    <main className="entrada entrada--v2">
       <div className="entrada__atmosfera" aria-hidden="true">
         <div className="entrada__brilho" />
         <div className="entrada__grain" />
       </div>
 
-      <div className="entrada__conteudo">
-        <p className="entrada__eyebrow rise" style={{ animationDelay: "0.04s" }}>
-          Saúde psicossocial · Conformidade NR-1
-        </p>
+      <AlternarTema className="entrada__tema" />
 
-        <div className="entrada__marca rise" style={{ animationDelay: "0.1s" }}>
-          <MarcaLogo className="marca__logo marca__logo--entrada" size={64} />
-          <span className="marca__nome">Psyra AI</span>
-        </div>
+      <div className="acesso">
+        <header className="acesso__marca rise" style={{ animationDelay: "0.04s" }}>
+          <MarcaLogo className="marca__logo marca__logo--hero" size={72} />
+          <div>
+            <span className="acesso__nome">Psyra AI</span>
+            <span className="acesso__eyebrow">Saúde psicossocial · Conformidade NR-1</span>
+          </div>
+        </header>
 
-        {etapa === "escolha" ? (
-          <>
-            <h1 className="entrada__headline rise" style={{ animationDelay: "0.18s" }}>
+        {!perfilAtual ? (
+          <section className="acesso__cartao rise" style={{ animationDelay: "0.12s" }}>
+            <h1 className="acesso__titulo">
               Como você quer <em>entrar</em>?
             </h1>
-            <p className="entrada__tagline rise" style={{ animationDelay: "0.26s" }}>
-              Escolha o acesso certo para o seu papel.
-            </p>
+            <p className="acesso__apoio">Escolha o acesso certo para o seu papel.</p>
 
-            <div className="entrada__perfis rise" style={{ animationDelay: "0.34s" }}>
-              <button
-                className="entrada__perfil"
-                type="button"
-                onClick={() => escolherPerfil("empresa")}
-              >
-                <Building2 size={22} aria-hidden="true" />
-                <span className="entrada__perfil-titulo">Empresa piloto</span>
-                <span className="entrada__perfil-texto">
-                  Ver o resultado agregado da pesquisa do formulário.
-                </span>
-                <span className="entrada__perfil-cta">
-                  Continuar <ArrowRight size={16} aria-hidden="true" />
-                </span>
-              </button>
-
-              <button
-                className="entrada__perfil"
-                type="button"
-                onClick={() => escolherPerfil("superadmin")}
-              >
-                <Shield size={22} aria-hidden="true" />
-                <span className="entrada__perfil-titulo">Superadmin</span>
-                <span className="entrada__perfil-texto">
-                  Operação global da Psyra: empresas e usuários.
-                </span>
-                <span className="entrada__perfil-cta">
-                  Continuar <ArrowRight size={16} aria-hidden="true" />
-                </span>
-              </button>
+            <div className="acesso__perfis">
+              {Object.values(PERFIS).map(({ id, rotulo, descricao, icone: Icone }) => (
+                <button
+                  key={id}
+                  className="acesso__perfil"
+                  type="button"
+                  onClick={() => escolherPerfil(id)}
+                >
+                  <span className="acesso__perfil-icone" aria-hidden="true">
+                    <Icone size={22} />
+                  </span>
+                  <span className="acesso__perfil-texto">
+                    <strong>{rotulo}</strong>
+                    <span>{descricao}</span>
+                  </span>
+                  <ArrowRight className="acesso__perfil-seta" size={18} aria-hidden="true" />
+                </button>
+              ))}
             </div>
 
-            <button
-              className="botao botao--fantasma rise"
-              type="button"
-              style={{ width: "100%", marginTop: 16, animationDelay: "0.42s" }}
-              onClick={() => navegar("/")}
-            >
-              <ArrowLeft size={16} aria-hidden="true" /> Voltar à página inicial
-            </button>
-          </>
+            <div className="acesso__conta">
+              <p>
+                <strong>Sua empresa ainda não tem acesso?</strong> As contas são criadas pela
+                equipe Psyra depois do diagnóstico gratuito.
+              </p>
+              <a
+                className="botao botao--fantasma botao--pequeno"
+                href={`mailto:${EMAIL_CONTATO}?subject=${encodeURIComponent("Solicitar acesso à Psyra")}`}
+              >
+                <Mail size={15} aria-hidden="true" /> Solicitar acesso
+              </a>
+            </div>
+          </section>
         ) : (
-          <div className="entrada__form rise">
-            <div className="entrada__form-card">
-              <p className="entrada__form-perfil">{perfilAtual?.titulo}</p>
-              <h1>
-                {perfil === "superadmin" ? "Entrar na operação" : "Entrar no painel"}
-              </h1>
-              <p className="entrada__form-apoio">{perfilAtual?.descricao}</p>
-              <form onSubmit={aoEntrar} noValidate>
-                <div className="campo">
-                  <label htmlFor="email">E-mail</label>
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="username"
-                    placeholder={
-                      perfil === "superadmin" ? "ops@psyra.ai" : "voce@empresa.com.br"
-                    }
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="campo">
-                  <label htmlFor="senha">Senha</label>
+          <section className="acesso__cartao rise">
+            <button className="acesso__voltar" type="button" onClick={voltarEscolha}>
+              <ArrowLeft size={15} aria-hidden="true" /> Trocar tipo de acesso
+            </button>
+            <div className="acesso__form-topo">
+              <span className="acesso__perfil-icone" aria-hidden="true">
+                <perfilAtual.icone size={22} />
+              </span>
+              <div>
+                <p className="acesso__rotulo">{perfilAtual.rotulo}</p>
+                <h1 className="acesso__titulo acesso__titulo--form">{perfilAtual.titulo}</h1>
+              </div>
+            </div>
+            <p className="acesso__apoio acesso__apoio--form">{perfilAtual.descricao}</p>
+
+            <form onSubmit={aoEntrar} noValidate>
+              <div className="campo">
+                <label htmlFor="email">E-mail</label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="username"
+                  placeholder={perfilAtual.placeholder}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="campo">
+                <label htmlFor="senha">Senha</label>
+                <div className="campo-senha">
                   <input
                     id="senha"
-                    type="password"
+                    type={verSenha ? "text" : "password"}
                     autoComplete="current-password"
-                    placeholder="••••••••"
+                    placeholder="••••••••••••"
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
                     required
                   />
+                  <button
+                    type="button"
+                    className="campo-senha__olho"
+                    onClick={() => setVerSenha((v) => !v)}
+                    aria-label={verSenha ? "Ocultar senha" : "Mostrar senha"}
+                  >
+                    {verSenha ? <EyeOff size={17} /> : <Eye size={17} />}
+                  </button>
                 </div>
-                <p className="erro" role="alert">
-                  {erro}
-                </p>
-                <button
-                  className="botao"
-                  type="submit"
-                  style={{ width: "100%" }}
-                  disabled={enviando}
-                >
-                  {enviando ? (
-                    <>
-                      <span className="spinner" aria-hidden="true" /> Entrando…
-                    </>
-                  ) : (
-                    <>
-                      Entrar <ArrowRight size={17} aria-hidden="true" />
-                    </>
-                  )}
-                </button>
-              </form>
-
-              <p className="entrada__privacidade">
-                <Lock size={12} aria-hidden="true" /> Resultados sempre por grupo.
-                Nunca dados individuais.
+              </div>
+              <p className="erro" role="alert">
+                {erro}
               </p>
-            </div>
+              <button className="botao botao--bloco" type="submit" disabled={enviando}>
+                {enviando ? (
+                  <>
+                    <span className="spinner" aria-hidden="true" /> Entrando…
+                  </>
+                ) : (
+                  <>
+                    Entrar <ArrowRight size={17} aria-hidden="true" />
+                  </>
+                )}
+              </button>
+            </form>
 
-            <button
-              className="botao botao--fantasma"
-              type="button"
-              style={{ width: "100%", marginTop: 12 }}
-              onClick={() => {
-                setEtapa("escolha");
-                setPerfil(null);
-                setErro("");
-                setSenha("");
-              }}
-            >
-              <ArrowLeft size={16} aria-hidden="true" /> Voltar à escolha
-            </button>
-
-            <button
-              className="botao botao--fantasma"
-              type="button"
-              style={{ width: "100%", marginTop: 8 }}
-              onClick={() => navegar("/")}
-            >
-              <ArrowLeft size={16} aria-hidden="true" /> Voltar à página inicial
-            </button>
-          </div>
+            <p className="acesso__privacidade">
+              <Lock size={12} aria-hidden="true" /> Resultados sempre por grupo. Nunca dados
+              individuais.
+            </p>
+          </section>
         )}
 
+        <button
+          className="acesso__inicio rise"
+          type="button"
+          style={{ animationDelay: "0.2s" }}
+          onClick={() => navegar("/")}
+        >
+          <ArrowLeft size={15} aria-hidden="true" /> Voltar à página inicial
+        </button>
+
         {import.meta.env.DEV ? (
-          <p className="credenciais rise" style={{ animationDelay: "0.48s" }}>
-            Ambiente local · empresa demo: gestor@demo.psyra.ai
-          </p>
+          <p className="credenciais">Ambiente local · empresa demo: gestor@demo.psyra.ai</p>
         ) : null}
       </div>
     </main>

@@ -383,7 +383,7 @@ function Planos() {
               <div className={`lp-card lp-plan ${p.destaque ? "lp-plan--hot" : ""}`}>
                 <div className="lp-plan__top">
                   <h3>{p.nome}</h3>
-                  {p.destaque ? <span className="lp-plan__badge">Mais popular</span> : null}
+                  {p.destaque ? <span className="lp-plan__badge">Recomendado</span> : null}
                 </div>
                 <p className="lp-plan__price">
                   <span className="lp-metric">{p.preco}</span>
