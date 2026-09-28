@@ -25,6 +25,8 @@ def test_formulario_publico_entrega_instrumento_e_consentimento(
     assert len(corpo["instrumento"]["blocos"]) == 10
     assert corpo["instrumento"]["bloco_texto_livre"]["codigo"] == "K"
     assert "anônima" in corpo["instrumento"]["consentimento"]
+    # Consentimento avisa que o texto livre é lido por sistema automatizado.
+    assert "sistema automatizado" in corpo["instrumento"]["consentimento"]
     assert len(corpo["ghes"]) == 5
 
 
