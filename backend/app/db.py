@@ -260,7 +260,8 @@ def _migrar_operacao_producao(conexao: Any) -> None:
             "ativo INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0, 1))"
         )
         conexao.execute(
-            "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS porte TEXT NOT NULL DEFAULT 'media'"
+            "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS "
+            "porte TEXT NOT NULL DEFAULT 'media'"
         )
         conexao.execute(
             "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS "
@@ -292,8 +293,7 @@ def _recriar_view_painel(conexao: Any) -> None:
     n = int(config.N_MINIMO_GHE)
     conexao.execute("DROP VIEW IF EXISTS vw_painel_ghe")
     prefixo = "CREATE VIEW vw_painel_ghe AS"
-    conexao.execute(
-        f"""
+    conexao.execute(f"""
         {prefixo}
         SELECT
             r.coleta_id AS coleta_id,
@@ -312,8 +312,7 @@ def _recriar_view_painel(conexao: Any) -> None:
         FROM resultado_ghe r
         JOIN ghe g ON g.id = r.ghe_id
         JOIN coleta c ON c.id = r.coleta_id
-        """
-    )
+        """)
     conexao.commit()
 
 
