@@ -480,10 +480,22 @@ function Sobre() {
               <h2>Quem está por trás</h2>
             </div>
             <p>
-              A Psyra AI é conduzida por Vinícius, Pedro e Leandro, que unem engenharia de linguagem
-              natural, produto e implantação corporativa para levar leitura de risco psicossocial a
-              operações reais.
+              A Psyra AI nasceu como TCC em Inteligência Artificial na FECAP e é conduzida por três
+              sócios, com uma psicóloga com CRP ativo como consultora externa:
             </p>
+            <ul className="lp-equipe">
+              <li>
+                <strong>Vinícius de Lima</strong> — Product Owner e Tech Lead
+              </li>
+              <li>
+                <strong>Pedro Octávio Rodrigues Jorge</strong> — Desenvolvedor Full Stack e Analista
+                Financeiro
+              </li>
+              <li>
+                <strong>Leandro Rodrigues Machado</strong> — Diretor de Marketing, Analista de Dados e
+                DBA
+              </li>
+            </ul>
             <p>
               Nosso compromisso: nenhuma promessa de avaliação individual, nenhum resultado sem
               explicação.
