@@ -136,7 +136,9 @@ def atualizar_empresa(
     if not campos:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "nenhum campo para atualizar")
     valores.append(empresa_id)
-    executar(conexao, f"UPDATE empresa SET {', '.join(campos)} WHERE id = ?", tuple(valores))
+    executar(
+        conexao, f"UPDATE empresa SET {', '.join(campos)} WHERE id = ?", tuple(valores)
+    )
     registrar(
         conexao,
         ator=administrador["id"],
