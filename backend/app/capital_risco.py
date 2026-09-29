@@ -73,9 +73,7 @@ def salario_mensal_estimado(atuacao: str, porte: str, setor: str | None) -> floa
     base = _SALARIO_BASE_ATUACAO.get(
         _normalizar_chave(atuacao, "servicos"), _SALARIO_BASE_ATUACAO["servicos"]
     )
-    mult_porte = _MULT_PORTE.get(
-        _normalizar_chave(porte, "media"), _MULT_PORTE["media"]
-    )
+    mult_porte = _MULT_PORTE.get(_normalizar_chave(porte, "media"), _MULT_PORTE["media"])
     setor_chave = _normalizar_chave(setor, "geral")
     mult_setor = 1.0
     for chave, fator in _MULT_SETOR.items():

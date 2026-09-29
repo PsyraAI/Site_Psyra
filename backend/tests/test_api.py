@@ -10,11 +10,15 @@ TOKEN_DEMO = "demo-nr1-2026"
 
 
 def test_health_declara_motor_provisorio(cliente: TestClient) -> None:
-    """O /health expõe versão do motor e o n mínimo de k-anonimato."""
-    corpo = cliente.get("/health").json()
+    """O /health expõe versão do motor, o n mínimo e os cabeçalhos de segurança."""
+    resposta = cliente.get("/health")
+    corpo = resposta.json()
     assert corpo["status"] == "ok"
     assert "PROVISORIO" in corpo["motor_risco"]
     assert corpo["n_minimo_ghe"] == 5
+    csp = resposta.headers["content-security-policy"]
+    assert "script-src 'self';" in csp  # nenhum script inline ou de terceiros
+    assert "font-src 'self' https://fonts.gstatic.com" in csp
 
 
 def test_formulario_publico_entrega_instrumento_e_consentimento(
@@ -25,6 +29,8 @@ def test_formulario_publico_entrega_instrumento_e_consentimento(
     assert len(corpo["instrumento"]["blocos"]) == 10
     assert corpo["instrumento"]["bloco_texto_livre"]["codigo"] == "K"
     assert "anônima" in corpo["instrumento"]["consentimento"]
+    # Consentimento avisa que o texto livre é lido por sistema automatizado.
+    assert "sistema automatizado" in corpo["instrumento"]["consentimento"]
     assert len(corpo["ghes"]) == 5
 
 

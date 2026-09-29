@@ -15,6 +15,13 @@ class LoginEntrada(BaseModel):
     senha: str = Field(min_length=6, max_length=128)
 
 
+class AlterarSenhaEntrada(BaseModel):
+    """Troca de senha pelo próprio usuário da empresa (exige a senha atual)."""
+
+    senha_atual: str = Field(min_length=1, max_length=128)
+    nova_senha: str = Field(min_length=12, max_length=128)
+
+
 class LoginSaida(BaseModel):
     access_token: str
     token_type: str = "bearer"
@@ -44,12 +51,8 @@ class EmpresaAdminEntrada(BaseModel):
 
 
 class EmpresaAdminAtualizacao(BaseModel):
-    plano: str | None = Field(
-        default=None, pattern="^(starter|professional|enterprise)$"
-    )
-    porte: str | None = Field(
-        default=None, pattern="^(micro|pequena|media|grande)$"
-    )
+    plano: str | None = Field(default=None, pattern="^(starter|professional|enterprise)$")
+    porte: str | None = Field(default=None, pattern="^(micro|pequena|media|grande)$")
     atuacao: str | None = Field(
         default=None,
         pattern="^(saude|industria|servicos|comercio|tecnologia|outro)$",

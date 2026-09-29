@@ -5,8 +5,8 @@ NR-1, agregação por Grupo Homogêneo de Exposição (GHE) com k-anonimato e pa
 conformidade para o gestor.
 
 > **TCC FECAP · IA · entrega PTI out/2026**
-> Equipe: Vinícius de Lima (CTO) · Pedro Octávio Rodrigues Jorge (CPO) · Leandro Rodrigues Machado (CDO) · psicóloga CRP (consultora externa)
-> Orientação: Fabiana Traulino
+> Equipe: Vinícius de Lima (Product Owner e Tech Lead) · Pedro Octávio Rodrigues Jorge (Desenvolvedor Full Stack e Analista Financeiro) · Leandro Rodrigues Machado (Diretor de Marketing, Analista de Dados e DBA) · psicóloga CRP (consultora externa)
+> Orientação: Prof. Glenarisson e Prof. Alexandre
 
 ---
 

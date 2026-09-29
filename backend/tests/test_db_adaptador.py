@@ -23,5 +23,9 @@ def test_schema_postgres_particiona():
     partes = _partir_sql(script)
     assert len(partes) >= 10
     assert any("CREATE TABLE IF NOT EXISTS empresa" in p for p in partes)
-    assert any("CREATE OR REPLACE VIEW vw_painel_ghe" in p for p in partes)
+    # A view é recriada (DROP + CREATE) para poder mudar colunas; aceita as duas formas.
+    assert any(
+        "CREATE VIEW vw_painel_ghe" in p or "CREATE OR REPLACE VIEW vw_painel_ghe" in p
+        for p in partes
+    )
     assert CAMINHO_SCHEMA_PG.exists()

@@ -12,7 +12,7 @@
       "Sempre"
     ]
   },
-  "consentimento": "Participação voluntária e anônima. Não coletamos dados de saúde. Nenhuma resposta treina modelos de IA nesta fase. Resultados são apresentados apenas por grupo (mínimo de 5 respostas), nunca individualmente. Ao continuar, você concorda com a participação.",
+  "consentimento": "Participação voluntária e anônima. Não coletamos dados de saúde. Nenhuma resposta treina modelos de IA nesta fase. Resultados são apresentados apenas por grupo (mínimo de 5 respostas), nunca individualmente. Se você escrever no espaço livre, o texto passa por anonimização automática e depois é lido por um sistema automatizado, sempre em conjunto com as respostas do seu grupo; nenhuma decisão sobre você é tomada a partir dele. Ao continuar, você concorda com a participação.",
   "blocos": [
     {
       "codigo": "A",
@@ -145,6 +145,6 @@
     "codigo": "K",
     "pergunta": "Se quiser, descreva com suas palavras como tem sido o seu dia a dia de trabalho nas últimas semanas.",
     "obrigatorio": false,
-    "aviso": "Não escreva nomes, CPF, e-mail ou telefone. O texto passa por anonimização automática antes de ser armazenado."
+    "aviso": "Não escreva nomes, CPF, e-mail ou telefone. O texto passa por anonimização automática antes de ser armazenado e só é analisado junto com o seu grupo."
   }
 }

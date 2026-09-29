@@ -37,7 +37,9 @@ class MiddlewareSeguranca(BaseHTTPMiddleware):
         resposta.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "img-src 'self' data:; "
-            "style-src 'self' 'unsafe-inline'; "
+            # Fontes da marca (Caladea, Inter, JetBrains Mono) vêm do Google Fonts.
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
             "script-src 'self'; "
             "connect-src 'self'; "
             "frame-ancestors 'none'; "

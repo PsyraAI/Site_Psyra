@@ -13,7 +13,7 @@
       "Concordo totalmente"
     ]
   },
-  "consentimento": "Participação voluntária e anônima. Os resultados são apresentados apenas por grupo (mínimo de 5 respostas), nunca individualmente. Ao continuar, você concorda com a participação.",
+  "consentimento": "Participação voluntária e anônima. Os resultados são apresentados apenas por grupo (mínimo de 5 respostas), nunca individualmente. Se você escrever no espaço livre, o texto passa por anonimização automática e depois é lido por um sistema automatizado, sempre em conjunto com as respostas do seu grupo; nenhuma decisão sobre você é tomada a partir dele. Ao continuar, você concorda com a participação.",
   "campo_grupo": {
     "pergunta": "Qual o seu setor dentro da Empresa?",
     "opcoes": [
@@ -363,6 +363,6 @@
     "codigo": "K",
     "pergunta": "Se desejar, utilize o espaço abaixo para descrever, com suas próprias palavras, como você tem se sentido em relação ao seu trabalho. Não há resposta certa ou errada — este espaço é seu. Sua resposta será analisada de forma anônima e nunca individualizada.",
     "obrigatorio": false,
-    "aviso": "Não escreva nomes, CPF, e-mail ou telefone. O texto passa por anonimização automática antes de ser armazenado."
+    "aviso": "Não escreva nomes, CPF, e-mail ou telefone. O texto passa por anonimização automática antes de ser armazenado e só é analisado junto com o seu grupo."
   }
 }

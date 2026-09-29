@@ -1,0 +1,104 @@
+/* ============================================================================
+   Psyra AI — modo claro (acesso, painel do gestor e operação).
+   Mesma paleta da marca: Névoa como fundo, Noite como texto, Roxo mais escuro
+   para manter contraste AA em texto sobre branco.
+   ========================================================================== */
+
+:root[data-tema="claro"] {
+  --nevoa: #2b2e4a;          /* texto principal */
+  --branco: #16182f;         /* texto de destaque */
+  --lavanda: #5b4a70;        /* rótulos */
+  --ardosia: #5d6180;        /* texto secundário */
+  --roxo: #9b56a6;           /* destaque com contraste AA sobre branco */
+  --roxo-12: rgba(155, 86, 166, 0.1);
+  --roxo-20: rgba(155, 86, 166, 0.18);
+  --superficie: #ffffff;
+  --superficie-alta: #ffffff;
+  --linha: rgba(28, 31, 58, 0.1);
+  --linha-forte: rgba(28, 31, 58, 0.18);
+  --sombra-1: 0 1px 2px rgba(28, 31, 58, 0.06);
+  --sombra-2: 0 10px 30px rgba(28, 31, 58, 0.08);
+  --sombra-3: 0 24px 60px rgba(28, 31, 58, 0.12);
+  color-scheme: light;
+}
+
+[data-tema="claro"],
+[data-tema="claro"] body {
+  background: #f6f3f9;
+}
+[data-tema="claro"] body {
+  background:
+    radial-gradient(900px 480px at 78% -10%, rgba(188, 132, 195, 0.18), transparent 55%),
+    radial-gradient(680px 420px at 6% 8%, rgba(127, 131, 160, 0.12), transparent 50%),
+    linear-gradient(165deg, #faf8fc 0%, #f4f0f8 60%, #efeaf5 100%);
+  background-attachment: fixed;
+}
+
+/* ---------- casca do app ---------- */
+[data-tema="claro"] .sidebar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(250, 247, 252, 0.94));
+  border-right-color: var(--linha);
+}
+[data-tema="claro"] .topbar { background: rgba(255, 255, 255, 0.82); }
+[data-tema="claro"] .nav-item:hover,
+[data-tema="claro"] .configuracoes__item:hover { background: rgba(28, 31, 58, 0.04); }
+[data-tema="claro"] .sidebar__privacidade,
+[data-tema="claro"] .link-coleta__url,
+[data-tema="claro"] .integracao-credenciais code { background: #f6f2f9; }
+
+/* ---------- formulários e botões ---------- */
+[data-tema="claro"] input,
+[data-tema="claro"] select,
+[data-tema="claro"] textarea { background: #ffffff; color: var(--branco); }
+[data-tema="claro"] .botao { color: #ffffff; box-shadow: 0 10px 24px rgba(155, 86, 166, 0.22); }
+[data-tema="claro"] .botao--fantasma { color: var(--nevoa); box-shadow: none; }
+[data-tema="claro"] .spinner { border-color: rgba(255, 255, 255, 0.4); border-top-color: #ffffff; }
+[data-tema="claro"] .botao--fantasma .spinner,
+[data-tema="claro"] .spinner--claro { border-color: rgba(28, 31, 58, 0.2); border-top-color: var(--nevoa); }
+[data-tema="claro"] .erro { color: #b3262b; }
+[data-tema="claro"] .ok { color: #1f7a48; }
+
+/* ---------- painel ---------- */
+[data-tema="claro"] .barra,
+[data-tema="claro"] .op-barra__trilho { background: rgba(28, 31, 58, 0.08); }
+[data-tema="claro"] .etiqueta--alto { color: #b3262b; }
+[data-tema="claro"] .etiqueta--moderado { color: #92600f; }
+[data-tema="claro"] .etiqueta--baixo { color: #1f7a48; }
+[data-tema="claro"] .selo strong,
+[data-tema="claro"] .selo svg { color: #92600f; }
+[data-tema="claro"] .fator { background: #faf8fc; }
+[data-tema="claro"] .sk { background: rgba(28, 31, 58, 0.06); }
+[data-tema="claro"] .sk::after { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent); }
+[data-tema="claro"] .kpi::before { opacity: 0.9; }
+
+/* ---------- tela de acesso ---------- */
+[data-tema="claro"] .entrada__brilho { opacity: 0.55; }
+[data-tema="claro"] .entrada__grain { display: none; }
+[data-tema="claro"] .acesso__cartao { background: rgba(255, 255, 255, 0.9); }
+[data-tema="claro"] .acesso__perfil { background: #ffffff; }
+[data-tema="claro"] .acesso__perfil:hover,
+[data-tema="claro"] .acesso__perfil:focus-visible { background: #fbf7fd; }
+[data-tema="claro"] img.marca__logo { filter: drop-shadow(0 4px 12px rgba(28, 31, 58, 0.12)); }
+
+/* ---------- operação ---------- */
+[data-tema="claro"] .op-plano,
+[data-tema="claro"] .op-usuarios__lista > li { background: #ffffff; }
+[data-tema="claro"] .op-plano--ativo { background: #fbf7fd; }
+[data-tema="claro"] .op-plano__marcador { color: #ffffff; }
+[data-tema="claro"] .op-plano__selo { color: #ffffff; }
+[data-tema="claro"] .op-lista-simples button { background: rgba(28, 31, 58, 0.03); }
+[data-tema="claro"] .op-item:hover { background: rgba(28, 31, 58, 0.04); }
+[data-tema="claro"] .op-etapa--atual span { color: #ffffff; }
+[data-tema="claro"] .op-etapa--feita span { color: #1f7a48; }
+[data-tema="claro"] .chip--ok { color: #1f7a48; background: rgba(91, 191, 138, 0.14); }
+[data-tema="claro"] .chip--roxo { color: #5a2a63; }
+[data-tema="claro"] .op-aviso--ok,
+[data-tema="claro"] .credencial-box__topo { color: #1f6b43; }
+[data-tema="claro"] .op-aviso--erro { color: #9f2227; }
+[data-tema="claro"] .botao--perigo { color: #b3262b; }
+[data-tema="claro"] .forca__barra i { background: rgba(28, 31, 58, 0.1); }
+[data-tema="claro"] .forca--1 .forca__barra i:nth-child(1) { background: var(--perigo); }
+[data-tema="claro"] .forca--2 .forca__barra i:nth-child(-n + 2) { background: var(--ambar); }
+[data-tema="claro"] .forca--3 .forca__barra i { background: var(--verde); }
+[data-tema="claro"] .conta-segura__icone { color: #1f7a48; }
+[data-tema="claro"] .configuracoes__acesso svg { color: #1f7a48; }

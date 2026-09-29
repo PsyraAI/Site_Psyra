@@ -5,6 +5,8 @@ from __future__ import annotations
 import logging
 import secrets
 import uuid
+from collections import Counter
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, HTTPException, status
 
@@ -260,3 +262,85 @@ def consultar_auditoria(
         (empresa_id, min(limite, 200)),
     )
     return {"integridade": verificar_cadeia(conexao), "eventos": eventos}
+
+
+# ---------------------------------------------------------------------------
+# Atividades recentes — Sprint: S7 | Risco: R2
+# Eventos de gestão aparecem um a um; respostas de colaboradores só entram
+# agregadas por semana e com total oculto abaixo do mínimo (n < N_MINIMO_GHE),
+# para que horário de resposta não sirva para reidentificar ninguém.
+# ---------------------------------------------------------------------------
+ROTULOS_ATIVIDADE: dict[str, str] = {
+    "login": "Acesso ao painel",
+    "consultar_painel": "Painel de risco consultado",
+    "alterar_senha": "Senha alterada por um usuário da empresa",
+    "criar_empresa": "Empresa cadastrada na Psyra",
+    "atualizar_empresa": "Plano ou perfil da empresa atualizado",
+    "ativar_empresa": "Empresa reativada",
+    "desativar_empresa": "Empresa desativada",
+    "criar_usuario": "Nova conta de acesso criada",
+    "ativar_usuario": "Conta de acesso reativada",
+    "desativar_usuario": "Conta de acesso desativada",
+    "redefinir_senha_usuario": "Senha redefinida pela equipe Psyra",
+}
+ACOES_RESPOSTA: tuple[str, str] = ("receber_resposta", "receber_resposta_forms")
+
+
+def _para_datetime(valor: object) -> datetime:
+    """Aceita datetime (Postgres) ou texto ISO/SQLite e devolve datetime."""
+    if isinstance(valor, datetime):
+        return valor
+    return datetime.fromisoformat(str(valor).replace("Z", "+00:00"))
+
+
+def _iso(valor: object) -> str:
+    return _para_datetime(valor).isoformat()
+
+
+@router.get("/{empresa_id}/atividades")
+def consultar_atividades(
+    empresa_id: str, usuario: Usuario, conexao: Conexao, limite: int = 12
+) -> dict[str, object]:
+    """Feed de atividades da empresa, sem expor horário de respostas individuais."""
+    exigir_empresa(usuario, empresa_id)
+    limite = max(1, min(limite, 50))
+    eventos = buscar_todos(
+        conexao,
+        "SELECT acao, registrado_em FROM log_auditoria "
+        "WHERE empresa_id = ? AND acao NOT IN (?, ?) "
+        "ORDER BY registrado_em DESC LIMIT ?",
+        (empresa_id, *ACOES_RESPOSTA, limite),
+    )
+    respostas = buscar_todos(
+        conexao,
+        "SELECT registrado_em FROM log_auditoria "
+        "WHERE empresa_id = ? AND acao IN (?, ?) "
+        "ORDER BY registrado_em DESC LIMIT 5000",
+        (empresa_id, *ACOES_RESPOSTA),
+    )
+    por_semana: Counter[str] = Counter()
+    for linha in respostas:
+        momento = _para_datetime(linha["registrado_em"])
+        inicio = (momento - timedelta(days=momento.weekday())).date().isoformat()
+        por_semana[inicio] += 1
+    minimo = config.N_MINIMO_GHE
+    semanas = [
+        {
+            "semana_inicio": inicio,
+            "total": total if total >= minimo else None,
+            "abaixo_do_minimo": total < minimo,
+        }
+        for inicio, total in sorted(por_semana.items(), reverse=True)[:6]
+    ]
+    return {
+        "eventos": [
+            {
+                "tipo": evento["acao"],
+                "titulo": ROTULOS_ATIVIDADE.get(evento["acao"], "Atividade registrada"),
+                "quando": _iso(evento["registrado_em"]),
+            }
+            for evento in eventos
+        ],
+        "respostas_por_semana": semanas,
+        "n_minimo": minimo,
+    }

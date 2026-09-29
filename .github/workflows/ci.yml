@@ -49,7 +49,7 @@ jobs:
       - name: Instalar deps API + ML leve
         run: |
           pip install -r requirements.txt
-          pip install pandas openpyxl scikit-learn xgboost
+          pip install -r ml/requirements-ml.txt
       - name: Testes de schema ML (sem treino pesado)
         run: python -m pytest ml/tests/test_risk_pipeline.py::test_xlsx_corresponde_integralmente_ao_instrumento ml/tests/test_risk_pipeline.py::test_formula_respeita_extremos_de_polaridade -q
 

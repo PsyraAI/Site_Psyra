@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Plus,
   Save,
+  Settings,
 } from "lucide-react";
 
 import {
@@ -35,6 +36,9 @@ import { adaptarPainel } from "../lib/adaptadores";
 import { api, ErroApi } from "../lib/api";
 import { planoPermiteCapital } from "../lib/planos";
 import MarcaLogo from "../componentes/MarcaLogo";
+import AlternarTema from "../componentes/AlternarTema";
+import AtividadesRecentes from "../componentes/AtividadesRecentes";
+import Configuracoes from "../componentes/Configuracoes";
 
 const SECOES = [
   { id: "visao", rotulo: "Visão geral", icone: LayoutDashboard },
@@ -238,7 +242,11 @@ export default function Painel() {
     }
   };
 
-  const secaoAtual = SECOES.find((s) => s.id === secao);
+  const secaoAtual =
+    secao === "config"
+      ? { rotulo: "Configurações" }
+      : SECOES.find((s) => s.id === secao);
+  const primeiroNome = (usuario.nome || "").trim().split(/\s+/)[0] || "gestor";
 
   return (
     <div className="app">
@@ -268,6 +276,22 @@ export default function Painel() {
           ))}
         </nav>
 
+        <p className="sidebar__sep">Conta</p>
+        <nav className="sidebar__nav" aria-label="Conta">
+          <button
+            type="button"
+            className={`nav-item${secao === "config" ? " nav-item--ativo" : ""}`}
+            aria-current={secao === "config" ? "page" : undefined}
+            aria-label="Configurações"
+            title="Configurações"
+            onClick={() => setSecao("config")}
+          >
+            <Settings size={18} aria-hidden="true" />
+            <span>Configurações</span>
+          </button>
+          <AlternarTema variante="linha" />
+        </nav>
+
         <div className="sidebar__rodape">
           <div className="sidebar__privacidade">
             <Lock size={14} aria-hidden="true" />
@@ -284,8 +308,9 @@ export default function Painel() {
             <div className="topbar__sub">{usuario.empresa_nome}</div>
           </div>
           <div className="topbar__dir">
+            <AlternarTema />
             <div className="topbar__usuario">
-              <b>{usuario.nome}</b>
+              <b>Olá, {primeiroNome}</b>
               <span>Gestor de conta</span>
             </div>
             <button className="botao botao--fantasma botao--pequeno" type="button" onClick={aoSair}>
@@ -295,6 +320,21 @@ export default function Painel() {
         </header>
 
         <main className="conteudo__corpo">
+          {secao === "config" ? (
+            <Configuracoes usuario={usuario} />
+          ) : (
+          <>
+          {secao === "visao" && (
+            <div className="saudacao rise">
+              <h1>
+                Olá, <em>{primeiroNome}</em>
+              </h1>
+              <p>
+                Veja onde o risco psicossocial se concentra em {usuario.empresa_nome}, sempre por
+                grupo e nunca por pessoa.
+              </p>
+            </div>
+          )}
           {erro && (
             <p className="erro" role="alert" style={{ marginBottom: 16 }}>
               {erro}
@@ -460,6 +500,9 @@ export default function Painel() {
           )}
 
           <section aria-live="polite">{conteudo()}</section>
+          {secao === "visao" && <AtividadesRecentes empresaId={usuario.empresa_id} />}
+          </>
+          )}
         </main>
       </div>
     </div>

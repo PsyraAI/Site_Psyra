@@ -70,7 +70,7 @@ def _adaptar_sql(sql: str) -> str:
 
 def _normalizar_valor_pg(valor: Any) -> Any:
     """Converte tipos Postgres (UUID, datetime) para valores usáveis na API/JWT."""
-    if valor is None or isinstance(valor, (str, int, float, bool, bytes)):
+    if valor is None or isinstance(valor, str | int | float | bool | bytes):
         return valor
     # uuid.UUID, datetime, date, Decimal, etc.
     tipo = type(valor)
@@ -260,7 +260,8 @@ def _migrar_operacao_producao(conexao: Any) -> None:
             "ativo INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0, 1))"
         )
         conexao.execute(
-            "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS porte TEXT NOT NULL DEFAULT 'media'"
+            "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS "
+            "porte TEXT NOT NULL DEFAULT 'media'"
         )
         conexao.execute(
             "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS "

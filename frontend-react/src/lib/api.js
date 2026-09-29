@@ -86,6 +86,12 @@ export const api = {
       body: JSON.stringify({ email, senha }),
     }),
   perfil: () => requisitar("/v1/auth/me"),
+  alterarSenha: (senhaAtual, novaSenha) =>
+    requisitar("/v1/auth/senha", {
+      method: "POST",
+      body: JSON.stringify({ senha_atual: senhaAtual, nova_senha: novaSenha }),
+    }),
+  atividades: (empresaId) => requisitar(`/v1/empresas/${empresaId}/atividades`),
   listarColetas: (empresaId) => requisitar(`/v1/empresas/${empresaId}/coletas`),
   criarColeta: (empresaId, dados) =>
     requisitar(`/v1/empresas/${empresaId}/coletas`, {
