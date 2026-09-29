@@ -19,28 +19,15 @@ import { useAuth } from "../contexto/Auth";
 import { apiAdmin, sessaoAdmin } from "../lib/api";
 import AlternarTema from "../componentes/AlternarTema";
 import MarcaLogo from "../componentes/MarcaLogo";
+import SeletorIdioma from "../componentes/SeletorIdioma";
+import { EMAIL_CONTATO, IDIOMAS, aplicarIdiomaNoDocumento, idiomaPreferido } from "../lib/idiomas";
+import { TEXTOS_ENTRADA } from "../lib/textosEntrada";
 import "../estilos/operacao.css";
 
 const PERFIS = {
-  empresa: {
-    id: "empresa",
-    rotulo: "Empresa cliente",
-    titulo: "Entrar no painel",
-    descricao: "Resultados agregados por grupo (n ≥ 5), conformidade NR-1 e plano de ação.",
-    icone: Building2,
-    placeholder: "voce@empresa.com.br",
-  },
-  superadmin: {
-    id: "superadmin",
-    rotulo: "Operação Psyra",
-    titulo: "Entrar na operação",
-    descricao: "Equipe interna: empresas, planos e contas de acesso.",
-    icone: ShieldCheck,
-    placeholder: "ops@psyra.ai",
-  },
+  empresa: { id: "empresa", icone: Building2, placeholder: "voce@empresa.com.br" },
+  superadmin: { id: "superadmin", icone: ShieldCheck, placeholder: "ops@psyra.ai" },
 };
-
-const EMAIL_CONTATO = "psyra.ai.io@gmail.com";
 
 export default function Entrada() {
   const { usuario, entrar } = useAuth();
@@ -59,6 +46,12 @@ export default function Entrada() {
   const [verSenha, setVerSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [idioma, setIdioma] = useState(idiomaPreferido);
+  const t = TEXTOS_ENTRADA[idioma];
+
+  useEffect(() => {
+    aplicarIdiomaNoDocumento(idioma, t.titulo);
+  }, [idioma, t.titulo]);
 
   useEffect(() => {
     if (usuario) navegar("/painel", { replace: true });
@@ -89,7 +82,7 @@ export default function Entrada() {
     evento.preventDefault();
     setErro("");
     if (!email.trim() || !senha) {
-      setErro("Informe e-mail e senha.");
+      setErro(t.erroVazio);
       return;
     }
     setEnviando(true);
@@ -109,7 +102,7 @@ export default function Entrada() {
     }
   }
 
-  const perfilAtual = perfil ? PERFIS[perfil] : null;
+  const perfilAtual = perfil ? { ...PERFIS[perfil], ...t.perfis[perfil] } : null;
 
   return (
     <main className="entrada entrada--v2">
@@ -118,26 +111,39 @@ export default function Entrada() {
         <div className="entrada__grain" />
       </div>
 
-      <AlternarTema className="entrada__tema" />
+      <div className="entrada__controles">
+        <SeletorIdioma
+          atual={idioma}
+          rotulo={t.idioma}
+          aoTrocar={setIdioma}
+          className="seletor-idioma--app"
+        />
+        <AlternarTema className="entrada__tema" />
+      </div>
 
       <div className="acesso">
         <header className="acesso__marca rise" style={{ animationDelay: "0.04s" }}>
           <MarcaLogo className="marca__logo marca__logo--hero" size={72} />
           <div>
             <span className="acesso__nome">Psyra AI</span>
-            <span className="acesso__eyebrow">Saúde psicossocial · Conformidade NR-1</span>
+            <span className="acesso__eyebrow">{t.eyebrow}</span>
           </div>
         </header>
 
         {!perfilAtual ? (
           <section className="acesso__cartao rise" style={{ animationDelay: "0.12s" }}>
             <h1 className="acesso__titulo">
-              Como você quer <em>entrar</em>?
+              {t.perguntaAntes}
+              <em>{t.perguntaDestaque}</em>
+              {t.perguntaDepois}
             </h1>
-            <p className="acesso__apoio">Escolha o acesso certo para o seu papel.</p>
+            <p className="acesso__apoio">{t.apoio}</p>
+            {t.avisoIdioma ? <p className="acesso__aviso-idioma">{t.avisoIdioma}</p> : null}
 
             <div className="acesso__perfis">
-              {Object.values(PERFIS).map(({ id, rotulo, descricao, icone: Icone }) => (
+              {Object.values(PERFIS).map(({ id, icone: Icone }) => {
+                const { rotulo, descricao } = t.perfis[id];
+                return (
                 <button
                   key={id}
                   className="acesso__perfil"
@@ -153,26 +159,26 @@ export default function Entrada() {
                   </span>
                   <ArrowRight className="acesso__perfil-seta" size={18} aria-hidden="true" />
                 </button>
-              ))}
+                );
+              })}
             </div>
 
             <div className="acesso__conta">
               <p>
-                <strong>Sua empresa ainda não tem acesso?</strong> As contas são criadas pela
-                equipe Psyra depois do diagnóstico gratuito.
+                <strong>{t.semContaTitulo}</strong> {t.semContaTexto}
               </p>
               <a
                 className="botao botao--fantasma botao--pequeno"
-                href={`mailto:${EMAIL_CONTATO}?subject=${encodeURIComponent("Solicitar acesso à Psyra")}`}
+                href={`mailto:${EMAIL_CONTATO}?subject=${encodeURIComponent(t.assunto)}`}
               >
-                <Mail size={15} aria-hidden="true" /> Solicitar acesso
+                <Mail size={15} aria-hidden="true" /> {t.solicitar}
               </a>
             </div>
           </section>
         ) : (
           <section className="acesso__cartao rise">
             <button className="acesso__voltar" type="button" onClick={voltarEscolha}>
-              <ArrowLeft size={15} aria-hidden="true" /> Trocar tipo de acesso
+              <ArrowLeft size={15} aria-hidden="true" /> {t.trocar}
             </button>
             <div className="acesso__form-topo">
               <span className="acesso__perfil-icone" aria-hidden="true">
@@ -187,7 +193,7 @@ export default function Entrada() {
 
             <form onSubmit={aoEntrar} noValidate>
               <div className="campo">
-                <label htmlFor="email">E-mail</label>
+                <label htmlFor="email">{t.email}</label>
                 <input
                   id="email"
                   type="email"
@@ -199,7 +205,7 @@ export default function Entrada() {
                 />
               </div>
               <div className="campo">
-                <label htmlFor="senha">Senha</label>
+                <label htmlFor="senha">{t.senha}</label>
                 <div className="campo-senha">
                   <input
                     id="senha"
@@ -214,7 +220,7 @@ export default function Entrada() {
                     type="button"
                     className="campo-senha__olho"
                     onClick={() => setVerSenha((v) => !v)}
-                    aria-label={verSenha ? "Ocultar senha" : "Mostrar senha"}
+                    aria-label={verSenha ? t.ocultarSenha : t.mostrarSenha}
                   >
                     {verSenha ? <EyeOff size={17} /> : <Eye size={17} />}
                   </button>
@@ -226,19 +232,18 @@ export default function Entrada() {
               <button className="botao botao--bloco" type="submit" disabled={enviando}>
                 {enviando ? (
                   <>
-                    <span className="spinner" aria-hidden="true" /> Entrando…
+                    <span className="spinner" aria-hidden="true" /> {t.entrando}
                   </>
                 ) : (
                   <>
-                    Entrar <ArrowRight size={17} aria-hidden="true" />
+                    {t.entrar} <ArrowRight size={17} aria-hidden="true" />
                   </>
                 )}
               </button>
             </form>
 
             <p className="acesso__privacidade">
-              <Lock size={12} aria-hidden="true" /> Resultados sempre por grupo. Nunca dados
-              individuais.
+              <Lock size={12} aria-hidden="true" /> {t.privacidade}
             </p>
           </section>
         )}
@@ -247,9 +252,9 @@ export default function Entrada() {
           className="acesso__inicio rise"
           type="button"
           style={{ animationDelay: "0.2s" }}
-          onClick={() => navegar("/")}
+          onClick={() => navegar(IDIOMAS[idioma].inicio)}
         >
-          <ArrowLeft size={15} aria-hidden="true" /> Voltar à página inicial
+          <ArrowLeft size={15} aria-hidden="true" /> {t.voltar}
         </button>
 
         {import.meta.env.DEV ? (
