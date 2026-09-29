@@ -345,7 +345,36 @@ html { background: #12142a; }
   color: var(--nevoa); cursor: pointer; transition: background 0.16s, border-color 0.16s, color 0.16s;
 }
 .tema-icone:hover { background: var(--roxo-12); border-color: rgba(188, 132, 195, 0.45); color: var(--roxo); }
-.entrada__tema { position: absolute; top: 18px; right: 18px; z-index: 3; }
+.entrada__controles {
+  position: absolute; top: 18px; right: 18px; z-index: 5;
+  display: flex; align-items: center; gap: 8px;
+}
+.entrada__controles .entrada__tema { position: static; }
+
+/* Seletor de idioma no tema do app (claro ou escuro) */
+.seletor-idioma--app .seletor-idioma__botao {
+  color: var(--nevoa);
+  border: 1px solid var(--linha-forte);
+  background: var(--superficie-alta);
+}
+.seletor-idioma--app .seletor-idioma__botao:hover,
+.seletor-idioma--app .seletor-idioma__botao[aria-expanded="true"] { background: var(--roxo-12); }
+.seletor-idioma--app .seletor-idioma__lista {
+  background: var(--noite);
+  border-color: var(--linha-forte);
+}
+[data-tema="claro"] .seletor-idioma--app .seletor-idioma__lista { background: #ffffff; }
+.seletor-idioma--app .seletor-idioma__lista a,
+.seletor-idioma--app .seletor-idioma__lista button { color: var(--nevoa); }
+.seletor-idioma--app .seletor-idioma__lista [aria-current="true"] { color: var(--roxo); }
+.acesso__aviso-idioma {
+  margin: 10px 0 16px; padding: 8px 12px; border-radius: 10px;
+  font-size: 13px; color: var(--ardosia); background: var(--roxo-12);
+}
+.entrada:lang(zh-Hans) .acesso__titulo,
+:root:lang(zh-Hans) .acesso__titulo { font-family: "PingFang SC", "Noto Sans SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
+:root:lang(zh-Hans) .acesso__titulo em,
+:root:lang(zh-Hans) .acesso__apoio { font-style: normal; }
 
 .saudacao { margin-bottom: var(--s5); }
 .saudacao h1 { font-size: clamp(1.7rem, 3.2vw, 2.3rem); color: var(--branco); }
