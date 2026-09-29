@@ -8,6 +8,10 @@
       name="description"
       content="A Psyra AI detecta risco psicossocial lendo texto livre em português, não só notas de 1 a 5. Conformidade NR-1, explicabilidade e resultados sempre agregados por grupo."
     />
+    <link rel="alternate" hreflang="pt-BR" href="https://site-psyra.onrender.com/" />
+    <link rel="alternate" hreflang="en" href="https://site-psyra.onrender.com/en" />
+    <link rel="alternate" hreflang="zh-Hans" href="https://site-psyra.onrender.com/zh" />
+    <link rel="alternate" hreflang="x-default" href="https://site-psyra.onrender.com/" />
     <link rel="icon" href="/psyra-logo.svg" type="image/svg+xml" />
     <link rel="alternate icon" href="/psyra-logo.png" type="image/png" />
     <link rel="apple-touch-icon" href="/psyra-logo.png" />
@@ -17,18 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Caladea:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <script>
-      // Aplica o tema salvo antes da primeira pintura (evita piscar escuro→claro).
-      (function () {
-        try {
-          var p = location.pathname;
-          var publica = p === "/" || p === "/privacidade" || p.indexOf("/responder") === 0;
-          var pref = localStorage.getItem("psyra-tema") || "escuro";
-          var claro = pref === "claro" || (pref === "sistema" && matchMedia("(prefers-color-scheme: light)").matches);
-          document.documentElement.dataset.tema = !publica && claro ? "claro" : "escuro";
-        } catch (e) {}
-      })();
-    </script>
+    <script src="/tema-inicial.js"></script>
   </head>
   <body>
     <div id="root"></div>
