@@ -154,9 +154,39 @@
 
 /* Cadastro de empresas */
 .admin--estudio {
-  width: min(1120px, calc(100% - 32px));
+  width: min(1240px, calc(100% - 32px));
   margin: 0 auto;
   padding: 28px 0 72px;
+}
+
+.admin__operacao {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+.admin__rail,
+.admin__editor {
+  min-width: 0;
+}
+
+.admin__editor-topo h2 {
+  margin: 2px 0 16px;
+  font-size: 1.45rem;
+}
+
+.admin__editor-rodape {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: end;
+  margin-top: 18px;
+}
+
+.admin__editor-rodape .botao {
+  height: 44px;
 }
 
 .admin__marca {
@@ -170,8 +200,45 @@
 }
 
 .admin__empresa {
-  align-items: flex-start;
-  padding: 14px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--linha);
+  border-radius: 16px;
+  background: rgba(12, 14, 32, 0.35);
+}
+
+.admin__empresa button:first-child {
+  width: 100%;
+  background: none;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.admin__empresa strong,
+.admin__empresa span {
+  display: block;
+}
+
+.admin__empresa span {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--ardosia);
+}
+
+.admin__empresa .botao {
+  align-self: flex-start;
+}
+
+.admin__empresa--ativa {
+  border-color: rgba(188, 132, 195, 0.75);
+  background: rgba(188, 132, 195, 0.12);
 }
 
 .admin__chips {
@@ -203,11 +270,63 @@
 }
 
 .admin-plano {
-  background: rgba(18, 20, 42, 0.4);
+  min-width: 0;
+  gap: 12px;
+  padding: 18px 16px 16px;
+  background: rgba(18, 20, 42, 0.55);
+  overflow: hidden;
+}
+
+.admin-plano__badge {
+  position: static;
+  margin: 2px 0 0;
+  min-height: 22px;
+}
+
+.admin-plano__badge--vazio {
+  visibility: hidden;
+}
+
+.admin-plano__topo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding-right: 0;
+}
+
+.admin-plano__topo strong {
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.admin-plano__preco {
+  margin: 0;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 1.02rem;
+  line-height: 1.2;
+}
+
+.admin-plano__preco small {
+  display: inline;
+  margin-left: 4px;
+}
+
+.admin-plano__desc,
+.admin-plano__itens {
+  overflow-wrap: anywhere;
 }
 
 .admin-plano--ativo {
-  box-shadow: 0 0 0 1px rgba(188, 132, 195, 0.55), 0 16px 40px rgba(9, 10, 24, 0.28);
+  box-shadow: 0 0 0 1px rgba(188, 132, 195, 0.7), 0 18px 40px rgba(9, 10, 24, 0.32);
+}
+
+@media (max-width: 980px) {
+  .admin__operacao,
+  .admin__editor-rodape {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (min-width: 900px) {

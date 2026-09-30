@@ -20,6 +20,22 @@ const usuarioInicial = {
   papel: "admin",
 };
 
+const PORTES = {
+  micro: "Micro",
+  pequena: "Pequena",
+  media: "Média",
+  grande: "Grande",
+};
+
+const ATUACOES = {
+  saude: "Saúde",
+  industria: "Indústria",
+  servicos: "Serviços",
+  comercio: "Comércio",
+  tecnologia: "Tecnologia",
+  outro: "Outro",
+};
+
 function SeletorPlanos({ valor, onChange, nomeGrupo }) {
   return (
     <div className="admin-planos" role="radiogroup" aria-label="Plano comercial">
@@ -40,16 +56,14 @@ function SeletorPlanos({ valor, onChange, nomeGrupo }) {
               onChange={() => onChange(plano.id)}
             />
             <div className="admin-plano__topo">
-              <div>
-                <strong>{plano.nome}</strong>
-                {plano.destaque ? (
-                  <span className="admin-plano__badge">Recomendado</span>
-                ) : null}
-              </div>
+              <strong>{plano.nome}</strong>
               <p className="admin-plano__preco">
                 <span>{plano.preco}</span>
                 <small>{plano.periodo}</small>
               </p>
+              <span className={`admin-plano__badge ${plano.destaque ? "" : "admin-plano__badge--vazio"}`}>
+                {plano.destaque ? "Recomendado" : ""}
+              </span>
             </div>
             <p className="admin-plano__desc">{plano.desc}</p>
             <ul className="admin-plano__itens">
@@ -320,21 +334,21 @@ export default function Admin() {
         </form>
       </section>
 
-      <div className="admin__grade">
-        <section className="superficie">
+      <div className="admin__operacao">
+        <section className="superficie admin__rail">
           <h2 className="secao-titulo">
             <Building2 size={18} aria-hidden="true" /> Empresas
           </h2>
           <div className="admin__lista">
             {empresas.map((empresa) => (
               <div
-                className={`admin__item admin__empresa ${empresaAtual?.id === empresa.id ? "admin__item--ativo" : ""}`}
+                className={`admin__empresa ${empresaAtual?.id === empresa.id ? "admin__empresa--ativa" : ""}`}
                 key={empresa.id}
               >
                 <button type="button" onClick={() => setEmpresaAtual(empresa)}>
                   <strong>{empresa.razao_social}</strong>
                   <span>
-                    {empresa.total_usuarios} usuário(s) · {empresa.porte || "media"} · {empresa.atuacao || "servicos"}
+                    {empresa.total_usuarios} usuário(s) · {PORTES[empresa.porte] || "Média"} · {ATUACOES[empresa.atuacao] || "Serviços"}
                   </span>
                   <span className="admin__chips">
                     <em className="admin__chip">{rotuloPlano(empresa.plano)}</em>
@@ -356,15 +370,18 @@ export default function Admin() {
         </section>
 
         {empresaAtual ? (
-          <section className="superficie">
-            <h2 className="secao-titulo">Alterar plano · {empresaAtual.razao_social}</h2>
+          <section className="superficie admin__editor">
+            <div className="admin__editor-topo">
+              <p className="entrada__eyebrow">Plano da empresa</p>
+              <h2>{empresaAtual.razao_social}</h2>
+            </div>
             <form onSubmit={salvarMetaEmpresa}>
               <SeletorPlanos
                 nomeGrupo="plano-empresa-atual"
                 valor={empresaAtual.plano}
                 onChange={(plano) => setEmpresaAtual({ ...empresaAtual, plano })}
               />
-              <div className="admin__grade-campos" style={{ marginTop: 16 }}>
+              <div className="admin__editor-rodape">
                 <div className="campo">
                   <label>Porte</label>
                   <select
@@ -395,14 +412,14 @@ export default function Admin() {
                     <option value="outro">Outro</option>
                   </select>
                 </div>
+                <button className="botao" type="submit">
+                  Salvar plano
+                </button>
               </div>
               <p className="admin-plano__resumo">
-                Atual: <strong>{planoEmpresaAtual.nome}</strong> —{" "}
-                {planoEmpresaAtual.itens.length} funcionalidades listadas
+                Selecionado: <strong>{planoEmpresaAtual.nome}</strong> —{" "}
+                {planoEmpresaAtual.itens.length} funcionalidades
               </p>
-              <button className="botao" type="submit">
-                Salvar plano e perfil
-              </button>
             </form>
           </section>
         ) : null}
