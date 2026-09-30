@@ -1,10 +1,42 @@
-// Landing comercial Psyra AI — primeira tela do site (/).
+// Landing comercial Psyra AI em pt-BR (/), inglês (/en) e chinês simplificado (/zh).
+// Sprint: S10 | Risco: R2 — nenhum dado individual; gráficos fictícios levam o selo de ilustrativos.
 
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  ClipboardCheck,
+  EyeOff,
+  FileCheck2,
+  FileText,
+  Fingerprint,
+  History,
+  ListOrdered,
+  Lock,
+  MessageSquareText,
+  Scale,
+  ShieldCheck,
+  UserX,
+  Users,
+} from "lucide-react";
 
 import { PLANOS } from "../lib/planos";
 import MarcaLogo from "../componentes/MarcaLogo";
+import SeletorIdioma from "../componentes/SeletorIdioma";
+import { BarrasHero, GraficoCusto, GraficoFatores, GraficoRevelador, GraficoRiscos } from "../componentes/GraficosLanding";
+import {
+  EMAIL_CONTATO,
+  IDIOMAS,
+  aplicarIdiomaNoDocumento,
+  formatarReais,
+  idiomaDoNavegador,
+  idiomaSalvo,
+  salvarIdioma,
+} from "../lib/idiomas";
+import { TEXTOS } from "../lib/textosLanding";
+
+const ICONES_PASSOS = [MessageSquareText, ShieldCheck, Users, ClipboardCheck];
+const ICONES_ENTREGAS = [FileText, Scale, ListOrdered, FileCheck2];
+const ICONES_CONFIANCA = [Users, EyeOff, UserX, Lock, Fingerprint, History];
 
 function Logo({ className = "lp-logo" }) {
   return <MarcaLogo className={className} size={42} />;
@@ -18,12 +50,12 @@ function Reveal({ children, delay = 0, className = "" }) {
     const el = ref.current;
     if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setVisible(true);
-      return;
+      return undefined;
     }
     const rect = el.getBoundingClientRect();
     if (rect.top < window.innerHeight * 0.9) {
       setVisible(true);
-      return;
+      return undefined;
     }
     setVisible(false);
     const io = new IntersectionObserver(
@@ -40,38 +72,50 @@ function Reveal({ children, delay = 0, className = "" }) {
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className={`lp-reveal ${className}`}
-      data-visible={visible ? "true" : "false"}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
+    <div ref={ref} className={`lp-reveal ${className}`} data-visible={visible ? "true" : "false"} style={{ transitionDelay: `${delay}ms` }}>
       {children}
     </div>
   );
 }
 
-function Header() {
+function Cabecalho({ rotulo, titulo, intro, id }) {
+  return (
+    <>
+      <p className="lp-eyebrow">{rotulo}</p>
+      <h2 id={id}>{titulo}</h2>
+      {intro ? <p className="lp-section__intro">{intro}</p> : null}
+    </>
+  );
+}
+
+function useIdiomaDaPagina(idioma, titulo, descricao) {
+  useEffect(() => {
+    aplicarIdiomaNoDocumento(idioma, titulo, descricao);
+  }, [idioma, titulo, descricao]);
+}
+
+function Header({ t, idioma, destino }) {
   return (
     <header className="lp-header">
       <div className="lp-wrap lp-header__inner">
-        <Link to="/" className="lp-brand">
+        <Link to={IDIOMAS[idioma].inicio} className="lp-brand">
           <Logo />
           <span className="lp-brand__name">Psyra AI</span>
         </Link>
-        <nav className="lp-nav" aria-label="Seções">
-          <a href="#problema">O problema</a>
-          <a href="#solucao">Solução</a>
-          <a href="#como-funciona">Como funciona</a>
-          <a href="#planos">Planos</a>
-          <a href="#conformidade">Conformidade</a>
+        <nav className="lp-nav" aria-label={t.nav.rotulo}>
+          <a href={`${IDIOMAS[idioma].inicio}#solucao`}>{t.nav.solucao}</a>
+          <a href={`${IDIOMAS[idioma].inicio}#como-funciona`}>{t.nav.como}</a>
+          <a href={`${IDIOMAS[idioma].inicio}#painel`}>{t.nav.painel}</a>
+          <a href={`${IDIOMAS[idioma].inicio}#planos`}>{t.nav.planos}</a>
+          <a href={`${IDIOMAS[idioma].inicio}#duvidas`}>{t.nav.duvidas}</a>
         </nav>
         <div className="lp-header__actions">
+          <SeletorIdioma atual={idioma} rotulo={t.idioma.rotulo} destino={destino} />
           <Link className="lp-btn lp-btn--ghost" to="/entrar">
-            Entrar no painel
+            {t.acoes.entrar}
           </Link>
-          <a className="lp-btn lp-btn--primary" href="#contato">
-            Agendar diagnóstico gratuito
+          <a className="lp-btn lp-btn--primary lp-btn--cta-topo" href={`${IDIOMAS[idioma].inicio}#contato`}>
+            {t.acoes.diagnostico}
           </a>
         </div>
       </div>
@@ -79,45 +123,91 @@ function Header() {
   );
 }
 
-function Footer() {
+function SugestaoIdioma({ idioma }) {
+  const [sugerido, setSugerido] = useState(null);
+
+  useEffect(() => {
+    if (idioma !== "pt" || idiomaSalvo()) return;
+    const doNavegador = idiomaDoNavegador();
+    if (doNavegador && doNavegador !== "pt") setSugerido(doNavegador);
+  }, [idioma]);
+
+  if (!sugerido) return null;
+  const s = TEXTOS[sugerido].sugestao;
+  const cfg = IDIOMAS[sugerido];
+  return (
+    <div className="lp-sugestao" role="region" aria-label={s.texto} lang={cfg.html}>
+      <div className="lp-wrap lp-sugestao__inner">
+        <p>{s.texto}</p>
+        <div className="lp-sugestao__acoes">
+          <Link className="lp-btn lp-btn--primary" to={cfg.inicio} onClick={() => salvarIdioma(sugerido)}>
+            {s.ir}
+          </Link>
+          <button
+            type="button"
+            className="lp-btn lp-btn--ghost"
+            onClick={() => {
+              salvarIdioma("pt");
+              setSugerido(null);
+            }}
+          >
+            {s.ficar}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AvisoTraducao({ t }) {
+  if (!t.aviso) return null;
+  return (
+    <div className="lp-aviso-traducao">
+      <p className="lp-wrap">{t.aviso}</p>
+    </div>
+  );
+}
+
+function Footer({ t, idioma, destino }) {
   return (
     <footer className="lp-footer">
       <div className="lp-wrap lp-footer__grid">
         <div className="lp-footer__brand">
-          <Link to="/" className="lp-brand">
+          <Link to={IDIOMAS[idioma].inicio} className="lp-brand">
             <Logo />
             <span className="lp-brand__name">Psyra AI</span>
           </Link>
-          <p>
-            Detecção preditiva de riscos psicossociais em português, com conformidade NR-1 e
-            resultados sempre agregados por grupo.
-          </p>
+          <p>{t.rodape.descricao}</p>
+          <p className="lp-footer__origem">{t.rodape.origem}</p>
         </div>
         <div>
-          <h3>Navegação</h3>
+          <h3>{t.rodape.navegacao}</h3>
           <ul>
             <li>
-              <a href="#sobre">Sobre</a>
+              <a href={`${IDIOMAS[idioma].inicio}#sobre`}>{t.rodape.sobre}</a>
             </li>
             <li>
-              <a href="#planos">Planos</a>
+              <a href={`${IDIOMAS[idioma].inicio}#planos`}>{t.nav.planos}</a>
             </li>
             <li>
-              <a href="#contato">Contato</a>
+              <a href={`${IDIOMAS[idioma].inicio}#contato`}>{t.rodape.contato}</a>
             </li>
             <li>
-              <Link to="/privacidade">Política de Privacidade</Link>
+              <Link to={IDIOMAS[idioma].privacidade}>{t.rodape.privacidade}</Link>
             </li>
             <li>
-              <Link to="/entrar">Entrar no painel</Link>
+              <Link to="/entrar">{t.acoes.entrar}</Link>
             </li>
           </ul>
         </div>
         <div>
-          <h3>Contato</h3>
-          <a href="mailto:contato@psyra.ai">contato@psyra.ai</a>
+          <h3>{t.rodape.contato}</h3>
+          <a href={`mailto:${EMAIL_CONTATO}`}>{EMAIL_CONTATO}</a>
+          <div className="lp-footer__idioma">
+            <SeletorIdioma atual={idioma} rotulo={t.idioma.rotulo} destino={destino} alinhar="inicio" />
+          </div>
           <p className="lp-footer__copy">
-            © {new Date().getFullYear()} Psyra AI. Todos os direitos reservados.
+            © {new Date().getFullYear()} Psyra AI. {t.rodape.direitos}
           </p>
         </div>
       </div>
@@ -125,118 +215,86 @@ function Footer() {
   );
 }
 
-const problemas = [
-  {
-    valor: "546 mil",
-    legenda: "afastamentos por saúde mental no Brasil em 2025 (INSS/Dataprev)",
-    cor: "lp-text-destructive",
-  },
-  {
-    valor: "NR-1",
-    legenda:
-      "obrigatória desde maio/2026 para empresas CLT: mapear riscos psicossociais deixou de ser opcional",
-    cor: "lp-text-warning",
-  },
-  {
-    valor: "R$ 7.034",
-    legenda: "multa de até este valor por infração para quem não mapear riscos psicossociais",
-    cor: "lp-text-destructive",
-  },
-];
+export default function Landing({ idioma = "pt" }) {
+  const t = TEXTOS[idioma] || TEXTOS.pt;
+  useIdiomaDaPagina(idioma, t.meta.titulo, t.meta.descricao);
+  const destino = (id) => IDIOMAS[id].inicio;
 
-const passos = [
-  {
-    n: "1",
-    t: "Pesquisa anônima",
-    d: "Colaboradores respondem em texto livre e em escala, de forma anônima.",
-  },
-  {
-    n: "2",
-    t: "Análise por IA",
-    d: "A IA lê o texto em português e cruza com a escala para identificar sinais de risco.",
-  },
-  {
-    n: "3",
-    t: "Agregação por grupo",
-    d: "Resultados só existem por grupo (GHE) com n≥5. Nunca há resultado individual.",
-  },
-  {
-    n: "4",
-    t: "Plano de ação PGR",
-    d: "A empresa recebe prioridades e plano de ação prontos para o PGR e a NR-1.",
-  },
-];
-
-const planos = PLANOS;
-
-export default function Landing() {
   return (
-    <div className="lp-root">
-      <Header />
+    <div className="lp-root" lang={IDIOMAS[idioma].html}>
+      <SugestaoIdioma idioma={idioma} />
+      <Header t={t} idioma={idioma} destino={destino} />
+      <AvisoTraducao t={t} />
       <main>
-        <Hero />
-        <Problema />
-        <Solucao />
-        <ComoFunciona />
-        <Planos />
-        <Conformidade />
-        <Sobre />
-        <Contato />
+        <Hero t={t} idioma={idioma} />
+        <Problema t={t} />
+        <Solucao t={t} idioma={idioma} />
+        <ComoFunciona t={t} />
+        <Painel t={t} idioma={idioma} />
+        <Entregas t={t} />
+        <Planos t={t} idioma={idioma} />
+        <Confianca t={t} idioma={idioma} />
+        <Sobre t={t} />
+        <Duvidas t={t} />
+        <Contato t={t} idioma={idioma} />
       </main>
-      <Footer />
+      <Footer t={t} idioma={idioma} destino={destino} />
     </div>
   );
 }
 
-function Hero() {
+function Hero({ t, idioma }) {
+  const c = t.hero.card;
   return (
     <section className="lp-hero">
       <div className="lp-hero__glow" aria-hidden="true" />
       <div className="lp-wrap lp-hero__grid">
         <Reveal>
-          <p className="lp-pill">Conformidade NR-1 · Portaria MTE 1.419/2024</p>
+          <p className="lp-pill">{t.hero.pill}</p>
           <h1>
-            <span className="lp-metric">546 mil</span> afastamentos por saúde mental no Brasil em
-            2025. Sua empresa já sabe onde está o risco?
+            <span className="lp-metric">{t.hero.numero}</span> {t.hero.titulo}
           </h1>
-          <p className="lp-lead">
-            A Psyra AI detecta risco psicossocial lendo o que as pessoas escrevem em português — não
-            apenas notas de 1 a 5. Você enxerga o que uma escala sozinha não mostra, com conformidade
-            NR-1 e resultados sempre por grupo.
-          </p>
+          <p className="lp-lead">{t.hero.lead}</p>
           <div className="lp-hero__ctas">
             <a className="lp-btn lp-btn--primary lp-btn--lg" href="#contato">
-              Agendar diagnóstico gratuito
+              {t.acoes.diagnostico}
             </a>
-            <a className="lp-btn lp-btn--ghost lp-btn--lg" href="#como-funciona">
-              Ver como funciona
+            <a className="lp-btn lp-btn--ghost lp-btn--lg" href="#painel">
+              {t.acoes.verPainel}
             </a>
           </div>
+          <ul className="lp-garantias">
+            {t.hero.garantias.map((g) => (
+              <li key={g}>
+                <ShieldCheck size={15} aria-hidden="true" /> {g}
+              </li>
+            ))}
+          </ul>
         </Reveal>
         <Reveal delay={150}>
           <div className="lp-demo-card">
-            <p className="lp-demo-card__label">Mesma nota, sinais opostos</p>
-            <div className="lp-demo-card__stack">
-              <div className="lp-demo-item">
-                <div className="lp-demo-item__row">
-                  <span>Grupo A · escala</span>
-                  <span className="lp-metric">3/5</span>
-                </div>
-                <p>“A rotina é puxada, mas a equipe se apoia e a liderança ouve.”</p>
-                <span className="lp-chip lp-chip--ok">Sinal de suporte social</span>
-              </div>
-              <div className="lp-demo-item">
-                <div className="lp-demo-item__row">
-                  <span>Grupo B · escala</span>
-                  <span className="lp-metric">3/5</span>
-                </div>
-                <p>“Sigo entregando, mas já não durmo direito pensando nas metas.”</p>
-                <span className="lp-chip lp-chip--bad">Sinal de exaustão</span>
-              </div>
+            <div className="lp-demo-card__topo">
+              <p className="lp-demo-card__label">{c.rotulo}</p>
+              <span className="lp-selo">{t.ilustrativo}</span>
             </div>
-            <p className="lp-demo-card__note">
-              Exemplos ilustrativos. Resultados reais são sempre agregados por grupo (n≥5).
-            </p>
+            <div className="lp-demo-card__stack">
+              {[
+                { g: c.grupoA, id: "A", chip: "lp-chip--ok" },
+                { g: c.grupoB, id: "B", chip: "lp-chip--bad" },
+              ].map(({ g, id, chip }) => (
+                <div className="lp-demo-item" key={id}>
+                  <div className="lp-demo-item__row">
+                    <span>{g.nome}</span>
+                    <span className="lp-metric">3/5</span>
+                  </div>
+                  <BarrasHero t={t} idioma={idioma} grupo={id} />
+                  <p lang="pt-BR">{g.frase}</p>
+                  {g.traducao ? <p className="lp-demo-item__traducao">{g.traducao}</p> : null}
+                  <span className={`lp-chip ${chip}`}>{g.chip}</span>
+                </div>
+              ))}
+            </div>
+            <p className="lp-demo-card__note">{c.nota}</p>
           </div>
         </Reveal>
       </div>
@@ -244,32 +302,40 @@ function Hero() {
   );
 }
 
-function Problema() {
+function Problema({ t }) {
+  const p = t.problema;
   return (
-    <section id="problema" className="lp-section lp-section--deep">
+    <section id="problema" className="lp-section lp-section--deep" aria-labelledby="titulo-problema">
       <div className="lp-wrap">
         <Reveal>
-          <h2>O problema</h2>
-          <p className="lp-section__intro">
-            O adoecimento mental no trabalho virou um risco operacional, financeiro e agora também
-            regulatório.
-          </p>
+          <Cabecalho id="titulo-problema" rotulo={p.rotulo} titulo={p.titulo} intro={p.intro} />
         </Reveal>
-        <div className="lp-grid lp-grid--3">
-          {problemas.map((p, i) => (
-            <Reveal key={p.valor} delay={i * 120}>
-              <div className="lp-card">
-                <p className={`lp-metric ${p.cor}`}>{p.valor}</p>
-                <p>{p.legenda}</p>
-              </div>
-            </Reveal>
-          ))}
+        <div className="lp-problema-grid">
+          <Reveal>
+            <div className="lp-card lp-card--destaque">
+              <p className="lp-metric lp-text-destructive">{t.hero.numero}</p>
+              <p>{p.legenda}</p>
+            </div>
+          </Reveal>
+          <Reveal delay={120}>
+            <div className="lp-card">
+              <h3 className="lp-card__titulo-pequeno">{p.linhaTitulo}</h3>
+              <ol className="lp-timeline">
+                {p.marcos.map((m, i) => (
+                  <li key={m.data} className={i === p.marcos.length - 1 ? "lp-timeline__atual" : ""}>
+                    <span className="lp-timeline__data lp-metric">{m.data}</span>
+                    <p>{m.texto}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </Reveal>
         </div>
         <Reveal delay={200}>
           <div className="lp-banner">
-            <p>Mapear risco psicossocial deixou de ser boa prática: é obrigação legal.</p>
+            <p>{p.banner}</p>
             <a className="lp-btn lp-btn--primary" href="#contato">
-              Agendar diagnóstico gratuito
+              {t.acoes.diagnostico}
             </a>
           </div>
         </Reveal>
@@ -278,32 +344,16 @@ function Problema() {
   );
 }
 
-function Solucao() {
+function Solucao({ t, idioma }) {
+  const s = t.solucao;
   return (
-    <section id="solucao" className="lp-section lp-section--light">
+    <section id="solucao" className="lp-section lp-section--light" aria-labelledby="titulo-solucao">
       <div className="lp-wrap">
         <Reveal>
-          <h2>Escala de 1 a 5 não conta a história toda</h2>
-          <p className="lp-section__intro">
-            As soluções do mercado se apoiam apenas na escala Likert. A Psyra é a única que lê e
-            interpreta texto livre em português.
-          </p>
+          <Cabecalho id="titulo-solucao" rotulo={s.rotulo} titulo={s.titulo} intro={s.intro} />
         </Reveal>
         <div className="lp-grid lp-grid--3">
-          {[
-            {
-              t: "IA que entende português",
-              d: "Modelo MentalBERT-PT aplicado ao texto livre dos colaboradores, e não apenas a números.",
-            },
-            {
-              t: "Explicabilidade",
-              d: "SHAP mostra o que sustentou cada indicação de risco, em linha com o Art. 20 da LGPD.",
-            },
-            {
-              t: "Conformidade NR-1 automática",
-              d: "Os achados já saem organizados para o mapeamento de riscos e para o PGR.",
-            },
-          ].map((c, i) => (
+          {s.cards.map((c, i) => (
             <Reveal key={c.t} delay={i * 120}>
               <div className="lp-card">
                 <h3>{c.t}</h3>
@@ -313,16 +363,16 @@ function Solucao() {
           ))}
         </div>
         <Reveal delay={200}>
-          <div className="lp-panel-dark">
-            <p className="lp-eyebrow">O Revelador</p>
-            <h3>A mesma nota numérica pode esconder sinais opostos no texto.</h3>
-            <p>
-              É exatamente essa diferença que a Psyra captura — e é por isso que dois grupos com
-              médias idênticas podem exigir ações completamente diferentes.
-            </p>
-            <a className="lp-btn lp-btn--primary" href="#contato">
-              Agendar diagnóstico gratuito
-            </a>
+          <div className="lp-panel-dark lp-revelador">
+            <div className="lp-revelador__texto">
+              <p className="lp-eyebrow">{s.revelador.rotulo}</p>
+              <h3>{s.revelador.titulo}</h3>
+              <p>{s.revelador.texto}</p>
+              <a className="lp-btn lp-btn--primary" href="#contato">
+                {t.acoes.diagnostico}
+              </a>
+            </div>
+            <GraficoRevelador t={t} idioma={idioma} />
           </div>
         </Reveal>
       </div>
@@ -330,35 +380,42 @@ function Solucao() {
   );
 }
 
-function ComoFunciona() {
+function ComoFunciona({ t }) {
+  const c = t.como;
   return (
-    <section id="como-funciona" className="lp-section lp-section--night">
+    <section id="como-funciona" className="lp-section lp-section--night" aria-labelledby="titulo-como">
       <div className="lp-wrap">
         <Reveal>
-          <h2>Como funciona</h2>
-          <p className="lp-section__intro">
-            Quatro passos, do convite da pesquisa ao plano de ação pronto para o PGR.
-          </p>
+          <Cabecalho id="titulo-como" rotulo={c.rotulo} titulo={c.titulo} intro={c.intro} />
         </Reveal>
-        <div className="lp-grid lp-grid--4">
-          {passos.map((p, i) => (
-            <Reveal key={p.n} delay={i * 110}>
-              <div className="lp-card lp-step">
-                <span className="lp-metric">{p.n}</span>
-                <h3>{p.t}</h3>
-                <p>{p.d}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+        <ol className="lp-grid lp-grid--4 lp-passos">
+          {c.passos.map((p, i) => {
+            const Icone = ICONES_PASSOS[i];
+            return (
+              <li key={p.t} className="lp-passo">
+                <Reveal delay={i * 110}>
+                  <div className="lp-card lp-step">
+                    <div className="lp-step__topo">
+                      <span className="lp-metric">{i + 1}</span>
+                      <Icone size={24} strokeWidth={1.7} aria-hidden="true" />
+                    </div>
+                    <h3>{p.t}</h3>
+                    <p>{p.d}</p>
+                  </div>
+                </Reveal>
+              </li>
+            );
+          })}
+        </ol>
+        <Reveal delay={180}>
+          <p className="lp-note">{c.instrumento}</p>
+        </Reveal>
         <Reveal delay={200}>
           <div className="lp-banner lp-banner--ok">
             <span className="lp-badge">n ≥ 5</span>
-            <p>
-              Nenhum resultado individual é exposto. Tudo é agregado por grupo com k-anonimato.
-            </p>
+            <p>{c.banner}</p>
             <a className="lp-btn lp-btn--ghost" href="#contato">
-              Agendar diagnóstico gratuito
+              {t.acoes.diagnostico}
             </a>
           </div>
         </Reveal>
@@ -367,51 +424,166 @@ function ComoFunciona() {
   );
 }
 
-function Planos() {
+function Painel({ t, idioma }) {
+  const p = t.painel;
+  const [aba, setAba] = useState("riscos");
+  const abas = ["riscos", "fatores"];
+
+  function teclado(evento) {
+    if (evento.key !== "ArrowRight" && evento.key !== "ArrowLeft") return;
+    evento.preventDefault();
+    const delta = evento.key === "ArrowRight" ? 1 : -1;
+    const proxima = abas[(abas.indexOf(aba) + delta + abas.length) % abas.length];
+    setAba(proxima);
+    document.getElementById(`aba-${proxima}`)?.focus();
+  }
+
   return (
-    <section id="planos" className="lp-section lp-section--deep">
+    <section id="painel" className="lp-section lp-section--deep" aria-labelledby="titulo-painel">
       <div className="lp-wrap">
         <Reveal>
-          <h2>Planos e preços</h2>
-          <p className="lp-section__intro">
-            Escolha o nível de cobertura conforme o tamanho e a maturidade da sua operação.
-          </p>
+          <Cabecalho id="titulo-painel" rotulo={p.rotulo} titulo={p.titulo} intro={p.intro} />
         </Reveal>
-        <div className="lp-grid lp-grid--3">
-          {planos.map((p, i) => (
-            <Reveal key={p.nome} delay={i * 120}>
-              <div className={`lp-card lp-plan ${p.destaque ? "lp-plan--hot" : ""}`}>
-                <div className="lp-plan__top">
-                  <h3>{p.nome}</h3>
-                  {p.destaque ? <span className="lp-plan__badge">Mais popular</span> : null}
-                </div>
-                <p className="lp-plan__price">
-                  <span className="lp-metric">{p.preco}</span>
-                  <span>{p.periodo}</span>
-                </p>
-                <p>{p.desc}</p>
-                <ul>
-                  {p.itens.map((item) => (
-                    <li key={item}>
-                      <span>✓</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <a
-                  className={`lp-btn ${p.destaque ? "lp-btn--primary" : "lp-btn--ghost"}`}
-                  href="#contato"
-                >
-                  Falar com a Psyra
-                </a>
+        <Reveal delay={100}>
+          <div className="lp-painel">
+            <div className="lp-painel__topo">
+              <div className="lp-abas" role="tablist" aria-label={p.titulo}>
+                {abas.map((id) => (
+                  <button
+                    key={id}
+                    id={`aba-${id}`}
+                    type="button"
+                    role="tab"
+                    className="lp-aba"
+                    aria-selected={aba === id}
+                    aria-controls={`painel-${id}`}
+                    tabIndex={aba === id ? 0 : -1}
+                    onClick={() => setAba(id)}
+                    onKeyDown={teclado}
+                  >
+                    {p.abas[id]}
+                  </button>
+                ))}
               </div>
-            </Reveal>
-          ))}
+              <span className="lp-selo">{t.ilustrativo}</span>
+            </div>
+            <div id="painel-riscos" role="tabpanel" aria-labelledby="aba-riscos" hidden={aba !== "riscos"}>
+              <GraficoRiscos t={t} idioma={idioma} />
+            </div>
+            <div id="painel-fatores" role="tabpanel" aria-labelledby="aba-fatores" hidden={aba !== "fatores"}>
+              <GraficoFatores t={t} idioma={idioma} />
+            </div>
+            <p className="lp-painel__rodape">{p.rodape}</p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function Entregas({ t }) {
+  const e = t.entregas;
+  return (
+    <section id="entregas" className="lp-section lp-section--night" aria-labelledby="titulo-entregas">
+      <div className="lp-wrap">
+        <Reveal>
+          <Cabecalho id="titulo-entregas" rotulo={e.rotulo} titulo={e.titulo} intro={e.intro} />
+        </Reveal>
+        <div className="lp-grid lp-grid--4">
+          {e.itens.map((item, i) => {
+            const Icone = ICONES_ENTREGAS[i];
+            return (
+              <Reveal key={item.t} delay={i * 100}>
+                <div className="lp-card">
+                  <Icone className="lp-card__icone" size={24} strokeWidth={1.7} aria-hidden="true" />
+                  <h3>{item.t}</h3>
+                  <p>{item.d}</p>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+        <Reveal delay={150}>
+          <div className="lp-tabela-wrap">
+            <table className="lp-tabela">
+              <caption>{e.comparacao.titulo}</caption>
+              <thead>
+                <tr>
+                  {e.comparacao.colunas.map((c, i) =>
+                    i === 0 ? (
+                      <td key="vazio" />
+                    ) : (
+                      <th key={c} scope="col" className={i === 2 ? "lp-tabela__psyra" : ""}>
+                        {c}
+                      </th>
+                    )
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {e.comparacao.linhas.map(([rotulo, clima, psyra]) => (
+                  <tr key={rotulo}>
+                    <th scope="row">{rotulo}</th>
+                    <td>{clima}</td>
+                    <td className="lp-tabela__psyra">{psyra}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function Planos({ t, idioma }) {
+  const pl = t.planos;
+  return (
+    <section id="planos" className="lp-section lp-section--deep" aria-labelledby="titulo-planos">
+      <div className="lp-wrap">
+        <Reveal>
+          <Cabecalho id="titulo-planos" rotulo={pl.rotulo} titulo={pl.titulo} intro={pl.intro} />
+        </Reveal>
+        <Reveal delay={80}>
+          <GraficoCusto t={t} idioma={idioma} planos={PLANOS} />
+        </Reveal>
+        <div className="lp-grid lp-grid--3 lp-planos">
+          {PLANOS.map((p, i) => {
+            const texto = pl.lista[p.id];
+            return (
+              <Reveal key={p.id} delay={i * 120}>
+                <div className={`lp-card lp-plan ${p.destaque ? "lp-plan--hot" : ""}`}>
+                  <div className="lp-plan__top">
+                    <h3>{p.nome}</h3>
+                    {p.destaque ? <span className="lp-plan__badge">{pl.recomendado}</span> : null}
+                  </div>
+                  <p className="lp-plan__price">
+                    <span className="lp-metric">{formatarReais(p.valorMensal, idioma)}</span>
+                    <span>{pl.periodo}</span>
+                  </p>
+                  <p className="lp-plan__faixa">{texto.faixa}</p>
+                  <p>{texto.desc}</p>
+                  <ul>
+                    {texto.itens.map((item) => (
+                      <li key={item}>
+                        <span aria-hidden="true">✓</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <a className={`lp-btn ${p.destaque ? "lp-btn--primary" : "lp-btn--ghost"}`} href="#contato">
+                    {t.acoes.falar}
+                  </a>
+                </div>
+              </Reveal>
+            );
+          })}
         </div>
         <Reveal delay={200}>
           <p className="lp-note-center">
-            Todos os planos começam com um <strong>diagnóstico inicial gratuito</strong> antes da
-            contratação.
+            <strong>{pl.nota}</strong>
+            {pl.moeda ? <span className="lp-note-center__moeda">{pl.moeda}</span> : null}
           </p>
         </Reveal>
       </div>
@@ -419,75 +591,75 @@ function Planos() {
   );
 }
 
-function Conformidade() {
+function Confianca({ t, idioma }) {
+  const c = t.confianca;
   return (
-    <section id="conformidade" className="lp-section lp-section--light">
+    <section id="privacidade" className="lp-section lp-section--light" aria-labelledby="titulo-confianca">
       <div className="lp-wrap">
         <Reveal>
-          <h2>Conformidade e privacidade</h2>
-          <p className="lp-section__intro">
-            Confiança é pré-requisito para as pessoas responderem com honestidade. Por isso a
-            privacidade é estrutural na Psyra, não um adendo.
-          </p>
+          <Cabecalho id="titulo-confianca" rotulo={c.rotulo} titulo={c.titulo} intro={c.intro} />
         </Reveal>
-        <div className="lp-grid lp-grid--4">
-          {[
-            { t: "LGPD por padrão", d: "Tratamento de dados alinhado à LGPD em todo o ciclo." },
-            {
-              t: "Anonimização",
-              d: "Identificadores removidos automaticamente das respostas com Presidio.",
-            },
-            { t: "Auditoria com hash", d: "Trilha verificável do que foi processado e quando." },
-            {
-              t: "Sempre por grupo (GHE)",
-              d: "Resultados existem apenas de forma agregada, nunca individual.",
-            },
-          ].map((c, i) => (
-            <Reveal key={c.t} delay={i * 110}>
-              <div className="lp-card">
-                <h3>{c.t}</h3>
-                <p>{c.d}</p>
-              </div>
-            </Reveal>
-          ))}
+        <div className="lp-grid lp-grid--3">
+          {c.itens.map((item, i) => {
+            const Icone = ICONES_CONFIANCA[i];
+            return (
+              <Reveal key={item.t} delay={(i % 3) * 100}>
+                <div className="lp-card">
+                  <Icone className="lp-card__icone" size={24} strokeWidth={1.7} aria-hidden="true" />
+                  <h3>{item.t}</h3>
+                  <p>{item.d}</p>
+                </div>
+              </Reveal>
+            );
+          })}
         </div>
+        <Reveal delay={150}>
+          <div className="lp-ia">
+            <h3>{c.iaTitulo}</h3>
+            <ul>
+              {c.ia.map((linha) => (
+                <li key={linha}>{linha}</li>
+              ))}
+            </ul>
+            <p className="lp-ia__etica">{c.etica}</p>
+            <Link className="lp-link" to={IDIOMAS[idioma].privacidade}>
+              {c.link} →
+            </Link>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
 }
 
-function Sobre() {
+function Sobre({ t }) {
+  const s = t.sobre;
   return (
-    <section id="sobre" className="lp-section lp-section--night">
+    <section id="sobre" className="lp-section lp-section--night" aria-labelledby="titulo-sobre">
       <div className="lp-wrap lp-sobre-grid">
         <Reveal>
-          <h2>Empresas piloto</h2>
-          <p className="lp-section__intro">
-            Espaço reservado para logos e depoimentos de organizações parceiras.
-          </p>
-          <div className="lp-logos">
-            {[0, 1, 2, 3, 4, 5].map((n) => (
-              <div key={n} className="lp-logo-slot">
-                Seu logo aqui
-              </div>
-            ))}
-          </div>
+          <p className="lp-eyebrow">{s.rotulo}</p>
+          <h2 id="titulo-sobre">{s.pilotoTitulo}</h2>
+          <p className="lp-section__intro">{s.pilotoTexto}</p>
+          <a className="lp-btn lp-btn--primary lp-sobre__cta" href="#contato">
+            {t.acoes.piloto}
+          </a>
         </Reveal>
         <Reveal delay={150}>
           <div className="lp-about-card">
             <div className="lp-about-card__title">
               <Logo />
-              <h2>Quem está por trás</h2>
+              <h3>{s.equipeTitulo}</h3>
             </div>
-            <p>
-              A Psyra AI é conduzida por Vinícius, Pedro e Leandro, que unem engenharia de linguagem
-              natural, produto e implantação corporativa para levar leitura de risco psicossocial a
-              operações reais.
-            </p>
-            <p>
-              Nosso compromisso: nenhuma promessa de avaliação individual, nenhum resultado sem
-              explicação.
-            </p>
+            <p>{s.equipeIntro}</p>
+            <ul className="lp-equipe">
+              {s.pessoas.map((pessoa) => (
+                <li key={pessoa.nome}>
+                  <strong>{pessoa.nome}</strong> — {pessoa.papel}
+                </li>
+              ))}
+            </ul>
+            <p>{s.compromisso}</p>
           </div>
         </Reveal>
       </div>
@@ -495,47 +667,101 @@ function Sobre() {
   );
 }
 
-function Contato() {
+function Duvidas({ t }) {
+  const f = t.faq;
+  return (
+    <section id="duvidas" className="lp-section lp-section--deep" aria-labelledby="titulo-duvidas">
+      <div className="lp-wrap lp-wrap--estreito">
+        <Reveal>
+          <Cabecalho id="titulo-duvidas" rotulo={f.rotulo} titulo={f.titulo} />
+        </Reveal>
+        <div className="lp-faq">
+          {f.itens.map((item) => (
+            <details key={item.p} className="lp-faq__item">
+              <summary>{item.p}</summary>
+              <p>{item.r}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Contato({ t, idioma }) {
+  const c = t.contato;
   const [enviado, setEnviado] = useState(false);
 
+  function enviar(evento) {
+    evento.preventDefault();
+    const dados = new FormData(evento.currentTarget);
+    const valor = (campo) => String(dados.get(campo) || "").trim();
+    const empresa = valor("empresa");
+    const corpo = [
+      `${c.campos.nome}: ${valor("nome")}`,
+      `${c.campos.empresa}: ${empresa}`,
+      `${c.campos.email}: ${valor("email")}`,
+      `${c.campos.telefone}: ${valor("telefone")}`,
+      `${c.campos.porte.replace(/\s*\(.*\)$/, "")}: ${valor("porte") || c.naoInformado}`,
+      `Idioma: ${IDIOMAS[idioma].nome}`,
+    ].join("\n");
+    const assunto = `${c.assunto} — ${empresa}`;
+    setEnviado(true);
+    window.location.href = `mailto:${EMAIL_CONTATO}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+  }
+
   return (
-    <section id="contato" className="lp-section lp-section--deep">
+    <section id="contato" className="lp-section lp-section--night" aria-labelledby="titulo-contato">
       <div className="lp-wrap lp-contato-grid">
         <Reveal>
-          <h2>Comece pelo diagnóstico gratuito</h2>
-          <p className="lp-section__intro" style={{ marginTop: "1rem" }}>
-            Em uma conversa rápida mostramos como a Psyra lê texto livre em português, como os
-            resultados são agregados por grupo e o que sua empresa precisa entregar na NR-1.
+          <Cabecalho id="titulo-contato" rotulo={c.rotulo} titulo={c.titulo} intro={c.intro} />
+          <p className="lp-contato__direto">
+            {c.direto} <a href={`mailto:${EMAIL_CONTATO}`}>{EMAIL_CONTATO}</a>
           </p>
         </Reveal>
         <Reveal delay={120}>
-          <form
-            className="lp-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setEnviado(true);
-            }}
-          >
+          <form className="lp-form" onSubmit={enviar}>
             {enviado ? (
-              <div className="lp-form-ok">
-                <p>Solicitação recebida</p>
-                <p>Entraremos em contato para agendar seu diagnóstico gratuito.</p>
+              <div className="lp-form-ok" role="status">
+                <p>{c.okTitulo}</p>
+                <p>
+                  {c.okTexto} <a href={`mailto:${EMAIL_CONTATO}`}>{EMAIL_CONTATO}</a>.
+                </p>
               </div>
             ) : (
               <>
                 {[
-                  { id: "nome", label: "Nome", type: "text" },
-                  { id: "empresa", label: "Empresa", type: "text" },
-                  { id: "email", label: "E-mail corporativo", type: "email" },
-                  { id: "telefone", label: "Telefone", type: "tel" },
-                ].map((f) => (
-                  <div className="campo" key={f.id}>
-                    <label htmlFor={`lp-${f.id}`}>{f.label}</label>
-                    <input id={`lp-${f.id}`} name={f.id} type={f.type} required />
+                  { id: "nome", type: "text", auto: "name" },
+                  { id: "empresa", type: "text", auto: "organization" },
+                  { id: "email", type: "email", auto: "email" },
+                  { id: "telefone", type: "tel", auto: "tel" },
+                ].map((campo) => (
+                  <div className="campo" key={campo.id}>
+                    <label htmlFor={`lp-${campo.id}`}>{c.campos[campo.id]}</label>
+                    <input id={`lp-${campo.id}`} name={campo.id} type={campo.type} autoComplete={campo.auto} required />
                   </div>
                 ))}
+                <div className="campo">
+                  <label htmlFor="lp-porte">{c.campos.porte}</label>
+                  <select id="lp-porte" name="porte" defaultValue="">
+                    <option value="">{c.campos.selecione}</option>
+                    {c.faixas.map((faixa) => (
+                      <option key={faixa} value={faixa}>
+                        {faixa}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="lp-consentimento">
+                  <input id="lp-consentimento" name="consentimento" type="checkbox" required />
+                  <label htmlFor="lp-consentimento">
+                    {c.consentimentoAntes}
+                    <Link to={IDIOMAS[idioma].privacidade}>{c.consentimentoLink}</Link>
+                    {c.consentimentoDepois}
+                  </label>
+                </div>
                 <button className="lp-btn lp-btn--primary lp-btn--block" type="submit">
-                  Agendar diagnóstico gratuito
+                  {t.acoes.diagnostico}
                 </button>
               </>
             )}
@@ -546,51 +772,41 @@ function Contato() {
   );
 }
 
-export function Privacidade() {
+export function Privacidade({ idioma = "pt" }) {
+  const t = TEXTOS[idioma] || TEXTOS.pt;
+  const p = t.privacidade;
+  useIdiomaDaPagina(idioma, `${p.titulo} — Psyra AI`, p.intro);
+  const destino = (id) => IDIOMAS[id].privacidade;
+
   return (
-    <div className="lp-root">
-      <Header />
-      <main className="lp-wrap" style={{ maxWidth: "48rem", paddingTop: "5rem", paddingBottom: "5rem" }}>
-        <h1 style={{ margin: 0, fontSize: "clamp(2rem, 4vw, 2.5rem)" }}>Política de Privacidade</h1>
-        <p className="lp-section__intro" style={{ marginTop: "1rem" }}>
-          Privacidade é condição para que as pessoas respondam com honestidade. Esta página resume
-          como a Psyra AI trata dados.
-        </p>
-        <div style={{ marginTop: "2.5rem", display: "grid", gap: "1.5rem" }}>
-          {[
-            {
-              t: "Dados tratados",
-              d: "Respostas de pesquisas organizacionais, em escala e em texto livre, coletadas de forma anônima e tratadas para fins de mapeamento de riscos psicossociais.",
-            },
-            {
-              t: "Anonimização",
-              d: "Identificadores presentes no texto são removidos automaticamente com Presidio antes da análise.",
-            },
-            {
-              t: "Agregação por grupo",
-              d: "Os resultados existem apenas de forma agregada por grupo homogêneo de exposição (GHE), com k-anonimato n≥5. Não há resultado individual, nem para a empresa contratante.",
-            },
-            {
-              t: "Explicabilidade",
-              d: "As indicações de risco são acompanhadas de explicação (SHAP), em linha com o Art. 20 da LGPD.",
-            },
-            {
-              t: "Auditoria",
-              d: "Registros com hash permitem verificar o que foi processado e quando, sem expor conteúdo pessoal.",
-            },
-            {
-              t: "Contato",
-              d: "Dúvidas sobre tratamento de dados podem ser enviadas para contato@psyra.ai.",
-            },
-          ].map((b) => (
+    <div className="lp-root" lang={IDIOMAS[idioma].html}>
+      <Header t={t} idioma={idioma} destino={destino} />
+      <AvisoTraducao t={t} />
+      <main className="lp-wrap lp-privacidade">
+        <h1>{p.titulo}</h1>
+        <p className="lp-section__intro">{p.intro}</p>
+        <p className="lp-privacidade__aviso">{p.aviso}</p>
+        <div className="lp-privacidade__blocos">
+          {p.blocos.map((b, i) => (
             <section key={b.t} className="lp-card">
-              <h2 style={{ margin: 0, fontSize: "1.25rem" }}>{b.t}</h2>
-              <p>{b.d}</p>
+              <h2>{b.t}</h2>
+              <p>
+                {b.d}
+                {i === p.blocos.length - 1 ? (
+                  <>
+                    {" "}
+                    <a href={`mailto:${EMAIL_CONTATO}`}>{EMAIL_CONTATO}</a>.
+                  </>
+                ) : null}
+              </p>
             </section>
           ))}
         </div>
+        <Link className="lp-link lp-privacidade__voltar" to={IDIOMAS[idioma].inicio}>
+          ← {p.voltar}
+        </Link>
       </main>
-      <Footer />
+      <Footer t={t} idioma={idioma} destino={destino} />
     </div>
   );
 }

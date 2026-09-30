@@ -1,6 +1,6 @@
 // Marca Psyra — logo oficial (importada no bundle para não falhar no deploy).
 
-import logoUrl from "../assets/psyra-logo.png";
+import logoUrl from "../assets/psyra-logo.svg";
 
 export default function MarcaLogo({ className = "marca__logo", size = 40 }) {
   return (

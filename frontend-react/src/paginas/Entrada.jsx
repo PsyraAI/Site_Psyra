@@ -3,26 +3,14 @@
 
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Building2, Lock, Shield } from "lucide-react";
+import { ArrowLeft, ArrowRight, Building2, Lock, Mail, Shield } from "lucide-react";
 
 import { useAuth } from "../contexto/Auth";
 import { apiAdmin, sessaoAdmin } from "../lib/api";
 import MarcaLogo from "../componentes/MarcaLogo";
-
-const PERFIS = {
-  empresa: {
-    id: "empresa",
-    titulo: "Empresa piloto",
-    descricao: "Ver o resultado agregado da pesquisa do formulário.",
-    destino: "/painel",
-  },
-  superadmin: {
-    id: "superadmin",
-    titulo: "Superadmin",
-    descricao: "Operação global: cadastrar empresas e usuários.",
-    destino: "/admin",
-  },
-};
+import SeletorIdioma from "../componentes/SeletorIdioma";
+import { EMAIL_CONTATO, IDIOMAS, aplicarIdiomaNoDocumento, idiomaPreferido } from "../lib/idiomas";
+import { TEXTOS_ENTRADA } from "../lib/textosEntrada";
 
 export default function Entrada() {
   const { usuario, entrar } = useAuth();
@@ -41,6 +29,12 @@ export default function Entrada() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [idioma, setIdioma] = useState(idiomaPreferido);
+  const t = TEXTOS_ENTRADA[idioma];
+
+  useEffect(() => {
+    aplicarIdiomaNoDocumento(idioma, t.titulo);
+  }, [idioma, t.titulo]);
 
   useEffect(() => {
     if (usuario) navegar("/painel", { replace: true });
@@ -64,6 +58,10 @@ export default function Entrada() {
   async function aoEntrar(evento) {
     evento.preventDefault();
     setErro("");
+    if (!email.trim() || !senha) {
+      setErro(t.erroVazio);
+      return;
+    }
     setEnviando(true);
     try {
       if (perfil === "superadmin") {
@@ -81,18 +79,21 @@ export default function Entrada() {
     }
   }
 
-  const perfilAtual = perfil ? PERFIS[perfil] : null;
+  const perfilAtual = perfil ? t.perfis[perfil] : null;
 
   return (
-    <main className="entrada">
+    <main className="entrada" lang={IDIOMAS[idioma].html}>
       <div className="entrada__atmosfera" aria-hidden="true">
         <div className="entrada__brilho" />
         <div className="entrada__grain" />
       </div>
+      <div className="entrada__idioma">
+        <SeletorIdioma atual={idioma} rotulo={t.idioma} aoTrocar={setIdioma} />
+      </div>
 
       <div className="entrada__conteudo">
         <p className="entrada__eyebrow rise" style={{ animationDelay: "0.04s" }}>
-          Saúde psicossocial · Conformidade NR-1
+          {t.eyebrow}
         </p>
 
         <div className="entrada__marca rise" style={{ animationDelay: "0.1s" }}>
@@ -103,11 +104,14 @@ export default function Entrada() {
         {etapa === "escolha" ? (
           <>
             <h1 className="entrada__headline rise" style={{ animationDelay: "0.18s" }}>
-              Como você quer <em>entrar</em>?
+              {t.perguntaAntes}
+              <em>{t.perguntaDestaque}</em>
+              {t.perguntaDepois}
             </h1>
             <p className="entrada__tagline rise" style={{ animationDelay: "0.26s" }}>
-              Escolha o acesso certo para o seu papel.
+              {t.apoio}
             </p>
+            {t.avisoIdioma ? <p className="entrada__aviso-idioma">{t.avisoIdioma}</p> : null}
 
             <div className="entrada__perfis rise" style={{ animationDelay: "0.34s" }}>
               <button
@@ -116,12 +120,10 @@ export default function Entrada() {
                 onClick={() => escolherPerfil("empresa")}
               >
                 <Building2 size={22} aria-hidden="true" />
-                <span className="entrada__perfil-titulo">Empresa piloto</span>
-                <span className="entrada__perfil-texto">
-                  Ver o resultado agregado da pesquisa do formulário.
-                </span>
+                <span className="entrada__perfil-titulo">{t.perfis.empresa.rotulo}</span>
+                <span className="entrada__perfil-texto">{t.perfis.empresa.descricao}</span>
                 <span className="entrada__perfil-cta">
-                  Continuar <ArrowRight size={16} aria-hidden="true" />
+                  {t.continuar} <ArrowRight size={16} aria-hidden="true" />
                 </span>
               </button>
 
@@ -131,12 +133,10 @@ export default function Entrada() {
                 onClick={() => escolherPerfil("superadmin")}
               >
                 <Shield size={22} aria-hidden="true" />
-                <span className="entrada__perfil-titulo">Superadmin</span>
-                <span className="entrada__perfil-texto">
-                  Operação global da Psyra: empresas e usuários.
-                </span>
+                <span className="entrada__perfil-titulo">{t.perfis.superadmin.rotulo}</span>
+                <span className="entrada__perfil-texto">{t.perfis.superadmin.descricao}</span>
                 <span className="entrada__perfil-cta">
-                  Continuar <ArrowRight size={16} aria-hidden="true" />
+                  {t.continuar} <ArrowRight size={16} aria-hidden="true" />
                 </span>
               </button>
             </div>
@@ -145,22 +145,30 @@ export default function Entrada() {
               className="botao botao--fantasma rise"
               type="button"
               style={{ width: "100%", marginTop: 16, animationDelay: "0.42s" }}
-              onClick={() => navegar("/")}
+              onClick={() => navegar(IDIOMAS[idioma].inicio)}
             >
-              <ArrowLeft size={16} aria-hidden="true" /> Voltar à página inicial
+              <ArrowLeft size={16} aria-hidden="true" /> {t.voltar}
             </button>
+            <p className="entrada__tagline" style={{ marginTop: 18 }}>
+              <strong>{t.semContaTitulo}</strong> {t.semContaTexto}
+            </p>
+            <a
+              className="botao botao--fantasma"
+              style={{ width: "100%", marginTop: 8 }}
+              href={`mailto:${EMAIL_CONTATO}?subject=${encodeURIComponent(t.assunto)}`}
+            >
+              <Mail size={15} aria-hidden="true" /> {t.solicitar}
+            </a>
           </>
         ) : (
           <div className="entrada__form rise">
             <div className="entrada__form-card">
-              <p className="entrada__form-perfil">{perfilAtual?.titulo}</p>
-              <h1>
-                {perfil === "superadmin" ? "Entrar na operação" : "Entrar no painel"}
-              </h1>
+              <p className="entrada__form-perfil">{perfilAtual?.rotulo}</p>
+              <h1>{perfilAtual?.titulo}</h1>
               <p className="entrada__form-apoio">{perfilAtual?.descricao}</p>
               <form onSubmit={aoEntrar} noValidate>
                 <div className="campo">
-                  <label htmlFor="email">E-mail</label>
+                  <label htmlFor="email">{t.email}</label>
                   <input
                     id="email"
                     type="email"
@@ -174,7 +182,7 @@ export default function Entrada() {
                   />
                 </div>
                 <div className="campo">
-                  <label htmlFor="senha">Senha</label>
+                  <label htmlFor="senha">{t.senha}</label>
                   <input
                     id="senha"
                     type="password"
@@ -196,19 +204,18 @@ export default function Entrada() {
                 >
                   {enviando ? (
                     <>
-                      <span className="spinner" aria-hidden="true" /> Entrando…
+                      <span className="spinner" aria-hidden="true" /> {t.entrando}
                     </>
                   ) : (
                     <>
-                      Entrar <ArrowRight size={17} aria-hidden="true" />
+                      {t.entrar} <ArrowRight size={17} aria-hidden="true" />
                     </>
                   )}
                 </button>
               </form>
 
               <p className="entrada__privacidade">
-                <Lock size={12} aria-hidden="true" /> Resultados sempre por grupo.
-                Nunca dados individuais.
+                <Lock size={12} aria-hidden="true" /> {t.privacidade}
               </p>
             </div>
 
@@ -223,16 +230,16 @@ export default function Entrada() {
                 setSenha("");
               }}
             >
-              <ArrowLeft size={16} aria-hidden="true" /> Voltar à escolha
+              <ArrowLeft size={16} aria-hidden="true" /> {t.trocar}
             </button>
 
             <button
               className="botao botao--fantasma"
               type="button"
               style={{ width: "100%", marginTop: 8 }}
-              onClick={() => navegar("/")}
+              onClick={() => navegar(IDIOMAS[idioma].inicio)}
             >
-              <ArrowLeft size={16} aria-hidden="true" /> Voltar à página inicial
+              <ArrowLeft size={16} aria-hidden="true" /> {t.voltar}
             </button>
           </div>
         )}

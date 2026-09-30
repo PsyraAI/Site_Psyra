@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./estilos/psyra.css";
 import "./estilos/landing.css";
+import "./estilos/landing-s10.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
