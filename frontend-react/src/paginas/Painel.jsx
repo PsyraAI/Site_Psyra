@@ -348,8 +348,10 @@ export default function Painel() {
             </div>
           </div>
 
+          <section aria-live="polite">{conteudo()}</section>
+
           {coletaAtual && (
-            <aside className="superficie link-coleta" aria-label="Integração Google Forms">
+            <aside className="superficie link-coleta link-coleta--depois" aria-label="Integração Google Forms">
               <div className="link-coleta__cabecalho">
                 <h2 className="secao-titulo">
                   <Link2 size={18} aria-hidden="true" />
@@ -458,8 +460,6 @@ export default function Painel() {
               )}
             </aside>
           )}
-
-          <section aria-live="polite">{conteudo()}</section>
         </main>
       </div>
     </div>

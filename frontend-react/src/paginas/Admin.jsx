@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
+import { Building2, LogOut, Plus } from "lucide-react";
 
+import MarcaLogo from "../componentes/MarcaLogo";
 import { apiAdmin, sessaoAdmin } from "../lib/api";
 import { PLANOS, obterPlano, rotuloPlano } from "../lib/planos";
 
@@ -41,7 +43,7 @@ function SeletorPlanos({ valor, onChange, nomeGrupo }) {
               <div>
                 <strong>{plano.nome}</strong>
                 {plano.destaque ? (
-                  <span className="admin-plano__badge">Mais popular</span>
+                  <span className="admin-plano__badge">Recomendado</span>
                 ) : null}
               </div>
               <p className="admin-plano__preco">
@@ -203,14 +205,17 @@ export default function Admin() {
   const planoEmpresaAtual = empresaAtual ? obterPlano(empresaAtual.plano) : null;
 
   return (
-    <main className="container admin">
+    <main className="admin admin--estudio">
       <header className="admin__cabecalho">
-        <div>
-          <p className="entrada__eyebrow">Operação global</p>
-          <h1>Empresas e usuários</h1>
-          <p className="aviso" style={{ marginTop: 8 }}>
-            Cadastre a empresa já com o plano comercial da landing (Sinal, Padrão ou Panorama).
-          </p>
+        <div className="admin__marca">
+          <MarcaLogo size={40} />
+          <div>
+            <p className="entrada__eyebrow">Operação Psyra</p>
+            <h1>Cadastro de empresas</h1>
+            <p className="aviso" style={{ marginTop: 8 }}>
+              Cada empresa entra com o plano da landing. O painel dela mostra só grupos com 5 respostas ou mais.
+            </p>
+          </div>
         </div>
         <div className="admin__acoes">
           <Link className="botao botao--fantasma" to="/">
@@ -224,7 +229,7 @@ export default function Admin() {
               setAutenticado(false);
             }}
           >
-            Sair
+            <LogOut size={15} aria-hidden="true" /> Sair
           </button>
         </div>
       </header>
@@ -234,7 +239,9 @@ export default function Admin() {
       </p>
 
       <section className="superficie admin__bloco-plano">
-        <h2 className="secao-titulo">Nova empresa</h2>
+        <h2 className="secao-titulo">
+          <Plus size={18} aria-hidden="true" /> Nova empresa
+        </h2>
         <form onSubmit={criarEmpresa}>
           <div className="admin__grade-campos">
             <div className="campo">
@@ -315,18 +322,25 @@ export default function Admin() {
 
       <div className="admin__grade">
         <section className="superficie">
-          <h2 className="secao-titulo">Empresas</h2>
+          <h2 className="secao-titulo">
+            <Building2 size={18} aria-hidden="true" /> Empresas
+          </h2>
           <div className="admin__lista">
             {empresas.map((empresa) => (
               <div
-                className={`admin__item ${empresaAtual?.id === empresa.id ? "admin__item--ativo" : ""}`}
+                className={`admin__item admin__empresa ${empresaAtual?.id === empresa.id ? "admin__item--ativo" : ""}`}
                 key={empresa.id}
               >
                 <button type="button" onClick={() => setEmpresaAtual(empresa)}>
                   <strong>{empresa.razao_social}</strong>
                   <span>
-                    {empresa.total_usuarios} usuário(s) · {rotuloPlano(empresa.plano)} ·{" "}
-                    {empresa.porte || "media"} · {empresa.atuacao || "servicos"}
+                    {empresa.total_usuarios} usuário(s) · {empresa.porte || "media"} · {empresa.atuacao || "servicos"}
+                  </span>
+                  <span className="admin__chips">
+                    <em className="admin__chip">{rotuloPlano(empresa.plano)}</em>
+                    <em className={`admin__chip ${empresa.ativo ? "admin__chip--ok" : "admin__chip--off"}`}>
+                      {empresa.ativo ? "ativa" : "inativa"}
+                    </em>
                   </span>
                 </button>
                 <button

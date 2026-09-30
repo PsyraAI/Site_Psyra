@@ -30,6 +30,8 @@ import {
 
 import { corDoNivel, formatarIndice } from "../lib/adaptadores";
 
+const NIVEL_ROTULO = { alto: "Alto", moderado: "Moderado", baixo: "Baixo" };
+
 /* ---------------------------------------------------------------- Skeleton */
 export function PainelSkeleton() {
   return (
@@ -88,8 +90,10 @@ function Vazio({ icone: Icone = Inbox, children }) {
 /* ----------------------------------------------------------- Visão geral */
 export function VisaoGeral({ resumo, grupos }) {
   const dados = grupos
-    .filter((g) => !g.mascarado)
-    .map((g) => ({ nome: g.codigo, indice: g.indiceLikert, nivel: g.nivelRisco }));
+    .filter((g) => !g.mascarado && g.indiceLikert != null)
+    .map((g) => ({ nome: g.nome, indice: g.indiceLikert, nivel: g.nivelRisco }))
+    .sort((a, b) => b.indice - a.indice);
+  const ocultos = grupos.filter((g) => g.mascarado);
 
   return (
     <>
@@ -104,7 +108,7 @@ export function VisaoGeral({ resumo, grupos }) {
         <h2 className="secao-titulo">
           <TrendingUp size={18} aria-hidden="true" /> Índice de risco por grupo
         </h2>
-        <p className="aviso secao-lead">Comparativo dos grupos com resultado liberado (n ≥ 5).</p>
+        <p className="aviso secao-lead">Comparativo dos grupos com resultado liberado (n ≥ 5). Nenhum número aqui identifica uma pessoa.</p>
 
         {dados.length === 0 ? (
           <Vazio icone={ShieldOff}>
@@ -112,11 +116,40 @@ export function VisaoGeral({ resumo, grupos }) {
           </Vazio>
         ) : (
           <>
-            <div style={{ width: "100%", height: 260 }}>
+            <ol className="risco-ranking">
+              {dados.map((item, indice) => (
+                <li className="risco-ranking__item" key={item.nome}>
+                  <span className="risco-ranking__pos">{indice + 1}</span>
+                  <div className="risco-ranking__corpo">
+                    <div className="risco-ranking__topo">
+                      <span className="risco-ranking__nome">{item.nome}</span>
+                      <span className={`etiqueta etiqueta--${item.nivel}`}>{NIVEL_ROTULO[item.nivel] || item.nivel}</span>
+                    </div>
+                    <div className="barra" aria-hidden="true">
+                      <div
+                        className="barra__preenchimento"
+                        style={{ width: `${Math.max(0, Math.min(100, item.indice))}%`, background: corDoNivel(item.nivel) }}
+                      />
+                    </div>
+                  </div>
+                  <span className="risco-ranking__valor numero">{formatarIndice(item.indice)}</span>
+                </li>
+              ))}
+              {ocultos.map((grupo) => (
+                <li className="risco-ranking__item risco-ranking__item--oculto" key={grupo.codigo}>
+                  <span className="risco-ranking__pos">–</span>
+                  <div className="risco-ranking__corpo">
+                    <span className="risco-ranking__nome">{grupo.nome}</span>
+                    <span className="risco-ranking__oculto">menos de 5 respostas · oculto</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <div className="grafico-moldura" style={{ width: "100%", height: 280 }}>
               <ResponsiveContainer>
-                <BarChart data={dados} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+                <BarChart data={dados} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
                   <CartesianGrid stroke="rgba(240,236,246,0.08)" vertical={false} />
-                  <XAxis dataKey="nome" tick={{ fill: "#7F83A0", fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="nome" tick={{ fill: "#b4b7cc", fontSize: 12 }} axisLine={false} tickLine={false} interval={0} />
                   <YAxis domain={[0, 100]} tick={{ fill: "#7F83A0", fontSize: 12 }} axisLine={false} tickLine={false} />
                   <Tooltip
                     cursor={{ fill: "rgba(188,132,195,0.08)" }}
@@ -157,8 +190,9 @@ export function Grupos({ grupos }) {
         As dimensões listadas são os fatores que mais pesaram no índice do grupo. Na versão com modelo treinado, esta lista passa a vir do SHAP.
       </p>
 
+      <div className="grupos-grade">
       {grupos.map((grupo) => (
-        <div className="grupo" key={grupo.codigo}>
+        <article className={`grupo grupo--cartao${grupo.mascarado ? " grupo--oculto" : ""}`} key={grupo.codigo}>
           <div className="grupo__cabecalho">
             <div>
               <p className="grupo__nome">{grupo.nome}</p>
@@ -194,8 +228,9 @@ export function Grupos({ grupos }) {
               </div>
             </>
           )}
-        </div>
+        </article>
       ))}
+      </div>
     </div>
   );
 }
@@ -229,7 +264,7 @@ export function Revelador({ itens }) {
         </Vazio>
       ) : (
         itens.map((item) => (
-          <div className="revelador" key={item.grupo}>
+          <div className={`revelador${Math.abs(item.divergencia) >= 12 ? " revelador--destaque" : ""}`} key={item.grupo}>
             <div className="grupo__cabecalho">
               <p className="grupo__nome">{item.grupo}</p>
               <span className="revelador__delta">
@@ -390,8 +425,11 @@ export function CapitalRisco({ bloqueado, dados, carregando, erro }) {
             Nenhum grupo com n suficiente para estimar capital neste ciclo.
           </Vazio>
         ) : (
-          (dados.setores ?? []).map((setor) => (
-            <div className="grupo" key={setor.setor}>
+          (dados.setores ?? []).map((setor) => {
+            const maximo = Math.max(...dados.setores.map((item) => Number(item.perda_mensal) || 0), 1);
+            const largura = `${Math.max(4, (Number(setor.perda_mensal) / maximo) * 100)}%`;
+            return (
+            <div className="grupo grupo--cartao" key={setor.setor}>
               <div className="grupo__cabecalho">
                 <div>
                   <p className="grupo__nome">{setor.setor}</p>
@@ -408,8 +446,12 @@ export function CapitalRisco({ bloqueado, dados, carregando, erro }) {
                   </p>
                 </div>
               </div>
+              <div className="barra" aria-hidden="true">
+                <div className="barra__preenchimento" style={{ width: largura, background: "var(--roxo)" }} />
+              </div>
             </div>
-          ))
+            );
+          })
         )}
         <p className="aviso" style={{ marginTop: 12 }}>
           Referência: porte {dados.porte} · atuação {dados.atuacao} ·{" "}

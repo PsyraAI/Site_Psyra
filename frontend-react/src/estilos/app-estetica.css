@@ -1,0 +1,227 @@
+/* Painel da empresa e cadastro da operação — alinhado à landing. */
+
+.kpi {
+  background:
+    linear-gradient(180deg, rgba(188, 132, 195, 0.08), transparent 42%),
+    var(--superficie-alta);
+  border-radius: 16px;
+}
+
+.grafico-bloco,
+.grupo--cartao,
+.revelador--destaque {
+  border-radius: 16px;
+}
+
+.risco-ranking {
+  list-style: none;
+  margin: 8px 0 22px;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.risco-ranking__item {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(18, 20, 42, 0.45);
+  border: 1px solid var(--linha);
+}
+
+.risco-ranking__pos {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--roxo);
+  text-align: center;
+}
+
+.risco-ranking__corpo {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.risco-ranking__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.risco-ranking__nome {
+  font-weight: 600;
+  color: var(--nevoa);
+}
+
+.risco-ranking__valor {
+  font-size: 1.05rem;
+  color: var(--nevoa);
+}
+
+.risco-ranking__item--oculto {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 8px,
+    rgba(240, 236, 246, 0.04) 8px 9px
+  );
+}
+
+.risco-ranking__oculto {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--ardosia);
+  border: 1px dashed rgba(240, 236, 246, 0.22);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.grafico-moldura {
+  margin-top: 8px;
+  padding: 12px 8px 0;
+  border-radius: 16px;
+  background: rgba(18, 20, 42, 0.35);
+  border: 1px solid var(--linha);
+}
+
+.grupos-grade {
+  display: grid;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.grupo--cartao {
+  padding: 16px 18px;
+  border: 1px solid var(--linha);
+  background: rgba(18, 20, 42, 0.35);
+  border-bottom: 1px solid var(--linha);
+}
+
+.grupo--oculto {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 8px,
+    rgba(240, 236, 246, 0.035) 8px 9px
+  );
+}
+
+.revelador {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--linha);
+  margin-top: 12px;
+}
+
+.revelador--destaque {
+  background: rgba(188, 132, 195, 0.1);
+  border-color: rgba(188, 132, 195, 0.4);
+}
+
+.capital-teaser .vazio {
+  border-radius: 16px;
+  border: 1px dashed rgba(188, 132, 195, 0.35);
+}
+
+.link-coleta--depois {
+  margin-top: 28px;
+  margin-bottom: 0;
+}
+
+.sidebar {
+  background: rgba(18, 20, 42, 0.72);
+  border-right: 1px solid var(--linha);
+  backdrop-filter: blur(16px);
+}
+
+.nav-item--ativo {
+  background: rgba(188, 132, 195, 0.14);
+}
+
+@media (min-width: 901px) {
+  .nav-item--ativo {
+    box-shadow: inset 3px 0 0 var(--roxo);
+  }
+}
+
+.topbar {
+  background: rgba(18, 20, 42, 0.55);
+  backdrop-filter: blur(12px);
+}
+
+/* Cadastro de empresas */
+.admin--estudio {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 72px;
+}
+
+.admin__marca {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.admin__marca h1 {
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+}
+
+.admin__empresa {
+  align-items: flex-start;
+  padding: 14px 0;
+}
+
+.admin__chips {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.admin__chip {
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: var(--lavanda);
+  background: rgba(188, 132, 195, 0.14);
+}
+
+.admin__chip--ok {
+  color: var(--verde);
+  background: rgba(91, 191, 138, 0.14);
+}
+
+.admin__chip--off {
+  color: var(--ardosia);
+  background: rgba(127, 131, 160, 0.16);
+}
+
+.admin-plano {
+  background: rgba(18, 20, 42, 0.4);
+}
+
+.admin-plano--ativo {
+  box-shadow: 0 0 0 1px rgba(188, 132, 195, 0.55), 0 16px 40px rgba(9, 10, 24, 0.28);
+}
+
+@media (min-width: 900px) {
+  .grupos-grade {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .risco-ranking__item {
+    grid-template-columns: 22px 1fr;
+  }
+
+  .risco-ranking__valor {
+    grid-column: 2;
+  }
+}
