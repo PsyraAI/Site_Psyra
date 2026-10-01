@@ -1,0 +1,344 @@
+/* ============================================================================
+   Psyra AI — fluidez da landing: rolagem suave, entradas, foco e transições.
+   Tudo respeita prefers-reduced-motion (sem movimento para quem pediu).
+   Sprint: S10 | Risco: None
+   ========================================================================== */
+
+/* Âncoras param abaixo do cabeçalho fixo */
+.lp-root [id] {
+  scroll-margin-top: 5.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.lp-root) {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Troca de tema: cores deslizam em vez de piscar (classe ligada por 0,5 s em lib/tema.js) */
+html.tema-transicao,
+html.tema-transicao *,
+html.tema-transicao *::before,
+html.tema-transicao *::after {
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease,
+    border-color 0.45s ease,
+    fill 0.45s ease,
+    stroke 0.45s ease,
+    box-shadow 0.45s ease !important;
+}
+
+/* Cabeçalho: ganha sombra e fundo mais denso depois do topo */
+.lp-header {
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.lp-header[data-rolou="true"] {
+  background: rgba(18, 20, 42, 0.94);
+  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.7);
+}
+
+:root[data-tema="claro"] .lp-header[data-rolou="true"] {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 30px -20px rgba(28, 31, 58, 0.35);
+}
+
+/* Barra de progresso de leitura, na base do cabeçalho */
+.lp-progresso {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.lp-progresso span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--lp-primary), #e8d9ef);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
+
+:root[data-tema="claro"] .lp-progresso span {
+  background: linear-gradient(90deg, #9b56a6, #bc84c3);
+}
+
+/* Menu: sublinhado que cresce e item da seção visível em destaque */
+.lp-nav a {
+  position: relative;
+  padding: 0.35rem 0;
+  transition: color 0.2s ease;
+}
+
+.lp-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--lp-primary);
+  transform: scaleX(0);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-nav a:hover::after,
+.lp-nav a[aria-current="true"]::after {
+  transform: scaleX(1);
+}
+
+.lp-nav a[aria-current="true"] {
+  color: var(--lp-mist);
+}
+
+/* Entradas ao rolar: curva mais macia e deslocamento um pouco maior */
+.lp-reveal {
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-reveal[data-visible="false"] {
+  transform: translateY(26px);
+}
+
+/* Botões */
+.lp-btn {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease;
+}
+
+.lp-btn:active {
+  transform: scale(0.98);
+}
+
+.lp-btn:focus-visible,
+.lp-nav a:focus-visible,
+.lp-faq__item summary:focus-visible,
+.lp-aba:focus-visible {
+  outline: 2px solid var(--lp-primary);
+  outline-offset: 3px;
+  border-radius: 0.4rem;
+}
+
+/* Cartões, planos e itens: elevação suave no passar do mouse */
+.lp-card,
+.lp-demo-card {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lp-btn--primary:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px -12px rgba(188, 132, 195, 0.75);
+  }
+
+  .lp-grid .lp-card:hover,
+  .lp-plan:hover {
+    transform: translateY(-4px);
+    border-color: rgba(188, 132, 195, 0.55);
+    box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.65);
+  }
+
+  :root[data-tema="claro"] .lp-grid .lp-card:hover,
+  :root[data-tema="claro"] .lp-plan:hover {
+    border-color: rgba(155, 86, 166, 0.45);
+    box-shadow: 0 18px 40px -24px rgba(28, 31, 58, 0.35);
+  }
+
+  .lp-plan--hot:hover {
+    box-shadow: 0 0 0 1px var(--lp-primary), 0 18px 40px -24px rgba(0, 0, 0, 0.65);
+  }
+
+  .lp-card__icone {
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lp-card:hover .lp-card__icone {
+    transform: scale(1.08) rotate(-4deg);
+  }
+}
+
+/* Abas do painel: o gráfico entra com um leve deslize */
+.lp-root [role="tabpanel"]:not([hidden]) {
+  animation: lp-surgir 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-aba {
+  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Dúvidas: resposta aparece deslizando e o "+" gira */
+.lp-faq__item summary {
+  transition: color 0.2s ease;
+}
+
+.lp-faq__item summary:hover {
+  color: var(--lp-primary);
+}
+
+.lp-faq__item summary::after {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-faq__item[open] summary::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.lp-faq__item[open] > p {
+  animation: lp-surgir 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Hero: brilho respira devagar e o cartão de exemplo flutua */
+@media (prefers-reduced-motion: no-preference) {
+  .lp-hero__glow {
+    animation: lp-respirar 9s ease-in-out infinite;
+  }
+
+  .lp-hero .lp-demo-card {
+    animation: lp-flutuar 7s ease-in-out infinite;
+  }
+
+  .lp-tema svg {
+    animation: lp-girar 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@keyframes lp-surgir {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lp-respirar {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-1.5rem, 1rem) scale(1.12);
+    opacity: 0.75;
+  }
+}
+
+@keyframes lp-flutuar {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes lp-girar {
+  from {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Quem pediu menos movimento: nada desliza, nada flutua */
+@media (prefers-reduced-motion: reduce) {
+  .lp-header,
+  .lp-btn,
+  .lp-card,
+  .lp-demo-card,
+  .lp-nav a::after,
+  .lp-faq__item summary::after,
+  .lp-tema {
+    transition: none;
+  }
+
+  .lp-root [role="tabpanel"]:not([hidden]),
+  .lp-faq__item[open] > p {
+    animation: none;
+  }
+
+  .lp-btn:active,
+  .lp-tema:active {
+    transform: none;
+  }
+}
+
+/* Celular: o botão de tema entra no cabeçalho sem empurrar a página para o lado */
+@media (max-width: 639px) {
+  .lp-header__inner {
+    gap: 0.5rem;
+  }
+
+  .lp-header__actions {
+    gap: 0.35rem;
+    flex-wrap: nowrap;
+  }
+
+  .lp-header .seletor-idioma__seta {
+    display: none;
+  }
+
+  .lp-header .seletor-idioma__botao {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .lp-tema {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+}
+
+/* Telas bem estreitas: o nome some da vista (continua para leitores de tela); a logo identifica */
+@media (max-width: 420px) {
+  .lp-header .lp-brand__name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}
+
+/* Tablet estreito: o CTA do topo sai (ele já está no hero) para caber o botão de tema */
+@media (max-width: 767px) {
+  .lp-header__actions .lp-btn--primary {
+    display: none;
+  }
+}
+
+/* Grades de 3 colunas não estouram a largura quando um conteúdo é mais largo que a coluna */
+@media (min-width: 768px) {
+  .lp-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lp-planos .lp-plan__price .lp-metric {
+    font-size: 1.75rem;
+  }
+}

@@ -1,0 +1,172 @@
+/* ============================================================================
+   Psyra AI — landing e privacidade no modo claro.
+   A marca nasce escura; no modo claro a Névoa vira fundo e a Noite vira texto.
+   O roxo de destaque escurece (#9b56a6, o mesmo das telas de uso) para manter
+   contraste AA sobre fundo claro. Sprint: S10 | Risco: None
+   ========================================================================== */
+
+:root[data-tema="claro"] .lp-root {
+  --lp-night: #f7f4fb;
+  --lp-night-deep: #efe9f5;
+  --lp-card: #ffffff;
+  --lp-mist: #1c1f3a;
+  --lp-muted: #55597a;
+  --lp-primary: #9b56a6;
+  --lp-success: #2e8a5c;
+  --lp-warning: #9a6512;
+  --lp-destructive: #c2343a;
+  --lp-border: rgba(28, 31, 58, 0.12);
+  --lp-texto-suave: #4b4f6b;
+  color-scheme: light;
+}
+
+/* Seções "claras" do tema escuro viram faixas lavanda no tema claro */
+:root[data-tema="claro"] .lp-section--light {
+  background: #ebe3f2;
+  color: #1c1f3a;
+}
+
+:root[data-tema="claro"] .lp-section--light .lp-eyebrow {
+  color: #8e4e99;
+}
+
+:root[data-tema="claro"] .lp-section--light .lp-panel-dark p {
+  color: var(--lp-texto-suave);
+}
+
+/* Cabeçalho, logo e botões */
+:root[data-tema="claro"] .lp-header {
+  background: rgba(255, 255, 255, 0.86);
+}
+
+:root[data-tema="claro"] .lp-logo {
+  background: #1c1f3a;
+  border-color: rgba(155, 86, 166, 0.35);
+}
+
+:root[data-tema="claro"] .lp-btn--primary {
+  color: #ffffff;
+}
+
+:root[data-tema="claro"] .lp-btn--ghost:hover,
+:root[data-tema="claro"] .seletor-idioma__botao[aria-expanded="true"] {
+  background: rgba(28, 31, 58, 0.06);
+}
+
+:root[data-tema="claro"] .seletor-idioma__lista {
+  background: #ffffff;
+  box-shadow: 0 18px 40px -20px rgba(28, 31, 58, 0.35);
+}
+
+:root[data-tema="claro"] .lp-sugestao {
+  background: #e7def0;
+}
+
+/* Hero e cartões */
+:root[data-tema="claro"] .lp-hero__glow {
+  background: rgba(155, 86, 166, 0.16);
+}
+
+:root[data-tema="claro"] .lp-demo-card {
+  box-shadow: 0 25px 50px -20px rgba(28, 31, 58, 0.25);
+}
+
+:root[data-tema="claro"] .lp-demo-item p {
+  color: #2b2e4a;
+}
+
+:root[data-tema="claro"] .lp-card {
+  box-shadow: 0 1px 2px rgba(28, 31, 58, 0.04);
+}
+
+:root[data-tema="claro"] .lp-chip--bad,
+:root[data-tema="claro"] .lp-card .lp-text-destructive,
+:root[data-tema="claro"] .gl-valor--risco,
+:root[data-tema="claro"] .gl-nivel--alto {
+  color: #b3262b;
+}
+
+:root[data-tema="claro"] .gl-nivel--moderado,
+:root[data-tema="claro"] .lp-timeline__data {
+  color: #8a5a12;
+}
+
+:root[data-tema="claro"] .gl-nivel--baixo {
+  color: #22704a;
+}
+
+/* Gráficos ilustrativos */
+:root[data-tema="claro"] .gl-trilho {
+  background: rgba(28, 31, 58, 0.08);
+}
+
+:root[data-tema="claro"] .gl-oculto {
+  border-color: rgba(28, 31, 58, 0.25);
+  background-image: repeating-linear-gradient(135deg, transparent 0 7px, rgba(28, 31, 58, 0.06) 7px 8px);
+}
+
+:root[data-tema="claro"] .gl-eixo {
+  background: rgba(28, 31, 58, 0.35);
+}
+
+:root[data-tema="claro"] .lp-selo {
+  border-color: rgba(28, 31, 58, 0.3);
+}
+
+:root[data-tema="claro"] .lp-aba[aria-selected="true"] {
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(155, 86, 166, 0.5);
+}
+
+/* Avisos */
+:root[data-tema="claro"] .lp-aviso-traducao p,
+:root[data-tema="claro"] .lp-privacidade__aviso {
+  color: #6b4508;
+}
+
+/* Formulário */
+:root[data-tema="claro"] .lp-form input,
+:root[data-tema="claro"] .lp-form select,
+:root[data-tema="claro"] .lp-form textarea {
+  background: #ffffff;
+  color: #1c1f3a;
+  border-color: rgba(28, 31, 58, 0.18);
+}
+
+/* Botão de tema na landing */
+.lp-tema {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--lp-border);
+  background: transparent;
+  color: var(--lp-mist);
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease;
+}
+
+.lp-tema:hover {
+  background: rgba(188, 132, 195, 0.14);
+  border-color: var(--lp-primary);
+}
+
+.lp-tema:active {
+  transform: rotate(-20deg) scale(0.94);
+}
+
+.lp-tema:focus-visible {
+  outline: 2px solid var(--lp-primary);
+  outline-offset: 2px;
+}
+
+/* Bloco "O que a IA faz" usa a cor Noite como texto: no claro ela vira fundo */
+:root[data-tema="claro"] .lp-ia h3,
+:root[data-tema="claro"] .lp-ia__etica {
+  color: #1c1f3a !important;
+}
+
+:root[data-tema="claro"] .seletor-idioma__botao:hover {
+  background: rgba(28, 31, 58, 0.06);
+}
