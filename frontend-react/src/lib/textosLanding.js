@@ -28,6 +28,7 @@ export const TEXTOS = {
       piloto: "Quero participar do piloto",
     },
     idioma: { rotulo: "Idioma" },
+    tema: { claro: "Ativar modo claro", escuro: "Ativar modo escuro" },
     sugestao: null,
     aviso: null,
     ilustrativo: "Dados ilustrativos",
@@ -40,7 +41,7 @@ export const TEXTOS = {
       garantias: [
         "Resultados só por grupo (n ≥ 5)",
         "Texto anonimizado antes de ser gravado",
-        "Plano de ação validado por psicóloga com CRP",
+        "Plano de ação validado por psicóloga com registro no CRP",
       ],
       card: {
         rotulo: "Mesma nota, sinais opostos",
@@ -69,7 +70,7 @@ export const TEXTOS = {
       legenda: "afastamentos por saúde mental no Brasil em 2025 (INSS/Dataprev)",
       linhaTitulo: "NR-1: o que mudou em 2026",
       marcos: [
-        { data: "26/05/2026", texto: "A NR-1 passa a exigir os riscos psicossociais no PGR das empresas com empregados CLT." },
+        { data: "26/05/2026", texto: "A NR-1 (Norma Regulamentadora nº 1) passa a exigir os riscos psicossociais no PGR, o Programa de Gerenciamento de Riscos das empresas com empregados CLT." },
         { data: "25/06/2026", texto: "O STF suspende as multas ligadas a esses riscos (ADPF 1316)." },
         { data: "25/09/2026", texto: "A suspensão é prorrogada por 90 dias, com conciliação sobre critérios de avaliação." },
         { data: "Hoje", texto: "A multa está suspensa; a obrigação de mapear e controlar o risco continua." },
@@ -80,7 +81,7 @@ export const TEXTOS = {
       rotulo: "Solução",
       titulo: "Escala de 1 a 5 não conta a história toda",
       intro:
-        "A maioria das soluções do mercado se apoia apenas na escala Likert. A Psyra foi desenhada para ler também o que as pessoas escrevem, em português.",
+        "A maioria das soluções do mercado se apoia apenas na escala Likert (notas de 1 a 5). A Psyra foi desenhada para ler também o que as pessoas escrevem, em português.",
       cards: [
         {
           t: "IA que entende português",
@@ -88,11 +89,11 @@ export const TEXTOS = {
         },
         {
           t: "Explicabilidade",
-          d: "SHAP mostra o que sustentou cada indicação de risco do grupo, em linha com o Art. 20 da LGPD (planos Padrão e Panorama).",
+          d: "O método SHAP mostra quais fatores sustentaram cada indicação de risco do grupo, em linha com o Art. 20 da LGPD, a Lei Geral de Proteção de Dados (planos Padrão e Panorama).",
         },
         {
           t: "Conformidade NR-1",
-          d: "Os achados já saem organizados para o mapeamento de riscos e para o PGR, com o plano de ação validado por psicóloga com CRP.",
+          d: "Os achados já saem organizados para o mapeamento de riscos e para o PGR, com o plano de ação validado por psicóloga com registro ativo no Conselho Regional de Psicologia (CRP).",
         },
       ],
       revelador: {
@@ -107,6 +108,20 @@ export const TEXTOS = {
         legenda: "Diferença de 12 pontos ou mais: o texto conta outra história.",
       },
     },
+    modelo: {
+      rotulo: "Modelo",
+      titulo: "Como o modelo de risco se sai",
+      intro: "Números medidos em empresas que o modelo não viu durante o treino. A base tem 23.469 respostas aos 46 itens do questionário, com as três faixas de risco (baixo, moderado e alto) em proporções iguais, para o modelo não favorecer a faixa mais comum.",
+      itens: [
+        { v: "0,70", t: "F1-macro", d: "Equilíbrio entre precisão e recall nas três faixas de risco. O máximo possível nesta base é 0,83." },
+        { v: "0,87", t: "ROC-AUC", d: "Capacidade de separar as faixas de risco. 0,5 seria o acaso; 1,0, a separação perfeita." },
+        { v: "74%", t: "Sensibilidade no risco alto", d: "Dos casos de risco alto, quantos o modelo encontra. No modo triagem, ajustado para deixar passar o mínimo, chega a 79%." },
+        { v: "87%", t: "Especificidade no risco alto", d: "Dos casos sem risco alto, quantos o modelo descarta corretamente." },
+        { v: "0,02", t: "Erro de calibração (ECE)", d: "Quando o modelo indica 70% de chance, acerta perto de 70%: a probabilidade é confiável." },
+        { v: "r = 0,94", t: "Concordância por grupo", d: "O percentual de risco alto previsto em cada grupo acompanha o percentual de referência." },
+      ],
+      nota: "A validação de campo acontece no piloto, com respostas reais, depois da aprovação do Comitê de Ética em Pesquisa. Meta com os dados do piloto: F1 ≥ 0,80, ROC-AUC ≥ 0,85 e diferença de acerto entre setores de no máximo 5 pontos.",
+    },
     como: {
       rotulo: "Processo",
       titulo: "Como funciona",
@@ -114,11 +129,11 @@ export const TEXTOS = {
       passos: [
         { t: "Pesquisa anônima", d: "Colaboradores respondem em escala e, se quiserem, em texto livre, sem se identificar." },
         { t: "Proteção e análise", d: "O texto é anonimizado antes de ser gravado; depois escala e texto são lidos juntos." },
-        { t: "Agregação por grupo", d: "Resultados só existem por grupo (GHE) com pelo menos 5 respostas. Nunca há resultado individual." },
+        { t: "Agregação por grupo", d: "Resultados só existem por grupo homogêneo de exposição (GHE: pessoas sob as mesmas condições de trabalho) com pelo menos 5 respostas. Nunca há resultado individual." },
         { t: "Plano de ação para o PGR", d: "Prioridades e plano de ação por grupo, validados por psicóloga com CRP antes de entrarem no PGR." },
       ],
       instrumento: "Instrumento com 46 itens em 10 dimensões + campo de texto livre opcional.",
-      banner: "Nenhum resultado individual é exposto. Tudo é agregado por grupo com k-anonimato.",
+      banner: "Nenhum resultado individual é exposto. Tudo é agregado por grupo de no mínimo 5 pessoas (k-anonimato), para ninguém ser identificado.",
     },
     painel: {
       rotulo: "Painel",
@@ -157,9 +172,9 @@ export const TEXTOS = {
     entregas: {
       rotulo: "Entregas",
       titulo: "O que sua empresa recebe",
-      intro: "Material pensado para o RH, o SESMT e a diretoria usarem no gerenciamento de riscos.",
+      intro: "Material pensado para o RH, a equipe de segurança e medicina do trabalho (SESMT) e a diretoria usarem no gerenciamento de riscos.",
       itens: [
-        { t: "Mapa de risco por GHE", d: "Índice por dimensão e nível de risco de cada grupo homogêneo de exposição, para o inventário do PGR." },
+        { t: "Mapa de risco por grupo (GHE)", d: "Índice por dimensão e nível de risco de cada grupo homogêneo de exposição, para o inventário do PGR." },
         { t: "Explicação dos resultados", d: "Os fatores que mais pesaram em cada grupo e a comparação entre escala e texto (O Revelador)." },
         { t: "Plano de ação priorizado", d: "Ações por grupo, em ordem de prioridade, validadas por psicóloga com CRP." },
         { t: "Registro de conformidade", d: "Método, versão do questionário e trilha de auditoria documentados para a NR-1." },
@@ -169,7 +184,7 @@ export const TEXTOS = {
         colunas: ["", "Pesquisa de clima", "Psyra"],
         linhas: [
           ["Pergunta central", "As pessoas estão satisfeitas?", "Que condições do trabalho podem adoecer este grupo?"],
-          ["Resultado", "Índices de satisfação e engajamento", "Nível de risco e fatores por GHE, com leitura do texto livre"],
+          ["Resultado", "Índices de satisfação e engajamento", "Nível de risco e fatores por grupo, com leitura do texto livre"],
           ["Uso na NR-1", "Não é o objetivo", "Alimenta o inventário e o plano de ação do PGR"],
         ],
       },
@@ -212,7 +227,7 @@ export const TEXTOS = {
           desc: "Cobertura completa, várias unidades e suporte prioritário.",
           itens: [
             "Tudo do plano Padrão",
-            "Cobertura de múltiplas unidades e GHEs",
+            "Cobertura de múltiplas unidades e grupos (GHEs)",
             "Relatórios avançados para PGR/NR-1",
             "Acompanhamento contínuo dos indicadores",
             "Trilha de auditoria completa",
@@ -253,7 +268,7 @@ export const TEXTOS = {
         "Estamos selecionando empresas para o piloto: diagnóstico gratuito, acompanhamento próximo da equipe e validação clínica por psicóloga com CRP. A coleta com colaboradores só começa depois da aprovação do Comitê de Ética em Pesquisa.",
       equipeTitulo: "Quem está por trás",
       equipeIntro:
-        "A Psyra AI nasceu como TCC em Inteligência Artificial na FECAP. São três sócios, com orientação dos professores Glenarisson e Alexandre e uma psicóloga com CRP ativo como consultora externa:",
+        "A Psyra AI nasceu no PTI de Inteligência Artificial da FECAP. São três sócios, com orientação dos professores Glenarisson e Alexandre e uma psicóloga com CRP ativo como consultora externa:",
       pessoas: [
         { nome: "Vinícius de Lima", papel: "Product Owner e Tech Lead" },
         { nome: "Pedro Octávio Rodrigues Jorge", papel: "Desenvolvedor Full Stack e Analista Financeiro" },
@@ -282,7 +297,7 @@ export const TEXTOS = {
           r: "Não. A Psyra não avalia pessoas: aponta fatores de risco por grupo, com explicação. As decisões ficam com a empresa e com a psicóloga responsável.",
         },
         {
-          p: "A Psyra substitui a psicóloga ou o SESMT?",
+          p: "A Psyra substitui a psicóloga ou a equipe de segurança do trabalho (SESMT)?",
           r: "Não. A Psyra organiza evidências e prioridades; o plano de ação é validado por psicóloga com CRP e integra o PGR da empresa.",
         },
         {
@@ -291,7 +306,7 @@ export const TEXTOS = {
         },
         {
           p: "A IA da Psyra já está validada?",
-          r: "O modelo de linguagem (MentalBERT-PT) está em fase de validação. O piloto com dados reais começa após a aprovação do Comitê de Ética em Pesquisa; até lá, nenhuma métrica de desempenho é apresentada como resultado final.",
+          r: "O modelo da escala já foi treinado e testado em empresas que ele não viu no treino: F1 de 0,70 e ROC-AUC de 0,87 (seção Modelo). A validação de campo, com respostas reais, acontece no piloto, depois da aprovação do Comitê de Ética em Pesquisa. O modelo de texto (MentalBERT-PT) ainda está em ajuste; até lá, o painel usa regras e avisa isso na tela.",
         },
         {
           p: "Que questionário os colaboradores respondem?",
@@ -342,7 +357,7 @@ export const TEXTOS = {
       contato: "Contato",
       privacidade: "Política de Privacidade",
       direitos: "Todos os direitos reservados.",
-      origem: "TCC em Inteligência Artificial · FECAP",
+      origem: "PTI de Inteligência Artificial · FECAP",
     },
     privacidade: {
       titulo: "Política de Privacidade",
@@ -401,6 +416,7 @@ export const TEXTOS = {
       piloto: "Join the pilot",
     },
     idioma: { rotulo: "Language" },
+    tema: { claro: "Switch to light mode", escuro: "Switch to dark mode" },
     sugestao: {
       texto: "This page is also available in English.",
       ir: "View in English",
@@ -459,7 +475,8 @@ export const TEXTOS = {
     solucao: {
       rotulo: "Solution",
       titulo: "A 1-to-5 scale doesn't tell the whole story",
-      intro: "Most tools rely on Likert scales alone. Psyra was designed to also read what people write, in Portuguese.",
+      intro:
+        "Most tools rely on Likert scales alone. Psyra was designed to also read what people write, in Portuguese.",
       cards: [
         {
           t: "AI that reads Portuguese",
@@ -467,7 +484,7 @@ export const TEXTOS = {
         },
         {
           t: "Explainability",
-          d: "SHAP shows what drove each group's risk indication, in line with Article 20 of the LGPD, Brazil's data protection law (Padrão and Panorama plans).",
+          d: "The SHAP method shows which factors drove each group's risk indication, in line with Article 20 of the LGPD, Brazil's data protection law (Padrão and Panorama plans).",
         },
         {
           t: "NR-1 compliance",
@@ -477,13 +494,28 @@ export const TEXTOS = {
       revelador: {
         rotulo: "The Revealer",
         titulo: "The same numeric score can hide opposite signals in the text.",
-        texto: "That gap is exactly what Psyra captures — and why two groups with similar averages may need completely different actions.",
+        texto:
+          "That gap is exactly what Psyra captures — and why two groups with similar averages may need completely different actions.",
         grafico: "Same scale, different readings",
         sub: "0–100 index per group · groups with n ≥ 5",
         escala: "Scale",
         texto2: "Text",
         legenda: "A gap of 12 points or more: the text tells a different story.",
       },
+    },
+    modelo: {
+      rotulo: "Model",
+      titulo: "How the risk model performs",
+      intro: "Measured on companies the model did not see during training. The dataset has 23,469 answers to the 46 questionnaire items, with the three risk levels (low, moderate and high) in equal shares, so the model does not favour the most common level.",
+      itens: [
+        { v: "0.70", t: "Macro F1", d: "Balance between precision and recall across the three risk levels. The best possible score on this dataset is 0.83." },
+        { v: "0.87", t: "ROC-AUC", d: "How well the model separates the risk levels. 0.5 would be chance; 1.0, perfect separation." },
+        { v: "74%", t: "Sensitivity for high risk", d: "Of the high-risk cases, how many the model finds. In screening mode, tuned to miss as few as possible, it reaches 79%." },
+        { v: "87%", t: "Specificity for high risk", d: "Of the cases without high risk, how many the model correctly clears." },
+        { v: "0.02", t: "Calibration error (ECE)", d: "When the model says 70%, it is right about 70% of the time: the probability can be trusted." },
+        { v: "r = 0.94", t: "Agreement by group", d: "The predicted share of high risk in each group tracks the reference share." },
+      ],
+      nota: "Field validation happens in the pilot, with real answers, after Research Ethics Committee approval. Target on pilot data: F1 ≥ 0.80, ROC-AUC ≥ 0.85 and an accuracy gap between sectors of at most 5 points.",
     },
     como: {
       rotulo: "Process",
@@ -496,7 +528,7 @@ export const TEXTOS = {
         { t: "Action plan for the PGR", d: "Priorities and an action plan per group, validated by a licensed psychologist before entering the PGR." },
       ],
       instrumento: "Questionnaire with 46 items across 10 dimensions + an optional free-text field (Portuguese).",
-      banner: "No individual result is ever shown. Everything is aggregated by group with k-anonymity.",
+      banner: "No individual result is ever shown. Everything is aggregated by groups of at least 5 people (k-anonymity), so nobody can be identified.",
     },
     painel: {
       rotulo: "Dashboard",
@@ -529,7 +561,8 @@ export const TEXTOS = {
         reconhecimento: "Little recognition",
         lideranca: "Leadership support",
       },
-      rodape: "Illustrative data. Real results only per group with n ≥ 5; the action plan is validated by a licensed psychologist.",
+      rodape:
+        "Illustrative data. Real results only per group with n ≥ 5; the action plan is validated by a licensed psychologist.",
     },
     entregas: {
       rotulo: "Deliverables",
@@ -565,7 +598,12 @@ export const TEXTOS = {
         starter: {
           faixa: "Up to 50 employees",
           desc: "An entry point to start mapping psychosocial risk.",
-          itens: ["Anonymous survey with free text", "Psychosocial risk analysis by group", "Dashboard with core indicators", "Basic NR-1 report"],
+          itens: [
+            "Anonymous survey with free text",
+            "Psychosocial risk analysis by group",
+            "Dashboard with core indicators",
+            "Basic NR-1 report",
+          ],
         },
         professional: {
           faixa: "Up to 200 employees",
@@ -624,7 +662,7 @@ export const TEXTOS = {
         "We are selecting companies for the pilot: a free assessment, close support from the team and clinical validation by a licensed psychologist. Data collection with employees only starts after approval by a Research Ethics Committee.",
       equipeTitulo: "Who is behind it",
       equipeIntro:
-        "Psyra AI started as a capstone project in Artificial Intelligence at FECAP (São Paulo). It is run by three partners, advised by Professors Glenarisson and Alexandre, with a licensed psychologist as an external consultant:",
+        "Psyra AI started in the Artificial Intelligence PTI (integrated project) at FECAP (São Paulo). It is run by three partners, advised by Professors Glenarisson and Alexandre, with a licensed psychologist as an external consultant:",
       pessoas: [
         { nome: "Vinícius de Lima", papel: "Product Owner and Tech Lead" },
         { nome: "Pedro Octávio Rodrigues Jorge", papel: "Full-Stack Developer and Financial Analyst" },
@@ -636,24 +674,65 @@ export const TEXTOS = {
       rotulo: "FAQ",
       titulo: "Frequently asked questions",
       itens: [
-        { p: "Can the company see each employee's answers?", r: "No. Results only exist per group (GHE) with at least 5 answers. Smaller groups are hidden." },
-        { p: "What happens to the free text?", r: "Before it is stored, the text is automatically anonymized (names, CPF, e-mail, phone). It is only read together with the group and is never shown individually." },
-        { p: "What if an area gets a bad result?", r: "A result is a starting point, not a verdict. The dashboard shows the factors that weighed most, and the action plan — validated by a licensed psychologist — sets what to do first." },
-        { p: "Does the AI make decisions about anyone?", r: "No. Psyra does not assess people: it points to risk factors per group, with an explanation. Decisions stay with the company and the responsible psychologist." },
-        { p: "Does Psyra replace the psychologist or the safety team (SESMT)?", r: "No. Psyra organizes evidence and priorities; the action plan is validated by a licensed psychologist and becomes part of the company's PGR." },
-        { p: "Does this meet NR-1?", r: "Since May 26, 2026, NR-1 (Ordinance MTE 1,419/2024) requires psychosocial risks in occupational risk management. Psyra delivers group-level mapping and the action plan for the PGR. Since June 2026 the related fines have been suspended by Brazil's Supreme Court (ADPF 1316, extended in September), but the duty to manage the risk still applies." },
-        { p: "Is Psyra's AI already validated?", r: "The language model (MentalBERT-PT) is being validated. The pilot with real data starts after Research Ethics Committee approval; until then, no performance metric is presented as a final result." },
-        { p: "Which questionnaire do employees answer?", r: "Psyra's own questionnaire: 46 items in 10 dimensions, inspired by COPSOQ and adapted to NR-1, with an optional free-text field. The final items are validated by the responsible psychologist before use." },
-        { p: "What about data protection (LGPD)?", r: "We collect the minimum, anonymize text before storing it and show results by group only. The legal basis, retention period and data protection officer will be formalized with a legal opinion before the pilot." },
-        { p: "How long does it take?", r: "The survey stays open for as long as the company decides; group results become available as soon as each group reaches 5 answers." },
-        { p: "Which languages does it support?", r: "The questionnaire and the text analysis work in Brazilian Portuguese. The English and Chinese pages explain the product to international readers; running the questionnaire in another language would require its own adaptation and validation." },
+        {
+          p: "Can the company see each employee's answers?",
+          r: "No. Results only exist per group (GHE) with at least 5 answers. Smaller groups are hidden.",
+        },
+        {
+          p: "What happens to the free text?",
+          r: "Before it is stored, the text is automatically anonymized (names, CPF, e-mail, phone). It is only read together with the group and is never shown individually.",
+        },
+        {
+          p: "What if an area gets a bad result?",
+          r: "A result is a starting point, not a verdict. The dashboard shows the factors that weighed most, and the action plan — validated by a licensed psychologist — sets what to do first.",
+        },
+        {
+          p: "Does the AI make decisions about anyone?",
+          r: "No. Psyra does not assess people: it points to risk factors per group, with an explanation. Decisions stay with the company and the responsible psychologist.",
+        },
+        {
+          p: "Does Psyra replace the psychologist or the safety team (SESMT)?",
+          r: "No. Psyra organizes evidence and priorities; the action plan is validated by a licensed psychologist and becomes part of the company's PGR.",
+        },
+        {
+          p: "Does this meet NR-1?",
+          r: "Since May 26, 2026, NR-1 (Ordinance MTE 1,419/2024) requires psychosocial risks in occupational risk management. Psyra delivers group-level mapping and the action plan for the PGR. Since June 2026 the related fines have been suspended by Brazil's Supreme Court (ADPF 1316, extended in September), but the duty to manage the risk still applies.",
+        },
+        {
+          p: "Is Psyra's AI already validated?",
+          r: "The scale model has been trained and tested on companies it did not see in training: F1 of 0.70 and ROC-AUC of 0.87 (Model section). Field validation, with real answers, happens in the pilot after Research Ethics Committee approval. The text model (MentalBERT-PT) is still being tuned; until then, the dashboard uses rules and says so on screen.",
+        },
+        {
+          p: "Which questionnaire do employees answer?",
+          r: "Psyra's own questionnaire: 46 items in 10 dimensions, inspired by COPSOQ and adapted to NR-1, with an optional free-text field. The final items are validated by the responsible psychologist before use.",
+        },
+        {
+          p: "What about data protection (LGPD)?",
+          r: "We collect the minimum, anonymize text before storing it and show results by group only. The legal basis, retention period and data protection officer will be formalized with a legal opinion before the pilot.",
+        },
+        {
+          p: "How long does it take?",
+          r: "The survey stays open for as long as the company decides; group results become available as soon as each group reaches 5 answers.",
+        },
+        {
+          p: "Which languages does it support?",
+          r: "The questionnaire and the text analysis work in Brazilian Portuguese. The English and Chinese pages explain the product to international readers; running the questionnaire in another language would require its own adaptation and validation.",
+        },
       ],
     },
     contato: {
       rotulo: "Contact",
       titulo: "Start with a free assessment",
-      intro: "In a short call we show how Psyra reads free text in Portuguese, how results are aggregated by group and what your company needs to deliver for NR-1.",
-      campos: { nome: "Name", empresa: "Company", email: "Work e-mail", telefone: "Phone", porte: "Approximate number of employees (optional)", selecione: "Select" },
+      intro:
+        "In a short call we show how Psyra reads free text in Portuguese, how results are aggregated by group and what your company needs to deliver for NR-1.",
+      campos: {
+        nome: "Name",
+        empresa: "Company",
+        email: "Work e-mail",
+        telefone: "Phone",
+        porte: "Approximate number of employees (optional)",
+        selecione: "Select",
+      },
       faixas: ["Up to 50", "51 to 200", "201 to 1,000", "More than 1,000"],
       consentimentoAntes: "I have read the ",
       consentimentoLink: "Privacy Policy",
@@ -665,25 +744,42 @@ export const TEXTOS = {
       direto: "Prefer to write directly?",
     },
     rodape: {
-      descricao: "Predictive detection of psychosocial risk in Portuguese, with NR-1 compliance and results always aggregated by group.",
+      descricao:
+        "Predictive detection of psychosocial risk in Portuguese, with NR-1 compliance and results always aggregated by group.",
       navegacao: "Navigation",
       sobre: "About",
       contato: "Contact",
       privacidade: "Privacy Policy",
       direitos: "All rights reserved.",
-      origem: "Capstone project in Artificial Intelligence · FECAP",
+      origem: "Artificial Intelligence PTI · FECAP",
     },
     privacidade: {
       titulo: "Privacy Policy",
       intro: "Privacy is what allows people to answer honestly. This page summarizes how Psyra AI handles data.",
-      aviso: "Preliminary version: the legal basis, retention period and data protection officer will be formalized with a legal opinion before the pilot.",
+      aviso:
+        "Preliminary version: the legal basis, retention period and data protection officer will be formalized with a legal opinion before the pilot.",
       voltar: "Back to the home page",
       blocos: [
-        { t: "Data processed", d: "Answers to workplace surveys, on a scale and in free text, collected anonymously and processed to map psychosocial risk." },
-        { t: "Anonymization", d: "Names, CPF numbers, e-mails and phone numbers in the text are removed automatically before the answer is stored. If removal fails, the answer is not stored." },
-        { t: "Group aggregation", d: "Results exist only in aggregate, per homogeneous exposure group (GHE), with at least 5 answers. There is no individual result, not even for the client company." },
-        { t: "Explainability", d: "Risk indications come with an explanation of the drivers (SHAP), in line with Article 20 of the LGPD." },
-        { t: "Audit", d: "Hash-chained records make it possible to verify what was processed and when, without exposing personal content." },
+        {
+          t: "Data processed",
+          d: "Answers to workplace surveys, on a scale and in free text, collected anonymously and processed to map psychosocial risk.",
+        },
+        {
+          t: "Anonymization",
+          d: "Names, CPF numbers, e-mails and phone numbers in the text are removed automatically before the answer is stored. If removal fails, the answer is not stored.",
+        },
+        {
+          t: "Group aggregation",
+          d: "Results exist only in aggregate, per homogeneous exposure group (GHE), with at least 5 answers. There is no individual result, not even for the client company.",
+        },
+        {
+          t: "Explainability",
+          d: "Risk indications come with an explanation of the drivers (SHAP), in line with Article 20 of the LGPD.",
+        },
+        {
+          t: "Audit",
+          d: "Hash-chained records make it possible to verify what was processed and when, without exposing personal content.",
+        },
         { t: "Contact", d: "Questions about data processing can be sent to" },
       ],
     },
@@ -713,7 +809,12 @@ export const TEXTOS = {
       piloto: "申请加入试点",
     },
     idioma: { rotulo: "语言" },
-    sugestao: { texto: "本页面也提供简体中文版本。", ir: "查看中文版", ficar: "继续使用葡萄牙语" },
+    tema: { claro: "切换到浅色模式", escuro: "切换到深色模式" },
+    sugestao: {
+      texto: "本页面也提供简体中文版本。",
+      ir: "查看中文版",
+      ficar: "继续使用葡萄牙语",
+    },
     aviso: "Psyra 面向巴西企业。问卷和文本分析目前仅支持巴西葡萄牙语；本页面是为国际读者提供的译文。",
     ilustrativo: "示意数据",
     hero: {
@@ -749,7 +850,10 @@ export const TEXTOS = {
       legenda: "2025 年巴西因心理健康问题休假的人次（INSS/Dataprev，巴西社会保障数据）",
       linhaTitulo: "NR-1：2026 年的变化",
       marcos: [
-        { data: "2026年5月26日", texto: "NR-1（巴西第 1 号劳动安全规范）要求所有雇用正式员工的企业，将心理社会风险纳入风险管理计划（PGR）。" },
+        {
+          data: "2026年5月26日",
+          texto: "NR-1（巴西第 1 号劳动安全规范）要求所有雇用正式员工的企业，将心理社会风险纳入风险管理计划（PGR）。",
+        },
         { data: "2026年6月25日", texto: "巴西联邦最高法院（STF）暂停与这类风险相关的罚款（ADPF 1316）。" },
         { data: "2026年9月25日", texto: "暂停期延长 90 天，同时就评估标准进行协商。" },
         { data: "目前", texto: "罚款暂停，但识别和控制风险的义务依然有效。" },
@@ -761,9 +865,18 @@ export const TEXTOS = {
       titulo: "1–5 分的量表讲不出全部实情",
       intro: "市面上多数工具只依赖李克特量表。Psyra 的设计还会阅读员工用葡萄牙语写下的内容。",
       cards: [
-        { t: "读懂葡萄牙语的 AI", d: "葡萄牙语语言模型（MentalBERT-PT，基于 BERTimbau，仍在验证中）与量表结合，用于分析自由文本。" },
-        { t: "可解释性", d: "SHAP 说明每个群组风险提示背后的因素，符合巴西《通用数据保护法》（LGPD）第 20 条（Padrão 和 Panorama 套餐）。" },
-        { t: "符合 NR-1", d: "分析结果直接按风险识别和 PGR 的需要整理，行动计划由持证心理学家（CRP）审核。" },
+        {
+          t: "读懂葡萄牙语的 AI",
+          d: "葡萄牙语语言模型（MentalBERT-PT，基于 BERTimbau，仍在验证中）与量表结合，用于分析自由文本。",
+        },
+        {
+          t: "可解释性",
+          d: "SHAP 方法说明每个群组风险提示背后的因素，符合巴西《通用数据保护法》（LGPD）第 20 条（Padrão 和 Panorama 套餐）。",
+        },
+        {
+          t: "符合 NR-1",
+          d: "分析结果直接按风险识别和 PGR 的需要整理，行动计划由持证心理学家（CRP）审核。",
+        },
       ],
       revelador: {
         rotulo: "“揭示器”（O Revelador）",
@@ -776,6 +889,20 @@ export const TEXTOS = {
         legenda: "差距达到 12 分或以上：文本讲的是另一回事。",
       },
     },
+    modelo: {
+      rotulo: "模型",
+      titulo: "风险模型的表现",
+      intro: "以下指标在训练时未见过的企业上测得。数据集包含 23,469 份对问卷 46 个题目的回答，低、中、高三个风险等级各占三分之一，避免模型偏向最常见的等级。",
+      itens: [
+        { v: "0.70", t: "宏平均 F1", d: "三个风险等级上精确率与召回率的平衡。该数据集上的理论上限为 0.83。" },
+        { v: "0.87", t: "ROC-AUC", d: "区分各风险等级的能力。0.5 相当于随机，1.0 为完全区分。" },
+        { v: "74%", t: "高风险灵敏度", d: "在高风险情况中，模型能识别出的比例。在调整为尽量不漏检的筛查模式下可达 79%。" },
+        { v: "87%", t: "高风险特异度", d: "在没有高风险的情况中，模型正确排除的比例。" },
+        { v: "0.02", t: "校准误差（ECE）", d: "模型给出 70% 的概率时，实际正确率接近 70%：概率值可信。" },
+        { v: "r = 0.94", t: "群组层面的一致性", d: "各群组预测的高风险比例与参考比例高度一致。" },
+      ],
+      nota: "实地验证将在试点中使用真实回答进行，并在研究伦理委员会批准后开始。试点数据目标：F1 ≥ 0.80，ROC-AUC ≥ 0.85，各行业之间的准确率差异不超过 5 个百分点。",
+    },
     como: {
       rotulo: "流程",
       titulo: "工作方式",
@@ -787,7 +914,7 @@ export const TEXTOS = {
         { t: "PGR 行动计划", d: "各群组的优先事项和行动计划，在纳入 PGR 前由持证心理学家审核。" },
       ],
       instrumento: "问卷包含 10 个维度共 46 个题目，另有可选的自由文本栏（葡萄牙语）。",
-      banner: "绝不展示任何个人结果。所有数据均按群组汇总，满足 k-匿名。",
+      banner: "绝不展示任何个人结果。所有数据均按至少 5 人的群组汇总（k-匿名），任何人都无法被识别。",
     },
     painel: {
       rotulo: "仪表板",
@@ -806,8 +933,20 @@ export const TEXTOS = {
         aumenta: "提高风险",
         protege: "起保护作用",
       },
-      grupos: { atendimento: "客服", operacoes: "运营", comercial: "销售", ti: "IT", financeiro: "财务", juridico: "法务" },
-      fatoresNomes: { sobrecarga: "工作负荷过重", metas: "业绩指标压力", reconhecimento: "缺少认可", lideranca: "领导支持" },
+      grupos: {
+        atendimento: "客服",
+        operacoes: "运营",
+        comercial: "销售",
+        ti: "IT",
+        financeiro: "财务",
+        juridico: "法务",
+      },
+      fatoresNomes: {
+        sobrecarga: "工作负荷过重",
+        metas: "业绩指标压力",
+        reconhecimento: "缺少认可",
+        lideranca: "领导支持",
+      },
       rodape: "示意数据。真实结果仅按 n ≥ 5 的群组呈现；行动计划由持证心理学家审核。",
     },
     entregas: {
@@ -849,12 +988,26 @@ export const TEXTOS = {
         professional: {
           faixa: "最多 200 名员工",
           desc: "深入分析，包含自由文本和可解释性。",
-          itens: ["包含 Sinal 套餐全部功能", "带可解释性（SHAP）的自由文本分析", "群组与部门间对比", "定期 PGR 报告", "行动计划建议", "各部门风险资本的示意性估算"],
+          itens: [
+            "包含 Sinal 套餐全部功能",
+            "带可解释性（SHAP）的自由文本分析",
+            "群组与部门间对比",
+            "定期 PGR 报告",
+            "行动计划建议",
+            "各部门风险资本的示意性估算",
+          ],
         },
         enterprise: {
           faixa: "最多 1,000 名员工",
           desc: "全面覆盖，支持多个厂区，优先支持。",
-          itens: ["包含 Padrão 套餐全部功能", "覆盖多个厂区和 GHE", "高级 PGR/NR-1 报告", "持续跟踪各项指标", "完整审计记录", "优先支持"],
+          itens: [
+            "包含 Padrão 套餐全部功能",
+            "覆盖多个厂区和 GHE",
+            "高级 PGR/NR-1 报告",
+            "持续跟踪各项指标",
+            "完整审计记录",
+            "优先支持",
+          ],
         },
       },
       nota: "所有套餐在签约前都先进行一次免费的初步诊断。",
@@ -889,7 +1042,7 @@ export const TEXTOS = {
         "我们正在挑选参加试点的企业：提供免费诊断、团队的密切跟进，以及持证心理学家的临床审核。只有在获得研究伦理委员会批准后，才会开始采集员工数据。",
       equipeTitulo: "团队介绍",
       equipeIntro:
-        "Psyra AI 起源于圣保罗 FECAP 大学人工智能专业的毕业设计，由三位合伙人运营，Glenarisson 教授和 Alexandre 教授担任指导，并有一位持证心理学家担任外部顾问：",
+        "Psyra AI 起源于圣保罗 FECAP 大学人工智能专业的 PTI 综合项目，由三位合伙人运营，Glenarisson 教授和 Alexandre 教授担任指导，并有一位持证心理学家担任外部顾问：",
       pessoas: [
         { nome: "Vinícius de Lima", papel: "产品负责人兼技术负责人" },
         { nome: "Pedro Octávio Rodrigues Jorge", papel: "全栈开发工程师兼财务分析师" },
@@ -902,23 +1055,60 @@ export const TEXTOS = {
       titulo: "常见问题",
       itens: [
         { p: "企业能看到每位员工的回答吗？", r: "不能。结果只按至少有 5 份回答的群组（GHE）呈现，更小的群组会被隐藏。" },
-        { p: "自由文本会被怎样处理？", r: "文本在保存前会自动匿名化（姓名、CPF、电子邮箱、电话）。文本只在群组层面被分析，绝不会单独展示。" },
-        { p: "如果某个部门的结果很差怎么办？", r: "结果是改进的起点，而不是评判。仪表板会显示影响最大的因素，由持证心理学家审核的行动计划会确定先做什么。" },
-        { p: "AI 会对某个人做出决定吗？", r: "不会。Psyra 不评估个人，只按群组指出风险因素并给出解释。决定由企业和负责的心理学家做出。" },
-        { p: "Psyra 会取代心理学家或职业安全团队（SESMT）吗？", r: "不会。Psyra 负责整理证据和优先事项；行动计划由持证心理学家审核，并纳入企业的 PGR。" },
-        { p: "这能满足 NR-1 的要求吗？", r: "自 2026 年 5 月 26 日起，NR-1（MTE 第 1,419/2024 号部令）要求将心理社会风险纳入职业风险管理。Psyra 提供按群组的风险识别和可纳入 PGR 的行动计划。自 2026 年 6 月起，相关罚款已被巴西联邦最高法院暂停（ADPF 1316，并于 9 月延长），但管理风险的义务依然有效。" },
-        { p: "Psyra 的 AI 已经过验证了吗？", r: "语言模型（MentalBERT-PT）仍在验证中。使用真实数据的试点将在获得研究伦理委员会批准后开始；在此之前，不会把任何性能指标作为最终结果发布。" },
-        { p: "员工回答的是什么问卷？", r: "Psyra 自有问卷：10 个维度共 46 个题目，参考 COPSOQ 并针对 NR-1 调整，另有可选的自由文本栏。最终题目在使用前由负责的心理学家审核。" },
-        { p: "数据保护（LGPD）方面如何处理？", r: "我们只采集必要的数据，文本在保存前匿名化，结果只按群组呈现。法律依据、数据保存期限和数据保护负责人将在试点前通过法律意见正式确定。" },
-        { p: "需要多长时间？", r: "问卷开放时长由企业决定；每个群组达到 5 份回答后，即可查看该群组的结果。" },
-        { p: "支持哪些语言？", r: "问卷和文本分析支持巴西葡萄牙语。英文和中文页面用于向国际读者介绍产品；若要用其他语言施测，需要单独进行本地化改编和验证。" },
+        {
+          p: "自由文本会被怎样处理？",
+          r: "文本在保存前会自动匿名化（姓名、CPF、电子邮箱、电话）。文本只在群组层面被分析，绝不会单独展示。",
+        },
+        {
+          p: "如果某个部门的结果很差怎么办？",
+          r: "结果是改进的起点，而不是评判。仪表板会显示影响最大的因素，由持证心理学家审核的行动计划会确定先做什么。",
+        },
+        {
+          p: "AI 会对某个人做出决定吗？",
+          r: "不会。Psyra 不评估个人，只按群组指出风险因素并给出解释。决定由企业和负责的心理学家做出。",
+        },
+        {
+          p: "Psyra 会取代心理学家或职业安全团队（SESMT）吗？",
+          r: "不会。Psyra 负责整理证据和优先事项；行动计划由持证心理学家审核，并纳入企业的 PGR。",
+        },
+        {
+          p: "这能满足 NR-1 的要求吗？",
+          r: "自 2026 年 5 月 26 日起，NR-1（MTE 第 1,419/2024 号部令）要求将心理社会风险纳入职业风险管理。Psyra 提供按群组的风险识别和可纳入 PGR 的行动计划。自 2026 年 6 月起，相关罚款已被巴西联邦最高法院暂停（ADPF 1316，并于 9 月延长），但管理风险的义务依然有效。",
+        },
+        {
+          p: "Psyra 的 AI 已经过验证了吗？",
+          r: "量表模型已完成训练，并在训练时未见过的企业上测试：F1 为 0.70，ROC-AUC 为 0.87（见“模型”部分）。使用真实回答的实地验证将在获得研究伦理委员会批准后的试点中进行。文本模型（MentalBERT-PT）仍在调整中；在此之前，仪表板使用规则并在页面上注明。",
+        },
+        {
+          p: "员工回答的是什么问卷？",
+          r: "Psyra 自有问卷：10 个维度共 46 个题目，参考 COPSOQ 并针对 NR-1 调整，另有可选的自由文本栏。最终题目在使用前由负责的心理学家审核。",
+        },
+        {
+          p: "数据保护（LGPD）方面如何处理？",
+          r: "我们只采集必要的数据，文本在保存前匿名化，结果只按群组呈现。法律依据、数据保存期限和数据保护负责人将在试点前通过法律意见正式确定。",
+        },
+        {
+          p: "需要多长时间？",
+          r: "问卷开放时长由企业决定；每个群组达到 5 份回答后，即可查看该群组的结果。",
+        },
+        {
+          p: "支持哪些语言？",
+          r: "问卷和文本分析支持巴西葡萄牙语。英文和中文页面用于向国际读者介绍产品；若要用其他语言施测，需要单独进行本地化改编和验证。",
+        },
       ],
     },
     contato: {
       rotulo: "联系我们",
       titulo: "从免费诊断开始",
       intro: "在一次简短的交流中，我们会演示 Psyra 如何阅读葡萄牙语自由文本、如何按群组汇总结果，以及您的企业需要为 NR-1 准备什么。",
-      campos: { nome: "姓名", empresa: "企业", email: "工作邮箱", telefone: "电话", porte: "大致员工人数（选填）", selecione: "请选择" },
+      campos: {
+        nome: "姓名",
+        empresa: "企业",
+        email: "工作邮箱",
+        telefone: "电话",
+        porte: "大致员工人数（选填）",
+        selecione: "请选择",
+      },
       faixas: ["最多 50", "51 至 200", "201 至 1,000", "超过 1,000"],
       consentimentoAntes: "我已阅读",
       consentimentoLink: "隐私政策",
@@ -936,7 +1126,7 @@ export const TEXTOS = {
       contato: "联系",
       privacidade: "隐私政策",
       direitos: "保留所有权利。",
-      origem: "FECAP 人工智能专业毕业设计",
+      origem: "FECAP 人工智能专业 PTI 项目",
     },
     privacidade: {
       titulo: "隐私政策",
