@@ -1116,3 +1116,29 @@
     transition: none;
   }
 }
+
+/* Modelo: números do modelo de risco */
+.lp-modelo__lista {
+  list-style: none;
+  padding: 0;
+  margin: 2.5rem 0 0;
+}
+
+.lp-modelo__lista > li,
+.lp-modelo__lista .lp-reveal,
+.lp-modelo__card {
+  height: 100%;
+}
+
+.lp-section--light .lp-modelo__card .lp-modelo__valor {
+  margin: 0 0 0.75rem;
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #1c1f3a;
+}
+
+.lp-section--light .lp-modelo__nota {
+  color: #4b4f6b;
+  max-width: 52rem;
+}
