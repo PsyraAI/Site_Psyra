@@ -28,6 +28,7 @@ export const TEXTOS = {
       piloto: "Quero participar do piloto",
     },
     idioma: { rotulo: "Idioma" },
+    tema: { claro: "Ativar modo claro", escuro: "Ativar modo escuro" },
     sugestao: null,
     aviso: null,
     ilustrativo: "Dados ilustrativos",
@@ -106,6 +107,20 @@ export const TEXTOS = {
         texto2: "Texto",
         legenda: "Diferença de 12 pontos ou mais: o texto conta outra história.",
       },
+    },
+    modelo: {
+      rotulo: "Modelo",
+      titulo: "Como o modelo de risco se sai",
+      intro: "Números medidos em empresas que o modelo não viu durante o treino. A base tem 23.469 respostas aos 46 itens do questionário, com as três faixas de risco (baixo, moderado e alto) em proporções iguais, para o modelo não favorecer a faixa mais comum.",
+      itens: [
+        { v: "0,70", t: "F1-macro", d: "Equilíbrio entre precisão e recall nas três faixas de risco. O máximo possível nesta base é 0,83." },
+        { v: "0,87", t: "ROC-AUC", d: "Capacidade de separar as faixas de risco. 0,5 seria o acaso; 1,0, a separação perfeita." },
+        { v: "74%", t: "Sensibilidade no risco alto", d: "Dos casos de risco alto, quantos o modelo encontra. No modo triagem, ajustado para deixar passar o mínimo, chega a 79%." },
+        { v: "87%", t: "Especificidade no risco alto", d: "Dos casos sem risco alto, quantos o modelo descarta corretamente." },
+        { v: "0,02", t: "Erro de calibração (ECE)", d: "Quando o modelo indica 70% de chance, acerta perto de 70%: a probabilidade é confiável." },
+        { v: "r = 0,94", t: "Concordância por grupo", d: "O percentual de risco alto previsto em cada grupo acompanha o percentual de referência." },
+      ],
+      nota: "A validação de campo acontece no piloto, com respostas reais, depois da aprovação do Comitê de Ética em Pesquisa. Meta com os dados do piloto: F1 ≥ 0,80, ROC-AUC ≥ 0,85 e diferença de acerto entre setores de no máximo 5 pontos.",
     },
     como: {
       rotulo: "Processo",
@@ -253,7 +268,7 @@ export const TEXTOS = {
         "Estamos selecionando empresas para o piloto: diagnóstico gratuito, acompanhamento próximo da equipe e validação clínica por psicóloga com CRP. A coleta com colaboradores só começa depois da aprovação do Comitê de Ética em Pesquisa.",
       equipeTitulo: "Quem está por trás",
       equipeIntro:
-        "A Psyra AI nasceu como TCC em Inteligência Artificial na FECAP. São três sócios, com orientação dos professores Glenarisson e Alexandre e uma psicóloga com CRP ativo como consultora externa:",
+        "A Psyra AI nasceu no PTI de Inteligência Artificial da FECAP. São três sócios, com orientação dos professores Glenarisson e Alexandre e uma psicóloga com CRP ativo como consultora externa:",
       pessoas: [
         { nome: "Vinícius de Lima", papel: "Product Owner e Tech Lead" },
         { nome: "Pedro Octávio Rodrigues Jorge", papel: "Desenvolvedor Full Stack e Analista Financeiro" },
@@ -291,7 +306,7 @@ export const TEXTOS = {
         },
         {
           p: "A IA da Psyra já está validada?",
-          r: "O modelo de linguagem (MentalBERT-PT) está em fase de validação. O piloto com dados reais começa após a aprovação do Comitê de Ética em Pesquisa; até lá, nenhuma métrica de desempenho é apresentada como resultado final.",
+          r: "O modelo da escala já foi treinado e testado em empresas que ele não viu no treino: F1 de 0,70 e ROC-AUC de 0,87 (seção Modelo). A validação de campo, com respostas reais, acontece no piloto, depois da aprovação do Comitê de Ética em Pesquisa. O modelo de texto (MentalBERT-PT) ainda está em ajuste; até lá, o painel usa regras e avisa isso na tela.",
         },
         {
           p: "Que questionário os colaboradores respondem?",
@@ -342,7 +357,7 @@ export const TEXTOS = {
       contato: "Contato",
       privacidade: "Política de Privacidade",
       direitos: "Todos os direitos reservados.",
-      origem: "TCC em Inteligência Artificial · FECAP",
+      origem: "PTI de Inteligência Artificial · FECAP",
     },
     privacidade: {
       titulo: "Política de Privacidade",
@@ -401,6 +416,7 @@ export const TEXTOS = {
       piloto: "Join the pilot",
     },
     idioma: { rotulo: "Language" },
+    tema: { claro: "Switch to light mode", escuro: "Switch to dark mode" },
     sugestao: {
       texto: "This page is also available in English.",
       ir: "View in English",
@@ -486,6 +502,20 @@ export const TEXTOS = {
         texto2: "Text",
         legenda: "A gap of 12 points or more: the text tells a different story.",
       },
+    },
+    modelo: {
+      rotulo: "Model",
+      titulo: "How the risk model performs",
+      intro: "Measured on companies the model did not see during training. The dataset has 23,469 answers to the 46 questionnaire items, with the three risk levels (low, moderate and high) in equal shares, so the model does not favour the most common level.",
+      itens: [
+        { v: "0.70", t: "Macro F1", d: "Balance between precision and recall across the three risk levels. The best possible score on this dataset is 0.83." },
+        { v: "0.87", t: "ROC-AUC", d: "How well the model separates the risk levels. 0.5 would be chance; 1.0, perfect separation." },
+        { v: "74%", t: "Sensitivity for high risk", d: "Of the high-risk cases, how many the model finds. In screening mode, tuned to miss as few as possible, it reaches 79%." },
+        { v: "87%", t: "Specificity for high risk", d: "Of the cases without high risk, how many the model correctly clears." },
+        { v: "0.02", t: "Calibration error (ECE)", d: "When the model says 70%, it is right about 70% of the time: the probability can be trusted." },
+        { v: "r = 0.94", t: "Agreement by group", d: "The predicted share of high risk in each group tracks the reference share." },
+      ],
+      nota: "Field validation happens in the pilot, with real answers, after Research Ethics Committee approval. Target on pilot data: F1 ≥ 0.80, ROC-AUC ≥ 0.85 and an accuracy gap between sectors of at most 5 points.",
     },
     como: {
       rotulo: "Process",
@@ -632,7 +662,7 @@ export const TEXTOS = {
         "We are selecting companies for the pilot: a free assessment, close support from the team and clinical validation by a licensed psychologist. Data collection with employees only starts after approval by a Research Ethics Committee.",
       equipeTitulo: "Who is behind it",
       equipeIntro:
-        "Psyra AI started as a capstone project in Artificial Intelligence at FECAP (São Paulo). It is run by three partners, advised by Professors Glenarisson and Alexandre, with a licensed psychologist as an external consultant:",
+        "Psyra AI started in the Artificial Intelligence PTI (integrated project) at FECAP (São Paulo). It is run by three partners, advised by Professors Glenarisson and Alexandre, with a licensed psychologist as an external consultant:",
       pessoas: [
         { nome: "Vinícius de Lima", papel: "Product Owner and Tech Lead" },
         { nome: "Pedro Octávio Rodrigues Jorge", papel: "Full-Stack Developer and Financial Analyst" },
@@ -670,7 +700,7 @@ export const TEXTOS = {
         },
         {
           p: "Is Psyra's AI already validated?",
-          r: "The language model (MentalBERT-PT) is being validated. The pilot with real data starts after Research Ethics Committee approval; until then, no performance metric is presented as a final result.",
+          r: "The scale model has been trained and tested on companies it did not see in training: F1 of 0.70 and ROC-AUC of 0.87 (Model section). Field validation, with real answers, happens in the pilot after Research Ethics Committee approval. The text model (MentalBERT-PT) is still being tuned; until then, the dashboard uses rules and says so on screen.",
         },
         {
           p: "Which questionnaire do employees answer?",
@@ -721,7 +751,7 @@ export const TEXTOS = {
       contato: "Contact",
       privacidade: "Privacy Policy",
       direitos: "All rights reserved.",
-      origem: "Capstone project in Artificial Intelligence · FECAP",
+      origem: "Artificial Intelligence PTI · FECAP",
     },
     privacidade: {
       titulo: "Privacy Policy",
@@ -779,6 +809,7 @@ export const TEXTOS = {
       piloto: "申请加入试点",
     },
     idioma: { rotulo: "语言" },
+    tema: { claro: "切换到浅色模式", escuro: "切换到深色模式" },
     sugestao: {
       texto: "本页面也提供简体中文版本。",
       ir: "查看中文版",
@@ -857,6 +888,20 @@ export const TEXTOS = {
         texto2: "文本",
         legenda: "差距达到 12 分或以上：文本讲的是另一回事。",
       },
+    },
+    modelo: {
+      rotulo: "模型",
+      titulo: "风险模型的表现",
+      intro: "以下指标在训练时未见过的企业上测得。数据集包含 23,469 份对问卷 46 个题目的回答，低、中、高三个风险等级各占三分之一，避免模型偏向最常见的等级。",
+      itens: [
+        { v: "0.70", t: "宏平均 F1", d: "三个风险等级上精确率与召回率的平衡。该数据集上的理论上限为 0.83。" },
+        { v: "0.87", t: "ROC-AUC", d: "区分各风险等级的能力。0.5 相当于随机，1.0 为完全区分。" },
+        { v: "74%", t: "高风险灵敏度", d: "在高风险情况中，模型能识别出的比例。在调整为尽量不漏检的筛查模式下可达 79%。" },
+        { v: "87%", t: "高风险特异度", d: "在没有高风险的情况中，模型正确排除的比例。" },
+        { v: "0.02", t: "校准误差（ECE）", d: "模型给出 70% 的概率时，实际正确率接近 70%：概率值可信。" },
+        { v: "r = 0.94", t: "群组层面的一致性", d: "各群组预测的高风险比例与参考比例高度一致。" },
+      ],
+      nota: "实地验证将在试点中使用真实回答进行，并在研究伦理委员会批准后开始。试点数据目标：F1 ≥ 0.80，ROC-AUC ≥ 0.85，各行业之间的准确率差异不超过 5 个百分点。",
     },
     como: {
       rotulo: "流程",
@@ -997,7 +1042,7 @@ export const TEXTOS = {
         "我们正在挑选参加试点的企业：提供免费诊断、团队的密切跟进，以及持证心理学家的临床审核。只有在获得研究伦理委员会批准后，才会开始采集员工数据。",
       equipeTitulo: "团队介绍",
       equipeIntro:
-        "Psyra AI 起源于圣保罗 FECAP 大学人工智能专业的毕业设计，由三位合伙人运营，Glenarisson 教授和 Alexandre 教授担任指导，并有一位持证心理学家担任外部顾问：",
+        "Psyra AI 起源于圣保罗 FECAP 大学人工智能专业的 PTI 综合项目，由三位合伙人运营，Glenarisson 教授和 Alexandre 教授担任指导，并有一位持证心理学家担任外部顾问：",
       pessoas: [
         { nome: "Vinícius de Lima", papel: "产品负责人兼技术负责人" },
         { nome: "Pedro Octávio Rodrigues Jorge", papel: "全栈开发工程师兼财务分析师" },
@@ -1032,7 +1077,7 @@ export const TEXTOS = {
         },
         {
           p: "Psyra 的 AI 已经过验证了吗？",
-          r: "语言模型（MentalBERT-PT）仍在验证中。使用真实数据的试点将在获得研究伦理委员会批准后开始；在此之前，不会把任何性能指标作为最终结果发布。",
+          r: "量表模型已完成训练，并在训练时未见过的企业上测试：F1 为 0.70，ROC-AUC 为 0.87（见“模型”部分）。使用真实回答的实地验证将在获得研究伦理委员会批准后的试点中进行。文本模型（MentalBERT-PT）仍在调整中；在此之前，仪表板使用规则并在页面上注明。",
         },
         {
           p: "员工回答的是什么问卷？",
@@ -1081,7 +1126,7 @@ export const TEXTOS = {
       contato: "联系",
       privacidade: "隐私政策",
       direitos: "保留所有权利。",
-      origem: "FECAP 人工智能专业毕业设计",
+      origem: "FECAP 人工智能专业 PTI 项目",
     },
     privacidade: {
       titulo: "隐私政策",

@@ -1,5 +1,6 @@
 // Psyra AI — preferência de tema (claro, escuro ou do sistema).
-// A marca nasce escura; o modo claro vale para as telas de uso (acesso, painel e operação).
+// A marca nasce escura; o modo claro vale para a landing, a privacidade e as telas de uso
+// (acesso, painel e operação). Só o questionário do colaborador fica sempre escuro.
 // A escolha fica só neste navegador (localStorage); não é dado pessoal e não vai ao servidor.
 
 import { useCallback, useEffect, useState } from "react";
@@ -34,6 +35,15 @@ export function aplicarTema(forcarEscuro = false) {
   return tema;
 }
 
+/** Liga por um instante a transição de cores, para a troca de tema não "piscar". */
+function suavizarTroca() {
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+  const raiz = document.documentElement;
+  raiz.classList.add("tema-transicao");
+  window.clearTimeout(suavizarTroca.timer);
+  suavizarTroca.timer = window.setTimeout(() => raiz.classList.remove("tema-transicao"), 500);
+}
+
 export function useTema() {
   const [preferencia, setPreferenciaEstado] = useState(lerPreferencia);
   const [tema, setTema] = useState(() => resolverTema(lerPreferencia()));
@@ -63,6 +73,7 @@ export function useTema() {
       /* navegação privada: vale só nesta página */
     }
     setPreferenciaEstado(nova);
+    suavizarTroca();
     setTema(aplicarTema());
     window.dispatchEvent(new Event(EVENTO));
   }, []);
