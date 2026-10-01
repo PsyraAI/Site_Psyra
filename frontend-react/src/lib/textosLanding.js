@@ -40,7 +40,7 @@ export const TEXTOS = {
       garantias: [
         "Resultados só por grupo (n ≥ 5)",
         "Texto anonimizado antes de ser gravado",
-        "Plano de ação validado por psicóloga com CRP",
+        "Plano de ação validado por psicóloga com registro no CRP",
       ],
       card: {
         rotulo: "Mesma nota, sinais opostos",
@@ -69,7 +69,7 @@ export const TEXTOS = {
       legenda: "afastamentos por saúde mental no Brasil em 2025 (INSS/Dataprev)",
       linhaTitulo: "NR-1: o que mudou em 2026",
       marcos: [
-        { data: "26/05/2026", texto: "A NR-1 passa a exigir os riscos psicossociais no PGR das empresas com empregados CLT." },
+        { data: "26/05/2026", texto: "A NR-1 (Norma Regulamentadora nº 1) passa a exigir os riscos psicossociais no PGR, o Programa de Gerenciamento de Riscos das empresas com empregados CLT." },
         { data: "25/06/2026", texto: "O STF suspende as multas ligadas a esses riscos (ADPF 1316)." },
         { data: "25/09/2026", texto: "A suspensão é prorrogada por 90 dias, com conciliação sobre critérios de avaliação." },
         { data: "Hoje", texto: "A multa está suspensa; a obrigação de mapear e controlar o risco continua." },
@@ -80,7 +80,7 @@ export const TEXTOS = {
       rotulo: "Solução",
       titulo: "Escala de 1 a 5 não conta a história toda",
       intro:
-        "A maioria das soluções do mercado se apoia apenas na escala Likert. A Psyra foi desenhada para ler também o que as pessoas escrevem, em português.",
+        "A maioria das soluções do mercado se apoia apenas na escala Likert (notas de 1 a 5). A Psyra foi desenhada para ler também o que as pessoas escrevem, em português.",
       cards: [
         {
           t: "IA que entende português",
@@ -88,11 +88,11 @@ export const TEXTOS = {
         },
         {
           t: "Explicabilidade",
-          d: "SHAP mostra o que sustentou cada indicação de risco do grupo, em linha com o Art. 20 da LGPD (planos Padrão e Panorama).",
+          d: "O método SHAP mostra quais fatores sustentaram cada indicação de risco do grupo, em linha com o Art. 20 da LGPD, a Lei Geral de Proteção de Dados (planos Padrão e Panorama).",
         },
         {
           t: "Conformidade NR-1",
-          d: "Os achados já saem organizados para o mapeamento de riscos e para o PGR, com o plano de ação validado por psicóloga com CRP.",
+          d: "Os achados já saem organizados para o mapeamento de riscos e para o PGR, com o plano de ação validado por psicóloga com registro ativo no Conselho Regional de Psicologia (CRP).",
         },
       ],
       revelador: {
@@ -114,11 +114,11 @@ export const TEXTOS = {
       passos: [
         { t: "Pesquisa anônima", d: "Colaboradores respondem em escala e, se quiserem, em texto livre, sem se identificar." },
         { t: "Proteção e análise", d: "O texto é anonimizado antes de ser gravado; depois escala e texto são lidos juntos." },
-        { t: "Agregação por grupo", d: "Resultados só existem por grupo (GHE) com pelo menos 5 respostas. Nunca há resultado individual." },
+        { t: "Agregação por grupo", d: "Resultados só existem por grupo homogêneo de exposição (GHE: pessoas sob as mesmas condições de trabalho) com pelo menos 5 respostas. Nunca há resultado individual." },
         { t: "Plano de ação para o PGR", d: "Prioridades e plano de ação por grupo, validados por psicóloga com CRP antes de entrarem no PGR." },
       ],
       instrumento: "Instrumento com 46 itens em 10 dimensões + campo de texto livre opcional.",
-      banner: "Nenhum resultado individual é exposto. Tudo é agregado por grupo com k-anonimato.",
+      banner: "Nenhum resultado individual é exposto. Tudo é agregado por grupo de no mínimo 5 pessoas (k-anonimato), para ninguém ser identificado.",
     },
     painel: {
       rotulo: "Painel",
@@ -157,9 +157,9 @@ export const TEXTOS = {
     entregas: {
       rotulo: "Entregas",
       titulo: "O que sua empresa recebe",
-      intro: "Material pensado para o RH, o SESMT e a diretoria usarem no gerenciamento de riscos.",
+      intro: "Material pensado para o RH, a equipe de segurança e medicina do trabalho (SESMT) e a diretoria usarem no gerenciamento de riscos.",
       itens: [
-        { t: "Mapa de risco por GHE", d: "Índice por dimensão e nível de risco de cada grupo homogêneo de exposição, para o inventário do PGR." },
+        { t: "Mapa de risco por grupo (GHE)", d: "Índice por dimensão e nível de risco de cada grupo homogêneo de exposição, para o inventário do PGR." },
         { t: "Explicação dos resultados", d: "Os fatores que mais pesaram em cada grupo e a comparação entre escala e texto (O Revelador)." },
         { t: "Plano de ação priorizado", d: "Ações por grupo, em ordem de prioridade, validadas por psicóloga com CRP." },
         { t: "Registro de conformidade", d: "Método, versão do questionário e trilha de auditoria documentados para a NR-1." },
@@ -169,7 +169,7 @@ export const TEXTOS = {
         colunas: ["", "Pesquisa de clima", "Psyra"],
         linhas: [
           ["Pergunta central", "As pessoas estão satisfeitas?", "Que condições do trabalho podem adoecer este grupo?"],
-          ["Resultado", "Índices de satisfação e engajamento", "Nível de risco e fatores por GHE, com leitura do texto livre"],
+          ["Resultado", "Índices de satisfação e engajamento", "Nível de risco e fatores por grupo, com leitura do texto livre"],
           ["Uso na NR-1", "Não é o objetivo", "Alimenta o inventário e o plano de ação do PGR"],
         ],
       },
@@ -212,7 +212,7 @@ export const TEXTOS = {
           desc: "Cobertura completa, várias unidades e suporte prioritário.",
           itens: [
             "Tudo do plano Padrão",
-            "Cobertura de múltiplas unidades e GHEs",
+            "Cobertura de múltiplas unidades e grupos (GHEs)",
             "Relatórios avançados para PGR/NR-1",
             "Acompanhamento contínuo dos indicadores",
             "Trilha de auditoria completa",
@@ -282,7 +282,7 @@ export const TEXTOS = {
           r: "Não. A Psyra não avalia pessoas: aponta fatores de risco por grupo, com explicação. As decisões ficam com a empresa e com a psicóloga responsável.",
         },
         {
-          p: "A Psyra substitui a psicóloga ou o SESMT?",
+          p: "A Psyra substitui a psicóloga ou a equipe de segurança do trabalho (SESMT)?",
           r: "Não. A Psyra organiza evidências e prioridades; o plano de ação é validado por psicóloga com CRP e integra o PGR da empresa.",
         },
         {
@@ -468,7 +468,7 @@ export const TEXTOS = {
         },
         {
           t: "Explainability",
-          d: "SHAP shows what drove each group's risk indication, in line with Article 20 of the LGPD, Brazil's data protection law (Padrão and Panorama plans).",
+          d: "The SHAP method shows which factors drove each group's risk indication, in line with Article 20 of the LGPD, Brazil's data protection law (Padrão and Panorama plans).",
         },
         {
           t: "NR-1 compliance",
@@ -498,7 +498,7 @@ export const TEXTOS = {
         { t: "Action plan for the PGR", d: "Priorities and an action plan per group, validated by a licensed psychologist before entering the PGR." },
       ],
       instrumento: "Questionnaire with 46 items across 10 dimensions + an optional free-text field (Portuguese).",
-      banner: "No individual result is ever shown. Everything is aggregated by group with k-anonymity.",
+      banner: "No individual result is ever shown. Everything is aggregated by groups of at least 5 people (k-anonymity), so nobody can be identified.",
     },
     painel: {
       rotulo: "Dashboard",
@@ -840,7 +840,7 @@ export const TEXTOS = {
         },
         {
           t: "可解释性",
-          d: "SHAP 说明每个群组风险提示背后的因素，符合巴西《通用数据保护法》（LGPD）第 20 条（Padrão 和 Panorama 套餐）。",
+          d: "SHAP 方法说明每个群组风险提示背后的因素，符合巴西《通用数据保护法》（LGPD）第 20 条（Padrão 和 Panorama 套餐）。",
         },
         {
           t: "符合 NR-1",
@@ -869,7 +869,7 @@ export const TEXTOS = {
         { t: "PGR 行动计划", d: "各群组的优先事项和行动计划，在纳入 PGR 前由持证心理学家审核。" },
       ],
       instrumento: "问卷包含 10 个维度共 46 个题目，另有可选的自由文本栏（葡萄牙语）。",
-      banner: "绝不展示任何个人结果。所有数据均按群组汇总，满足 k-匿名。",
+      banner: "绝不展示任何个人结果。所有数据均按至少 5 人的群组汇总（k-匿名），任何人都无法被识别。",
     },
     painel: {
       rotulo: "仪表板",
