@@ -10,17 +10,17 @@ import Responder from "./paginas/Responder";
 import { aplicarTema } from "./lib/tema";
 import "./estilos/tema-claro.css";
 
-// Landing, privacidade e questionário do colaborador ficam sempre no tema escuro da marca;
-// acesso, painel e operação seguem a preferência (claro, escuro ou do sistema).
+// O questionário do colaborador fica sempre no tema escuro da marca (tela neutra, igual para todos).
+// Landing, privacidade, acesso, painel e operação seguem a preferência (claro, escuro ou do sistema).
 // A landing e a privacidade existem em pt-BR (/), inglês (/en) e chinês simplificado (/zh).
-const ROTAS_SEMPRE_ESCURAS = ["/", "/privacidade", "/en", "/en/privacy", "/zh", "/zh/privacy"];
+const ROTAS_PUBLICAS = ["/", "/privacidade", "/en", "/en/privacy", "/zh", "/zh/privacy"];
 
 function TemaPorRota() {
   const { pathname } = useLocation();
   useEffect(() => {
     const rota = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-    const publica = ROTAS_SEMPRE_ESCURAS.includes(rota) || rota.startsWith("/responder");
-    aplicarTema(publica);
+    const publica = ROTAS_PUBLICAS.includes(rota) || rota.startsWith("/responder");
+    aplicarTema(rota.startsWith("/responder"));
     if (!publica && !rota.startsWith("/entrar")) document.documentElement.lang = "pt-BR";
   }, [pathname]);
   return null;
