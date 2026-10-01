@@ -27,7 +27,6 @@ import {
   PlanoAcao,
   CapitalRisco,
   Revelador,
-  Selo,
   VisaoGeral,
   PainelSkeleton,
 } from "../componentes/TelasPainel";
@@ -39,6 +38,9 @@ import MarcaLogo from "../componentes/MarcaLogo";
 import AlternarTema from "../componentes/AlternarTema";
 import AtividadesRecentes from "../componentes/AtividadesRecentes";
 import Configuracoes from "../componentes/Configuracoes";
+
+// Origem dos dados do ciclo, em linguagem de produto (sem o aviso técnico do motor provisório)
+const ORIGEM_DADOS = { sintetico: "dados de demonstração", teste: "coleta de teste", real: "respostas reais" };
 
 const SECOES = [
   { id: "visao", rotulo: "Visão geral", icone: LayoutDashboard },
@@ -341,8 +343,6 @@ export default function Painel() {
             </p>
           )}
 
-          {painel && <Selo selo={painel.selo} />}
-
           <div className="pagina-cabecalho">
             <div className="pagina-cabecalho__linha">
               <div>
@@ -356,7 +356,7 @@ export default function Painel() {
                 </h1>
                 {painel && (
                   <p className="pagina-cabecalho__aviso">
-                    Ciclo {painel.coleta.status} · origem dos dados: {painel.coleta.origemDados}
+                    Coleta {painel.coleta.status} · {ORIGEM_DADOS[painel.coleta.origemDados] || "origem dos dados não informada"}
                   </p>
                 )}
                 {!coletaId && !erro && (
