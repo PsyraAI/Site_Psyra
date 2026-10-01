@@ -3,8 +3,8 @@
 (function () {
   try {
     var p = location.pathname;
-    var publicas = ["/", "/privacidade", "/en", "/en/", "/en/privacy", "/zh", "/zh/", "/zh/privacy"];
-    var publica = publicas.indexOf(p) >= 0 || p.indexOf("/responder") === 0;
+    // só o questionário do colaborador fica sempre no tema escuro da marca
+    var publica = p.indexOf("/responder") === 0;
     if (p.indexOf("/en") === 0) document.documentElement.lang = "en";
     if (p.indexOf("/zh") === 0) document.documentElement.lang = "zh-Hans";
     var pref = localStorage.getItem("psyra-tema") || "escuro";
