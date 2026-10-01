@@ -13,8 +13,10 @@ import {
   ListOrdered,
   Lock,
   MessageSquareText,
+  Moon,
   Scale,
   ShieldCheck,
+  Sun,
   UserX,
   Users,
 } from "lucide-react";
@@ -39,10 +41,12 @@ import {
   salvarIdioma,
 } from "../lib/idiomas";
 import { TEXTOS } from "../lib/textosLanding";
+import { useTema } from "../lib/tema";
 
 const ICONES_PASSOS = [MessageSquareText, ShieldCheck, Users, ClipboardCheck];
 const ICONES_ENTREGAS = [FileText, Scale, ListOrdered, FileCheck2];
 const ICONES_CONFIANCA = [Users, EyeOff, UserX, Lock, Fingerprint, History];
+const SECOES_MENU = ["solucao", "como-funciona", "painel", "planos", "duvidas"];
 
 function Logo({ className = "lp-logo" }) {
   return <MarcaLogo className={className} size={42} />;
@@ -105,22 +109,97 @@ function usarIdiomaDaPagina(idioma, titulo, descricao) {
   }, [idioma, titulo, descricao]);
 }
 
-function Header({ t, idioma, destino }) {
+/**
+ * Estado da rolagem: sombra no cabeçalho depois do topo, barra de progresso de leitura
+ * e seção visível (para destacar o item do menu). Um quadro por evento (requestAnimationFrame).
+ */
+function usarRolagem(ids) {
+  const [rolou, setRolou] = useState(false);
+  const [ativa, setAtiva] = useState(null);
+  const barra = useRef(null);
+  const chave = ids.join(",");
+
+  useEffect(() => {
+    let quadro = 0;
+    const medir = () => {
+      quadro = 0;
+      const y = window.scrollY;
+      setRolou(y > 8);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (barra.current) barra.current.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
+    };
+    const aoRolar = () => {
+      if (!quadro) quadro = window.requestAnimationFrame(medir);
+    };
+    medir();
+    window.addEventListener("scroll", aoRolar, { passive: true });
+    window.addEventListener("resize", aoRolar);
+    return () => {
+      window.removeEventListener("scroll", aoRolar);
+      window.removeEventListener("resize", aoRolar);
+      if (quadro) window.cancelAnimationFrame(quadro);
+    };
+  }, []);
+
+  useEffect(() => {
+    const secoes = chave
+      .split(",")
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    if (!secoes.length || !("IntersectionObserver" in window)) return undefined;
+    const io = new IntersectionObserver(
+      (entradas) => {
+        entradas.forEach((e) => {
+          if (e.isIntersecting) setAtiva(e.target.id);
+        });
+      },
+      { rootMargin: "-40% 0px -55% 0px" }
+    );
+    secoes.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [chave]);
+
+  return { rolou, ativa, barra };
+}
+
+/** Alterna entre modo claro e escuro; a escolha vale também para o painel. */
+function BotaoTema({ t }) {
+  const { tema, alternar } = useTema();
+  const claro = tema === "claro";
+  const rotulo = claro ? t.tema.escuro : t.tema.claro;
+  const Icone = claro ? Moon : Sun;
   return (
-    <header className="lp-header">
+    <button type="button" className="lp-tema" onClick={alternar} aria-label={rotulo} title={rotulo}>
+      <Icone key={tema} size={17} strokeWidth={2} aria-hidden="true" />
+    </button>
+  );
+}
+
+function Header({ t, idioma, destino }) {
+  const { rolou, ativa, barra } = usarRolagem(SECOES_MENU);
+  const itens = [
+    ["solucao", t.nav.solucao],
+    ["como-funciona", t.nav.como],
+    ["painel", t.nav.painel],
+    ["planos", t.nav.planos],
+    ["duvidas", t.nav.duvidas],
+  ];
+  return (
+    <header className="lp-header" data-rolou={rolou ? "true" : "false"}>
       <div className="lp-wrap lp-header__inner">
         <Link to={IDIOMAS[idioma].inicio} className="lp-brand">
           <Logo />
           <span className="lp-brand__name">Psyra AI</span>
         </Link>
         <nav className="lp-nav" aria-label={t.nav.rotulo}>
-          <a href={`${IDIOMAS[idioma].inicio}#solucao`}>{t.nav.solucao}</a>
-          <a href={`${IDIOMAS[idioma].inicio}#como-funciona`}>{t.nav.como}</a>
-          <a href={`${IDIOMAS[idioma].inicio}#painel`}>{t.nav.painel}</a>
-          <a href={`${IDIOMAS[idioma].inicio}#planos`}>{t.nav.planos}</a>
-          <a href={`${IDIOMAS[idioma].inicio}#duvidas`}>{t.nav.duvidas}</a>
+          {itens.map(([id, texto]) => (
+            <a key={id} href={`${IDIOMAS[idioma].inicio}#${id}`} aria-current={ativa === id ? "true" : undefined}>
+              {texto}
+            </a>
+          ))}
         </nav>
         <div className="lp-header__actions">
+          <BotaoTema t={t} />
           <SeletorIdioma atual={idioma} rotulo={t.idioma.rotulo} destino={destino} />
           <Link className="lp-btn lp-btn--ghost" to="/entrar">
             {t.acoes.entrar}
@@ -129,6 +208,9 @@ function Header({ t, idioma, destino }) {
             {t.acoes.diagnostico}
           </a>
         </div>
+      </div>
+      <div className="lp-progresso" aria-hidden="true">
+        <span ref={barra} />
       </div>
     </header>
   );
@@ -242,6 +324,7 @@ export default function Landing({ idioma = "pt" }) {
         <Problema t={t} />
         <Solucao t={t} idioma={idioma} />
         <ComoFunciona t={t} />
+        <Modelo t={t} />
         <Painel t={t} idioma={idioma} />
         <Entregas t={t} />
         <Planos t={t} idioma={idioma} />
@@ -430,6 +513,35 @@ function ComoFunciona({ t }) {
               {t.acoes.diagnostico}
             </a>
           </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function Modelo({ t }) {
+  const m = t.modelo;
+  return (
+    <section id="modelo" className="lp-section lp-section--light lp-modelo" aria-labelledby="titulo-modelo">
+      <div className="lp-wrap">
+        <Reveal>
+          <Cabecalho id="titulo-modelo" rotulo={m.rotulo} titulo={m.titulo} intro={m.intro} />
+        </Reveal>
+        <ul className="lp-grid lp-grid--3 lp-modelo__lista">
+          {m.itens.map((item, i) => (
+            <li key={item.t}>
+              <Reveal delay={(i % 3) * 100}>
+                <div className="lp-card lp-modelo__card">
+                  <p className="lp-metric lp-modelo__valor">{item.v}</p>
+                  <h3>{item.t}</h3>
+                  <p>{item.d}</p>
+                </div>
+              </Reveal>
+            </li>
+          ))}
+        </ul>
+        <Reveal delay={150}>
+          <p className="lp-note lp-modelo__nota">{m.nota}</p>
         </Reveal>
       </div>
     </section>
