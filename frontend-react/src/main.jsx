@@ -6,6 +6,8 @@ import "./estilos/psyra.css";
 import "./estilos/app-estetica.css";
 import "./estilos/landing.css";
 import "./estilos/landing-s10.css";
+import "./estilos/landing-claro.css";
+import "./estilos/landing-fluidez.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
