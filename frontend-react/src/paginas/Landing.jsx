@@ -4,8 +4,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
+  BarChart3,
+  CalendarCheck,
   ClipboardCheck,
+  ClipboardList,
   EyeOff,
+  Gauge,
+  Headphones,
+  RefreshCw,
   FileCheck2,
   FileText,
   Fingerprint,
@@ -34,12 +40,15 @@ import {
   idiomaSalvo,
   salvarIdioma,
 } from "../lib/idiomas";
+import { useIdiomaEscolhido, useRestaurarPosicaoTroca, useRolarParaHash } from "../lib/navegacao";
 import { TEXTOS } from "../lib/textosLanding";
 import { useTema } from "../lib/tema";
 
 const ICONES_PASSOS = [MessageSquareText, ShieldCheck, Users, ClipboardCheck];
 const ICONES_ENTREGAS = [FileText, Scale, ListOrdered, FileCheck2];
 const ICONES_CONFIANCA = [Users, EyeOff, UserX, Lock, Fingerprint, History];
+const ICONES_CICLO = [CalendarCheck, BarChart3, ClipboardList, RefreshCw, FileCheck2];
+const PONTOS_RESPOSTA = { sim: 2, parte: 1, nao: 0 };
 const SECOES_MENU = ["solucao", "como-funciona", "painel", "planos", "duvidas"];
 
 function Logo({ className = "lp-logo" }) {
@@ -92,10 +101,22 @@ function Cabecalho({ rotulo, titulo, intro, id }) {
   );
 }
 
-function useIdiomaDaPagina(idioma, titulo, descricao) {
+function useIdiomaDaPagina(idioma, titulo, descricao, destino) {
   useEffect(() => {
     aplicarIdiomaNoDocumento(idioma, titulo, descricao);
   }, [idioma, titulo, descricao]);
+  useIdiomaEscolhido(idioma, destino);
+  useRestaurarPosicaoTroca(idioma);
+  useRolarParaHash();
+}
+
+/** Link para uma seção da landing (#id) sem recarregar a página, mesmo vindo de outra rota. */
+function LinkSecao({ idioma, secao, children, ...resto }) {
+  return (
+    <Link to={{ pathname: IDIOMAS[idioma].inicio, hash: `#${secao}` }} {...resto}>
+      {children}
+    </Link>
+  );
 }
 
 /**
@@ -182,9 +203,9 @@ function Header({ t, idioma, destino }) {
         </Link>
         <nav className="lp-nav" aria-label={t.nav.rotulo}>
           {itens.map(([id, texto]) => (
-            <a key={id} href={`${IDIOMAS[idioma].inicio}#${id}`} aria-current={ativa === id ? "true" : undefined}>
+            <LinkSecao key={id} idioma={idioma} secao={id} aria-current={ativa === id ? "true" : undefined}>
               {texto}
-            </a>
+            </LinkSecao>
           ))}
         </nav>
         <div className="lp-header__actions">
@@ -193,9 +214,9 @@ function Header({ t, idioma, destino }) {
           <Link className="lp-btn lp-btn--ghost" to="/entrar">
             {t.acoes.entrar}
           </Link>
-          <a className="lp-btn lp-btn--primary lp-btn--cta-topo" href={`${IDIOMAS[idioma].inicio}#contato`}>
+          <LinkSecao className="lp-btn lp-btn--primary lp-btn--cta-topo" idioma={idioma} secao="contato">
             {t.acoes.diagnostico}
-          </a>
+          </LinkSecao>
         </div>
       </div>
       <div className="lp-progresso" aria-hidden="true">
@@ -266,13 +287,16 @@ function Footer({ t, idioma, destino }) {
           <h3>{t.rodape.navegacao}</h3>
           <ul>
             <li>
-              <a href={`${IDIOMAS[idioma].inicio}#sobre`}>{t.rodape.sobre}</a>
+              <LinkSecao idioma={idioma} secao="sobre">{t.rodape.sobre}</LinkSecao>
             </li>
             <li>
-              <a href={`${IDIOMAS[idioma].inicio}#planos`}>{t.nav.planos}</a>
+              <LinkSecao idioma={idioma} secao="planos">{t.nav.planos}</LinkSecao>
             </li>
             <li>
-              <a href={`${IDIOMAS[idioma].inicio}#contato`}>{t.rodape.contato}</a>
+              <LinkSecao idioma={idioma} secao="prontidao">{t.prontidao.menu}</LinkSecao>
+            </li>
+            <li>
+              <LinkSecao idioma={idioma} secao="contato">{t.rodape.contato}</LinkSecao>
             </li>
             <li>
               <Link to={IDIOMAS[idioma].privacidade}>{t.rodape.privacidade}</Link>
@@ -299,8 +323,9 @@ function Footer({ t, idioma, destino }) {
 
 export default function Landing({ idioma = "pt" }) {
   const t = TEXTOS[idioma] || TEXTOS.pt;
-  useIdiomaDaPagina(idioma, t.meta.titulo, t.meta.descricao);
   const destino = (id) => IDIOMAS[id].inicio;
+  useIdiomaDaPagina(idioma, t.meta.titulo, t.meta.descricao, destino);
+  const [autoavaliacao, setAutoavaliacao] = useState(null);
 
   return (
     <div className="lp-root" lang={IDIOMAS[idioma].html}>
@@ -310,17 +335,20 @@ export default function Landing({ idioma = "pt" }) {
       <main>
         <Hero t={t} idioma={idioma} />
         <Problema t={t} />
+        <Prontidao t={t} idioma={idioma} aoConcluir={setAutoavaliacao} />
         <Solucao t={t} idioma={idioma} />
         <ComoFunciona t={t} />
         <Modelo t={t} />
         <Painel t={t} idioma={idioma} />
         <Entregas t={t} />
         <Planos t={t} idioma={idioma} />
+        <Continuidade t={t} idioma={idioma} />
         <Confianca t={t} idioma={idioma} />
         <Sobre t={t} />
         <Duvidas t={t} />
-        <Contato t={t} idioma={idioma} />
+        <Contato t={t} idioma={idioma} autoavaliacao={autoavaliacao} />
       </main>
+      <CtaFixo t={t} idioma={idioma} />
       <Footer t={t} idioma={idioma} destino={destino} />
     </div>
   );
@@ -744,6 +772,12 @@ function Confianca({ t, idioma }) {
   );
 }
 
+const FOTOS_EQUIPE = {
+  "Vinícius de Lima": "/equipe-vinicius.webp",
+  "Pedro Octávio Rodrigues Jorge": "/equipe-pedro.webp",
+  "Leandro Rodrigues Machado": "/equipe-leandro.webp",
+};
+
 function Sobre({ t }) {
   const s = t.sobre;
   return (
@@ -766,8 +800,22 @@ function Sobre({ t }) {
             <p>{s.equipeIntro}</p>
             <ul className="lp-equipe">
               {s.pessoas.map((pessoa) => (
-                <li key={pessoa.nome}>
-                  <strong>{pessoa.nome}</strong> — {pessoa.papel}
+                <li key={pessoa.nome} className="lp-equipe__pessoa">
+                  {FOTOS_EQUIPE[pessoa.nome] && (
+                    <img
+                      className="lp-equipe__foto"
+                      src={FOTOS_EQUIPE[pessoa.nome]}
+                      alt=""
+                      width="56"
+                      height="56"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
+                  <span>
+                    <strong>{pessoa.nome}</strong>
+                    <span className="lp-equipe__papel">{pessoa.papel}</span>
+                  </span>
                 </li>
               ))}
             </ul>
@@ -775,6 +823,28 @@ function Sobre({ t }) {
           </div>
         </Reveal>
       </div>
+      {s.ods && (
+        <Reveal>
+          <div className="lp-wrap lp-ods" aria-labelledby="titulo-ods">
+            <h3 id="titulo-ods" className="lp-ods__titulo">{s.ods.titulo}</h3>
+            <ul className="lp-ods__lista">
+              {s.ods.itens.map((o) => (
+                <li key={o.n} className="lp-ods__item">
+                  <img
+                    src={`/ods-${o.n}.webp`}
+                    alt={`ODS ${o.n}: ${o.nome}`}
+                    width="72"
+                    height="72"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <p>{o.t}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
+      )}
     </section>
   );
 }
@@ -800,7 +870,7 @@ function Duvidas({ t }) {
   );
 }
 
-function Contato({ t, idioma }) {
+function Contato({ t, idioma, autoavaliacao }) {
   const c = t.contato;
   const [enviado, setEnviado] = useState(false);
 
@@ -809,14 +879,19 @@ function Contato({ t, idioma }) {
     const dados = new FormData(evento.currentTarget);
     const valor = (campo) => String(dados.get(campo) || "").trim();
     const empresa = valor("empresa");
-    const corpo = [
+    const linhas = [
       `${c.campos.nome}: ${valor("nome")}`,
       `${c.campos.empresa}: ${empresa}`,
       `${c.campos.email}: ${valor("email")}`,
       `${c.campos.telefone}: ${valor("telefone")}`,
       `${c.campos.porte.replace(/\s*\(.*\)$/, "")}: ${valor("porte") || c.naoInformado}`,
+      `${c.campos.interesse}: ${valor("interesse") || c.naoInformado}`,
       `Idioma: ${IDIOMAS[idioma].nome}`,
-    ].join("\n");
+    ];
+    if (autoavaliacao) {
+      linhas.push(`${t.prontidao.rotuloEmail}: ${autoavaliacao.pontos}/${autoavaliacao.maximo} (${autoavaliacao.faixa})`);
+    }
+    const corpo = linhas.join("\n");
     const assunto = `${c.assunto} — ${empresa}`;
     setEnviado(true);
     window.location.href = `mailto:${EMAIL_CONTATO}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
@@ -864,6 +939,21 @@ function Contato({ t, idioma }) {
                     ))}
                   </select>
                 </div>
+                <div className="campo">
+                  <label htmlFor="lp-interesse">{c.campos.interesse}</label>
+                  <select id="lp-interesse" name="interesse" defaultValue={c.interesses[0]}>
+                    {c.interesses.map((opcao) => (
+                      <option key={opcao} value={opcao}>
+                        {opcao}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {autoavaliacao ? (
+                  <p className="lp-form__autoavaliacao">
+                    {t.prontidao.anexada} <strong>{autoavaliacao.faixa}</strong> ({autoavaliacao.pontos}/{autoavaliacao.maximo})
+                  </p>
+                ) : null}
                 <div className="lp-consentimento">
                   <input id="lp-consentimento" name="consentimento" type="checkbox" required />
                   <label htmlFor="lp-consentimento">
@@ -884,11 +974,193 @@ function Contato({ t, idioma }) {
   );
 }
 
+/**
+ * Autoavaliação de prontidão para a NR-1 (captação). Tudo é calculado no navegador:
+ * nenhuma resposta sai da página, nada é gravado. O resultado só vai junto se a pessoa
+ * pedir o diagnóstico pelo formulário.
+ */
+function Prontidao({ t, idioma, aoConcluir }) {
+  const pr = t.prontidao;
+  const [respostas, setRespostas] = useState({});
+  const total = pr.perguntas.length;
+  const respondidas = Object.keys(respostas).length;
+  const maximo = total * 2;
+  const pontos = Object.values(respostas).reduce((s, r) => s + PONTOS_RESPOSTA[r], 0);
+  const completa = respondidas === total;
+  const faixa = completa ? pr.faixas.find((f) => pontos >= f.min) : null;
+  const lacunas = pr.perguntas.filter((_, i) => respostas[i] && respostas[i] !== "sim").slice(0, 3);
+
+  useEffect(() => {
+    aoConcluir(completa && faixa ? { pontos, maximo, faixa: faixa.nome } : null);
+  }, [completa, faixa, pontos, maximo, aoConcluir]);
+
+  return (
+    <section id="prontidao" className="lp-section lp-section--light lp-prontidao" aria-labelledby="titulo-prontidao">
+      <div className="lp-wrap lp-prontidao__grid">
+        <Reveal>
+          <Cabecalho id="titulo-prontidao" rotulo={pr.rotulo} titulo={pr.titulo} intro={pr.intro} />
+          <p className="lp-prontidao__privado">
+            <Lock size={15} aria-hidden="true" /> {pr.privado}
+          </p>
+          <div className="lp-prontidao__progresso" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={respondidas} aria-label={pr.progresso}>
+            <span style={{ width: `${(respondidas / total) * 100}%` }} />
+          </div>
+          <p className="lp-prontidao__contagem">
+            {respondidas}/{total} {pr.progresso}
+          </p>
+          {completa && faixa ? (
+            <div className={`lp-prontidao__resultado lp-prontidao__resultado--${faixa.tom}`} role="status">
+              <p className="lp-prontidao__faixa">
+                <Gauge size={20} aria-hidden="true" /> {faixa.nome} · {pontos}/{maximo}
+              </p>
+              <p>{faixa.texto}</p>
+              {lacunas.length ? (
+                <>
+                  <p className="lp-prontidao__lacunas-titulo">{pr.lacunasTitulo}</p>
+                  <ul className="lp-prontidao__lacunas">
+                    {lacunas.map((q) => (
+                      <li key={q.p}>{q.curta}</li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+              <LinkSecao className="lp-btn lp-btn--primary" idioma={idioma} secao="contato">
+                {pr.cta}
+              </LinkSecao>
+            </div>
+          ) : null}
+        </Reveal>
+        <Reveal delay={100}>
+          <ol className="lp-prontidao__lista">
+            {pr.perguntas.map((q, i) => (
+              <li key={q.p} className="lp-prontidao__item">
+                <fieldset>
+                  <legend>
+                    <span className="lp-prontidao__num">{i + 1}</span> {q.p}
+                  </legend>
+                  <div className="lp-prontidao__opcoes">
+                    {["sim", "parte", "nao"].map((op) => (
+                      <label key={op} className="lp-prontidao__opcao" data-marcada={respostas[i] === op ? "true" : "false"}>
+                        <input
+                          type="radio"
+                          name={`prontidao-${i}`}
+                          value={op}
+                          checked={respostas[i] === op}
+                          onChange={() => setRespostas((r) => ({ ...r, [i]: op }))}
+                        />
+                        {pr.opcoes[op]}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </li>
+            ))}
+          </ol>
+          {respondidas ? (
+            <button type="button" className="lp-link lp-prontidao__limpar" onClick={() => setRespostas({})}>
+              {pr.limpar}
+            </button>
+          ) : null}
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/** Depois da contratação (retenção): ciclo contínuo e acompanhamento da equipe. */
+function Continuidade({ t, idioma }) {
+  const ct = t.continuidade;
+  return (
+    <section id="acompanhamento" className="lp-section lp-section--deep lp-continuidade" aria-labelledby="titulo-continuidade">
+      <div className="lp-wrap">
+        <Reveal>
+          <Cabecalho id="titulo-continuidade" rotulo={ct.rotulo} titulo={ct.titulo} intro={ct.intro} />
+        </Reveal>
+        <ol className="lp-ciclo">
+          {ct.ciclo.map((etapa, i) => {
+            const Icone = ICONES_CICLO[i] || RefreshCw;
+            return (
+              <li key={etapa.t}>
+                <Reveal delay={i * 90}>
+                  <div className="lp-ciclo__etapa">
+                    <span className="lp-ciclo__icone">
+                      <Icone size={22} strokeWidth={1.8} aria-hidden="true" />
+                    </span>
+                    <p className="lp-ciclo__quando">{etapa.quando}</p>
+                    <h3>{etapa.t}</h3>
+                    <p>{etapa.d}</p>
+                  </div>
+                </Reveal>
+              </li>
+            );
+          })}
+        </ol>
+        <Reveal delay={120}>
+          <div className="lp-continuidade__apoio">
+            <div>
+              <h3>
+                <Headphones size={20} aria-hidden="true" /> {ct.apoioTitulo}
+              </h3>
+              <ul>
+                {ct.apoio.map((a) => (
+                  <li key={a}>{a}</li>
+                ))}
+              </ul>
+            </div>
+            <LinkSecao className="lp-btn lp-btn--primary" idioma={idioma} secao="contato">
+              {t.acoes.diagnostico}
+            </LinkSecao>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Chamada fixa no celular (captação): aparece depois do topo e some quando o formulário
+ * de contato está na tela. Sem pop-up e sem contagem regressiva.
+ */
+function CtaFixo({ t, idioma }) {
+  const [visivel, setVisivel] = useState(false);
+
+  useEffect(() => {
+    let quadro = 0;
+    const medir = () => {
+      quadro = 0;
+      const contato = document.getElementById("contato");
+      const r = contato ? contato.getBoundingClientRect() : null;
+      const contatoNaTela = r ? r.top < window.innerHeight && r.bottom > 0 : false;
+      setVisivel(window.scrollY > window.innerHeight * 0.9 && !contatoNaTela);
+    };
+    const aoRolar = () => {
+      if (!quadro) quadro = window.requestAnimationFrame(medir);
+    };
+    medir();
+    window.addEventListener("scroll", aoRolar, { passive: true });
+    window.addEventListener("resize", aoRolar);
+    return () => {
+      window.removeEventListener("scroll", aoRolar);
+      window.removeEventListener("resize", aoRolar);
+      if (quadro) window.cancelAnimationFrame(quadro);
+    };
+  }, []);
+
+  return (
+    <div className="lp-cta-fixo" data-visivel={visivel ? "true" : "false"} aria-hidden={visivel ? undefined : "true"}>
+      <p>{t.ctaFixo.texto}</p>
+      <LinkSecao className="lp-btn lp-btn--primary" idioma={idioma} secao="contato" tabIndex={visivel ? 0 : -1}>
+        {t.ctaFixo.botao}
+      </LinkSecao>
+    </div>
+  );
+}
+
 export function Privacidade({ idioma = "pt" }) {
   const t = TEXTOS[idioma] || TEXTOS.pt;
   const p = t.privacidade;
-  useIdiomaDaPagina(idioma, `${p.titulo} — Psyra AI`, p.intro);
   const destino = (id) => IDIOMAS[id].privacidade;
+  useIdiomaDaPagina(idioma, `${p.titulo} — Psyra AI`, p.intro, destino);
 
   return (
     <div className="lp-root" lang={IDIOMAS[idioma].html}>
