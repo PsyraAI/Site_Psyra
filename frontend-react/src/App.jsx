@@ -7,15 +7,19 @@ import Entrada from "./paginas/Entrada";
 import Landing, { Privacidade } from "./paginas/Landing";
 import Painel from "./paginas/Painel";
 import Responder from "./paginas/Responder";
+import { aplicarTema } from "./lib/tema";
 
-const ROTAS_SEMPRE_ESCURAS = ["/", "/privacidade", "/en", "/en/privacy", "/zh", "/zh/privacy"];
+// A landing e a privacidade (pt-BR, inglês e chinês) seguem a preferência de tema (botão no cabeçalho).
+// O questionário do colaborador e as telas de uso ficam no tema escuro da marca.
+const ROTAS_COM_TEMA = ["/", "/privacidade", "/en", "/en/privacy", "/zh", "/zh/privacy"];
 
 function TemaPorRota() {
   const { pathname } = useLocation();
   useEffect(() => {
     const rota = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-    const publica = ROTAS_SEMPRE_ESCURAS.includes(rota) || rota.startsWith("/responder");
-    if (publica) document.documentElement.dataset.tema = "escuro";
+    const comTema = ROTAS_COM_TEMA.includes(rota);
+    aplicarTema(!comTema);
+    const publica = comTema || rota.startsWith("/responder");
     if (!publica && !rota.startsWith("/entrar")) document.documentElement.lang = "pt-BR";
   }, [pathname]);
   return null;
