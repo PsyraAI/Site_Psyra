@@ -85,7 +85,7 @@ export const TEXTOS = {
       cards: [
         {
           t: "IA que entende português",
-          d: "Modelo de linguagem em português (MentalBERT-PT, baseado no BERTimbau e em fase de validação) aplicado ao texto livre, junto com a escala.",
+          d: "Modelo de linguagem em português (MentalBERT-PT, baseado no BERTimbau e em ajuste para o piloto) aplicado ao texto livre, junto com a escala.",
         },
         {
           t: "Explicabilidade",
@@ -111,16 +111,16 @@ export const TEXTOS = {
     modelo: {
       rotulo: "Modelo",
       titulo: "Como o modelo de risco se sai",
-      intro: "Números medidos em empresas que o modelo não viu durante o treino. A base tem 23.469 respostas aos 46 itens do questionário, com as três faixas de risco (baixo, moderado e alto) em proporções iguais, para o modelo não favorecer a faixa mais comum.",
+      intro: "Números medidos em 26 empresas que o modelo não viu no treino, na proporção real das faixas de risco (cerca de 36% baixo, 39% moderado e 25% alto). A base tem 36.000 respostas aos 46 itens do questionário, e a referência de cada resposta é o consenso de três avaliadoras.",
       itens: [
-        { v: "0,70", t: "F1-macro", d: "Equilíbrio entre precisão e recall nas três faixas de risco. O máximo possível nesta base é 0,83." },
-        { v: "0,87", t: "ROC-AUC", d: "Capacidade de separar as faixas de risco. 0,5 seria o acaso; 1,0, a separação perfeita." },
-        { v: "74%", t: "Sensibilidade no risco alto", d: "Dos casos de risco alto, quantos o modelo encontra. No modo triagem, ajustado para deixar passar o mínimo, chega a 79%." },
-        { v: "87%", t: "Especificidade no risco alto", d: "Dos casos sem risco alto, quantos o modelo descarta corretamente." },
+        { v: "0,73", t: "F1-macro", d: "Equilíbrio entre precisão e recall nas três faixas de risco. O máximo possível nesta base é 0,88." },
+        { v: "0,89", t: "ROC-AUC", d: "Capacidade de separar as faixas de risco. 0,5 seria o acaso; 1,0, a separação perfeita." },
+        { v: "82%", t: "Risco alto encontrado (modo triagem)", d: "No modo triagem, ajustado para deixar passar o mínimo, o modelo encontra 82% dos casos de risco alto; quem fica de fora tem 93% de chance de não ser risco alto (VPN)." },
+        { v: "95%", t: "Especificidade no risco alto", d: "No modo padrão, dos casos sem risco alto o modelo descarta 95% corretamente, e 82% dos alertas de risco alto se confirmam." },
         { v: "0,02", t: "Erro de calibração (ECE)", d: "Quando o modelo indica 70% de chance, acerta perto de 70%: a probabilidade é confiável." },
-        { v: "r = 0,94", t: "Concordância por grupo", d: "O percentual de risco alto previsto em cada grupo acompanha o percentual de referência." },
+        { v: "r = 0,85", t: "Concordância por grupo", d: "O percentual de risco alto previsto em cada grupo acompanha o percentual de referência." },
       ],
-      nota: "A validação de campo acontece no piloto, com respostas reais, depois da aprovação do Comitê de Ética em Pesquisa. Meta com os dados do piloto: F1 ≥ 0,80, ROC-AUC ≥ 0,85 e diferença de acerto entre setores de no máximo 5 pontos.",
+      nota: "A validação de campo acontece no piloto, com respostas reais, depois da aprovação do Comitê de Ética em Pesquisa. Meta com os dados do piloto: F1 ≥ 0,80, ROC-AUC ≥ 0,85 e diferença de acerto entre setores de no máximo 5 pontos (hoje, 5,4).",
     },
     como: {
       rotulo: "Processo",
@@ -275,11 +275,137 @@ export const TEXTOS = {
         { nome: "Leandro Rodrigues Machado", papel: "Diretor de Marketing, Analista de Dados e DBA" },
       ],
       compromisso: "Nosso compromisso: nenhuma promessa de avaliação individual, nenhum resultado sem explicação.",
+      ods: {
+        titulo: "Alinhada aos Objetivos de Desenvolvimento Sustentável da ONU",
+        itens: [
+          { n: 3, nome: "Saúde e bem-estar", t: "Menos adoecimento mental no trabalho." },
+          { n: 8, nome: "Trabalho decente e crescimento econômico", t: "Trabalho decente, com o risco psicossocial gerenciado." },
+          { n: 9, nome: "Indústria, inovação e infraestrutura", t: "Inovação em IA que lê o português do trabalhador." },
+        ],
+      },
+    },
+    prontidao: {
+      "menu": "Autoavaliação NR-1",
+      "rotulo": "Autoavaliação",
+      "titulo": "Sua empresa está pronta para a NR-1?",
+      "intro": "Oito perguntas, menos de dois minutos. Veja em que ponto sua empresa está no mapeamento de riscos psicossociais e por onde começar. É uma autoavaliação orientativa, não substitui a avaliação técnica.",
+      "privado": "As respostas ficam só nesta página: nada é enviado nem gravado.",
+      "progresso": "respondidas",
+      "opcoes": {
+        "sim": "Sim",
+        "parte": "Em parte",
+        "nao": "Não"
+      },
+      "perguntas": [
+        {
+          "p": "O inventário de riscos do PGR já inclui os fatores de risco psicossociais?",
+          "curta": "Incluir os riscos psicossociais no inventário do PGR"
+        },
+        {
+          "p": "Os grupos de trabalhadores com exposição parecida (GHEs) estão definidos?",
+          "curta": "Definir os grupos homogêneos de exposição (GHEs)"
+        },
+        {
+          "p": "Os trabalhadores já foram ouvidos sobre esses fatores com um questionário estruturado?",
+          "curta": "Ouvir os trabalhadores com um instrumento estruturado"
+        },
+        {
+          "p": "As respostas são analisadas só por grupo, com anonimato garantido?",
+          "curta": "Garantir anonimato e análise só por grupo"
+        },
+        {
+          "p": "Existe plano de ação com responsáveis e prazos para os riscos psicossociais?",
+          "curta": "Montar o plano de ação com responsáveis e prazos"
+        },
+        {
+          "p": "O processo está documentado (método, data, versão do questionário) para mostrar numa fiscalização?",
+          "curta": "Documentar método e evidências"
+        },
+        {
+          "p": "Um profissional habilitado, como psicóloga com registro no CRP, participa da análise?",
+          "curta": "Envolver profissional habilitado na análise"
+        },
+        {
+          "p": "Há data marcada para reavaliar e ver se as ações funcionaram?",
+          "curta": "Programar a reavaliação periódica"
+        }
+      ],
+      "faixas": [
+        {
+          "min": 13,
+          "nome": "Avançada",
+          "tom": "ok",
+          "texto": "Sua empresa já tem a base. O diagnóstico gratuito ajuda a conferir as evidências e a enxergar o que a escala sozinha não mostra: o que as pessoas escrevem."
+        },
+        {
+          "min": 7,
+          "nome": "Em andamento",
+          "tom": "alerta",
+          "texto": "Há passos importantes feitos, mas faltam peças que a NR-1 cobra. O diagnóstico gratuito mostra o que falta e em que ordem fazer."
+        },
+        {
+          "min": 0,
+          "nome": "No começo",
+          "tom": "perigo",
+          "texto": "O mapeamento psicossocial ainda está no início, como em muitas empresas desde maio de 2026. O diagnóstico gratuito monta o caminho com você."
+        }
+      ],
+      "lacunasTitulo": "Por onde começar:",
+      "cta": "Quero o diagnóstico gratuito",
+      "limpar": "Refazer a autoavaliação",
+      "anexada": "Resultado da autoavaliação que vai junto com o pedido:",
+      "rotuloEmail": "Autoavaliação NR-1"
+    },
+    continuidade: {
+      "rotulo": "Depois da contratação",
+      "titulo": "Um ciclo contínuo, não um relatório na gaveta",
+      "intro": "O risco psicossocial muda com metas, equipes e lideranças. Por isso a Psyra acompanha a empresa em ciclos: medir, agir e medir de novo.",
+      "ciclo": [
+        {
+          "quando": "Início",
+          "t": "Implantação assistida",
+          "d": "Definimos com o RH e o SESMT os grupos (GHEs), o período de coleta e a comunicação aos colaboradores."
+        },
+        {
+          "quando": "Coleta",
+          "t": "Painel por grupo",
+          "d": "Os resultados aparecem assim que cada grupo chega a 5 respostas, com os fatores que mais pesaram."
+        },
+        {
+          "quando": "Plano",
+          "t": "Ações com responsável e prazo",
+          "d": "Plano de ação priorizado, validado por psicóloga com CRP e acompanhado no painel."
+        },
+        {
+          "quando": "Reavaliação",
+          "t": "Medir de novo",
+          "d": "Nova coleta para ver se as ações reduziram o risco e para atualizar o PGR."
+        },
+        {
+          "quando": "Sempre",
+          "t": "Evidências para auditoria",
+          "d": "Método, versão do questionário e histórico registrados para mostrar o processo à fiscalização."
+        }
+      ],
+      "apoioTitulo": "Você não fica sozinho com o painel",
+      "apoio": [
+        "Implantação assistida e leitura dos resultados com a equipe Psyra",
+        "Suporte em todos os planos, prioritário no Panorama",
+        "Diagnóstico inicial gratuito antes de qualquer contratação"
+      ]
+    },
+    ctaFixo: {
+      "texto": "Diagnóstico NR-1 gratuito",
+      "botao": "Agendar"
     },
     faq: {
       rotulo: "Dúvidas",
       titulo: "Perguntas frequentes",
       itens: [
+        {
+          p: "O que inclui o diagnóstico gratuito?",
+          r: "Uma conversa com a equipe para entender onde a empresa está na NR-1 (a autoavaliação desta página ajuda), uma demonstração do painel com dados de exemplo e uma proposta de grupos (GHEs) e de cronograma de coleta. Não tem custo nem obriga a contratar.",
+        },
         {
           p: "A empresa consegue ver a resposta de cada colaborador?",
           r: "Não. Os resultados só existem por grupo (GHE) com pelo menos 5 respostas. Grupos menores ficam ocultos.",
@@ -306,7 +432,7 @@ export const TEXTOS = {
         },
         {
           p: "A IA da Psyra já está validada?",
-          r: "O modelo da escala já foi treinado e testado em empresas que ele não viu no treino: F1 de 0,70 e ROC-AUC de 0,87 (seção Modelo). A validação de campo, com respostas reais, acontece no piloto, depois da aprovação do Comitê de Ética em Pesquisa. O modelo de texto (MentalBERT-PT) ainda está em ajuste; até lá, o painel usa regras e avisa isso na tela.",
+          r: "O modelo da escala já foi treinado e testado em empresas que ele não viu no treino: F1 de 0,73 e ROC-AUC de 0,89 (seção Modelo). A validação de campo, com respostas reais, acontece no piloto, depois da aprovação do Comitê de Ética em Pesquisa. O modelo de texto (MentalBERT-PT) ainda está em ajuste; até lá, o painel usa regras e avisa isso na tela.",
         },
         {
           p: "Que questionário os colaboradores respondem?",
@@ -338,8 +464,10 @@ export const TEXTOS = {
         telefone: "Telefone",
         porte: "Número aproximado de colaboradores (opcional)",
         selecione: "Selecione",
+        interesse: "O que você procura?",
       },
       faixas: ["Até 50", "51 a 200", "201 a 1.000", "Mais de 1.000"],
+      interesses: ["Diagnóstico gratuito", "Participar do piloto 2026", "Conhecer os planos", "Outro assunto"],
       consentimentoAntes: "Li a ",
       consentimentoLink: "Política de Privacidade",
       consentimentoDepois: " e autorizo o uso destes dados apenas para contato sobre o diagnóstico.",
@@ -480,7 +608,7 @@ export const TEXTOS = {
       cards: [
         {
           t: "AI that reads Portuguese",
-          d: "A Portuguese language model (MentalBERT-PT, based on BERTimbau and still being validated) applied to free text, together with the scale.",
+          d: "A Portuguese language model (MentalBERT-PT, based on BERTimbau and being tuned for the pilot) applied to free text, together with the scale.",
         },
         {
           t: "Explainability",
@@ -506,16 +634,16 @@ export const TEXTOS = {
     modelo: {
       rotulo: "Model",
       titulo: "How the risk model performs",
-      intro: "Measured on companies the model did not see during training. The dataset has 23,469 answers to the 46 questionnaire items, with the three risk levels (low, moderate and high) in equal shares, so the model does not favour the most common level.",
+      intro: "Measured on 26 companies the model did not see during training, at the real share of each risk level (about 36% low, 39% moderate and 25% high). The dataset has 36,000 answers to the 46 questionnaire items, and the reference for each answer is the consensus of three raters.",
       itens: [
-        { v: "0.70", t: "Macro F1", d: "Balance between precision and recall across the three risk levels. The best possible score on this dataset is 0.83." },
-        { v: "0.87", t: "ROC-AUC", d: "How well the model separates the risk levels. 0.5 would be chance; 1.0, perfect separation." },
-        { v: "74%", t: "Sensitivity for high risk", d: "Of the high-risk cases, how many the model finds. In screening mode, tuned to miss as few as possible, it reaches 79%." },
-        { v: "87%", t: "Specificity for high risk", d: "Of the cases without high risk, how many the model correctly clears." },
+        { v: "0.73", t: "Macro F1", d: "Balance between precision and recall across the three risk levels. The best possible score on this dataset is 0.88." },
+        { v: "0.89", t: "ROC-AUC", d: "How well the model separates the risk levels. 0.5 would be chance; 1.0, perfect separation." },
+        { v: "82%", t: "High risk found (screening mode)", d: "In screening mode, tuned to miss as few as possible, the model finds 82% of high-risk cases; those it clears have a 93% chance of not being high risk (NPV)." },
+        { v: "95%", t: "Specificity for high risk", d: "In standard mode, the model correctly clears 95% of the cases without high risk, and 82% of its high-risk alerts are confirmed." },
         { v: "0.02", t: "Calibration error (ECE)", d: "When the model says 70%, it is right about 70% of the time: the probability can be trusted." },
-        { v: "r = 0.94", t: "Agreement by group", d: "The predicted share of high risk in each group tracks the reference share." },
+        { v: "r = 0.85", t: "Agreement by group", d: "The predicted share of high risk in each group tracks the reference share." },
       ],
-      nota: "Field validation happens in the pilot, with real answers, after Research Ethics Committee approval. Target on pilot data: F1 ≥ 0.80, ROC-AUC ≥ 0.85 and an accuracy gap between sectors of at most 5 points.",
+      nota: "Field validation happens in the pilot, with real answers, after Research Ethics Committee approval. Target on pilot data: F1 ≥ 0.80, ROC-AUC ≥ 0.85 and an accuracy gap between sectors of at most 5 points (today, 5.4).",
     },
     como: {
       rotulo: "Process",
@@ -669,11 +797,137 @@ export const TEXTOS = {
         { nome: "Leandro Rodrigues Machado", papel: "Marketing Director, Data Analyst and DBA" },
       ],
       compromisso: "Our commitment: no promise of individual assessment, no result without an explanation.",
+      ods: {
+        titulo: "Aligned with the UN Sustainable Development Goals",
+        itens: [
+          { n: 3, nome: "Good health and well-being", t: "Less mental illness at work." },
+          { n: 8, nome: "Decent work and economic growth", t: "Decent work, with psychosocial risk managed." },
+          { n: 9, nome: "Industry, innovation and infrastructure", t: "AI innovation that reads workers' Portuguese." },
+        ],
+      },
+    },
+    prontidao: {
+      "menu": "NR-1 self-assessment",
+      "rotulo": "Self-assessment",
+      "titulo": "Is your company ready for NR-1?",
+      "intro": "Eight questions, under two minutes. See where your company stands on psychosocial risk mapping and where to start. It is a guidance tool, not a technical assessment.",
+      "privado": "Your answers stay on this page: nothing is sent or stored.",
+      "progresso": "answered",
+      "opcoes": {
+        "sim": "Yes",
+        "parte": "Partly",
+        "nao": "No"
+      },
+      "perguntas": [
+        {
+          "p": "Does the PGR risk inventory already include psychosocial risk factors?",
+          "curta": "Add psychosocial risks to the PGR inventory"
+        },
+        {
+          "p": "Are the groups of workers with similar exposure (GHEs) defined?",
+          "curta": "Define the similar-exposure groups (GHEs)"
+        },
+        {
+          "p": "Have workers been heard on these factors through a structured questionnaire?",
+          "curta": "Hear workers with a structured instrument"
+        },
+        {
+          "p": "Are answers analysed only by group, with anonymity guaranteed?",
+          "curta": "Guarantee anonymity and group-only analysis"
+        },
+        {
+          "p": "Is there an action plan with owners and deadlines for psychosocial risks?",
+          "curta": "Build the action plan with owners and deadlines"
+        },
+        {
+          "p": "Is the process documented (method, date, questionnaire version) to show an inspector?",
+          "curta": "Document the method and evidence"
+        },
+        {
+          "p": "Does a qualified professional, such as a licensed psychologist (CRP), take part in the analysis?",
+          "curta": "Involve a qualified professional in the analysis"
+        },
+        {
+          "p": "Is there a date to reassess and check whether the actions worked?",
+          "curta": "Schedule periodic reassessment"
+        }
+      ],
+      "faixas": [
+        {
+          "min": 13,
+          "nome": "Advanced",
+          "tom": "ok",
+          "texto": "Your company has the groundwork. The free assessment helps check the evidence and see what a scale alone misses: what people write."
+        },
+        {
+          "min": 7,
+          "nome": "In progress",
+          "tom": "alerta",
+          "texto": "Important steps are done, but pieces NR-1 requires are missing. The free assessment shows what is missing and in which order to act."
+        },
+        {
+          "min": 0,
+          "nome": "Getting started",
+          "tom": "perigo",
+          "texto": "Psychosocial mapping is just starting, as in many companies since May 2026. The free assessment maps the path with you."
+        }
+      ],
+      "lacunasTitulo": "Where to start:",
+      "cta": "Get the free assessment",
+      "limpar": "Start over",
+      "anexada": "Self-assessment result sent with your request:",
+      "rotuloEmail": "NR-1 self-assessment"
+    },
+    continuidade: {
+      "rotulo": "After you sign",
+      "titulo": "A continuous cycle, not a report in a drawer",
+      "intro": "Psychosocial risk changes with targets, teams and leaders. That is why Psyra works with companies in cycles: measure, act and measure again.",
+      "ciclo": [
+        {
+          "quando": "Start",
+          "t": "Assisted onboarding",
+          "d": "With HR and the occupational safety team (SESMT) we define the groups (GHEs), the survey period and the message to employees."
+        },
+        {
+          "quando": "Survey",
+          "t": "Dashboard by group",
+          "d": "Results appear as soon as each group reaches 5 answers, with the factors that weighed most."
+        },
+        {
+          "quando": "Plan",
+          "t": "Actions with owners and deadlines",
+          "d": "A prioritized action plan, validated by a licensed psychologist and tracked in the dashboard."
+        },
+        {
+          "quando": "Reassess",
+          "t": "Measure again",
+          "d": "A new survey to check whether the actions reduced risk and to update the PGR."
+        },
+        {
+          "quando": "Always",
+          "t": "Evidence for audits",
+          "d": "Method, questionnaire version and history recorded to show the process to inspectors."
+        }
+      ],
+      "apoioTitulo": "You are not left alone with the dashboard",
+      "apoio": [
+        "Assisted onboarding and a results walkthrough with the Psyra team",
+        "Support on every plan, priority on Panorama",
+        "Free initial assessment before any contract"
+      ]
+    },
+    ctaFixo: {
+      "texto": "Free NR-1 assessment",
+      "botao": "Book"
     },
     faq: {
       rotulo: "FAQ",
       titulo: "Frequently asked questions",
       itens: [
+        {
+          p: "What does the free assessment include?",
+          r: "A conversation with the team to see where the company stands on NR-1 (the self-assessment on this page helps), a demo of the dashboard with sample data and a proposal of groups (GHEs) and survey schedule. It is free and does not commit you to a contract.",
+        },
         {
           p: "Can the company see each employee's answers?",
           r: "No. Results only exist per group (GHE) with at least 5 answers. Smaller groups are hidden.",
@@ -700,7 +954,7 @@ export const TEXTOS = {
         },
         {
           p: "Is Psyra's AI already validated?",
-          r: "The scale model has been trained and tested on companies it did not see in training: F1 of 0.70 and ROC-AUC of 0.87 (Model section). Field validation, with real answers, happens in the pilot after Research Ethics Committee approval. The text model (MentalBERT-PT) is still being tuned; until then, the dashboard uses rules and says so on screen.",
+          r: "The scale model has been trained and tested on companies it did not see in training: F1 of 0.73 and ROC-AUC of 0.89 (Model section). Field validation, with real answers, happens in the pilot after Research Ethics Committee approval. The text model (MentalBERT-PT) is still being tuned; until then, the dashboard uses rules and says so on screen.",
         },
         {
           p: "Which questionnaire do employees answer?",
@@ -732,8 +986,10 @@ export const TEXTOS = {
         telefone: "Phone",
         porte: "Approximate number of employees (optional)",
         selecione: "Select",
+        interesse: "What are you looking for?",
       },
       faixas: ["Up to 50", "51 to 200", "201 to 1,000", "More than 1,000"],
+      interesses: ["Free assessment", "Join the 2026 pilot", "Learn about the plans", "Something else"],
       consentimentoAntes: "I have read the ",
       consentimentoLink: "Privacy Policy",
       consentimentoDepois: " and agree to this data being used only to contact me about the assessment.",
@@ -892,16 +1148,16 @@ export const TEXTOS = {
     modelo: {
       rotulo: "模型",
       titulo: "风险模型的表现",
-      intro: "以下指标在训练时未见过的企业上测得。数据集包含 23,469 份对问卷 46 个题目的回答，低、中、高三个风险等级各占三分之一，避免模型偏向最常见的等级。",
+      intro: "以下指标在训练时未见过的 26 家企业上测得，各风险等级保持真实比例（低约 36%、中约 39%、高约 25%）。数据集包含 36,000 份对问卷 46 个题目的回答，每份回答的参考标签来自三位评估者的共识。",
       itens: [
-        { v: "0.70", t: "宏平均 F1", d: "三个风险等级上精确率与召回率的平衡。该数据集上的理论上限为 0.83。" },
-        { v: "0.87", t: "ROC-AUC", d: "区分各风险等级的能力。0.5 相当于随机，1.0 为完全区分。" },
-        { v: "74%", t: "高风险灵敏度", d: "在高风险情况中，模型能识别出的比例。在调整为尽量不漏检的筛查模式下可达 79%。" },
-        { v: "87%", t: "高风险特异度", d: "在没有高风险的情况中，模型正确排除的比例。" },
+        { v: "0.73", t: "宏平均 F1", d: "三个风险等级上精确率与召回率的平衡。该数据集上的理论上限为 0.88。" },
+        { v: "0.89", t: "ROC-AUC", d: "区分各风险等级的能力。0.5 相当于随机，1.0 为完全区分。" },
+        { v: "82%", t: "高风险检出率（筛查模式）", d: "在尽量不漏检的筛查模式下，模型能找出 82% 的高风险情况；被排除者中有 93% 确实不是高风险（阴性预测值）。" },
+        { v: "95%", t: "高风险特异度", d: "在标准模式下，模型正确排除 95% 的非高风险情况，82% 的高风险提示得到确认。" },
         { v: "0.02", t: "校准误差（ECE）", d: "模型给出 70% 的概率时，实际正确率接近 70%：概率值可信。" },
-        { v: "r = 0.94", t: "群组层面的一致性", d: "各群组预测的高风险比例与参考比例高度一致。" },
+        { v: "r = 0.85", t: "群组层面的一致性", d: "各群组预测的高风险比例与参考比例一致。" },
       ],
-      nota: "实地验证将在试点中使用真实回答进行，并在研究伦理委员会批准后开始。试点数据目标：F1 ≥ 0.80，ROC-AUC ≥ 0.85，各行业之间的准确率差异不超过 5 个百分点。",
+      nota: "实地验证将在试点中使用真实回答进行，并在研究伦理委员会批准后开始。试点数据目标：F1 ≥ 0.80，ROC-AUC ≥ 0.85，各行业之间的准确率差异不超过 5 个百分点（目前为 5.4）。",
     },
     como: {
       rotulo: "流程",
@@ -1049,11 +1305,137 @@ export const TEXTOS = {
         { nome: "Leandro Rodrigues Machado", papel: "市场总监、数据分析师兼数据库管理员" },
       ],
       compromisso: "我们的承诺：不承诺评估个人，不给出没有解释的结果。",
+      ods: {
+        titulo: "契合联合国可持续发展目标",
+        itens: [
+          { n: 3, nome: "良好健康与福祉", t: "减少工作中的心理疾病。" },
+          { n: 8, nome: "体面工作和经济增长", t: "体面工作，心理社会风险得到管理。" },
+          { n: 9, nome: "产业、创新和基础设施", t: "能读懂葡萄牙语的人工智能创新。" },
+        ],
+      },
+    },
+    prontidao: {
+      "menu": "NR-1 自我评估",
+      "rotulo": "自我评估",
+      "titulo": "贵公司准备好应对 NR-1 了吗？",
+      "intro": "八个问题，不到两分钟。了解贵公司在心理社会风险评估方面处于什么阶段，以及应从哪里开始。这是参考性的自我评估，不能替代专业评估。",
+      "privado": "您的回答只保留在本页面：不会发送，也不会保存。",
+      "progresso": "已回答",
+      "opcoes": {
+        "sim": "是",
+        "parte": "部分",
+        "nao": "否"
+      },
+      "perguntas": [
+        {
+          "p": "PGR 的风险清单是否已包含心理社会风险因素？",
+          "curta": "将心理社会风险纳入 PGR 风险清单"
+        },
+        {
+          "p": "是否已划分暴露情况相近的员工群组（GHE）？",
+          "curta": "划分同质暴露群组（GHE）"
+        },
+        {
+          "p": "是否已通过结构化问卷听取员工对这些因素的意见？",
+          "curta": "用结构化工具听取员工意见"
+        },
+        {
+          "p": "回答是否只按群组分析，并保证匿名？",
+          "curta": "保证匿名并只按群组分析"
+        },
+        {
+          "p": "针对心理社会风险，是否有明确负责人和期限的行动计划？",
+          "curta": "制定有负责人和期限的行动计划"
+        },
+        {
+          "p": "流程（方法、日期、问卷版本）是否有记录，可在检查时出示？",
+          "curta": "记录方法和证据"
+        },
+        {
+          "p": "是否有持证专业人员（如在 CRP 注册的心理学家）参与分析？",
+          "curta": "让持证专业人员参与分析"
+        },
+        {
+          "p": "是否安排了复评日期，以检查行动是否有效？",
+          "curta": "安排定期复评"
+        }
+      ],
+      "faixas": [
+        {
+          "min": 13,
+          "nome": "较完善",
+          "tom": "ok",
+          "texto": "贵公司已有基础。免费诊断可帮助核对证据，并看到量表单独无法呈现的内容：员工写下的文字。"
+        },
+        {
+          "min": 7,
+          "nome": "进行中",
+          "tom": "alerta",
+          "texto": "已完成重要步骤，但仍缺少 NR-1 要求的部分。免费诊断会指出缺少什么以及先做什么。"
+        },
+        {
+          "min": 0,
+          "nome": "刚起步",
+          "tom": "perigo",
+          "texto": "心理社会风险评估刚刚起步，自 2026 年 5 月以来很多企业都是如此。免费诊断将与您一起规划路径。"
+        }
+      ],
+      "lacunasTitulo": "从这里开始：",
+      "cta": "获取免费诊断",
+      "limpar": "重新评估",
+      "anexada": "随申请一起发送的自我评估结果：",
+      "rotuloEmail": "NR-1 自我评估"
+    },
+    continuidade: {
+      "rotulo": "签约之后",
+      "titulo": "持续循环，而不是束之高阁的报告",
+      "intro": "心理社会风险会随目标、团队和管理者而变化。因此 Psyra 以循环方式陪伴企业：测量、行动、再测量。",
+      "ciclo": [
+        {
+          "quando": "启动",
+          "t": "协助上线",
+          "d": "与人力资源和职业安全团队（SESMT）一起确定群组（GHE）、调查周期和对员工的沟通。"
+        },
+        {
+          "quando": "调查",
+          "t": "按群组的仪表板",
+          "d": "每个群组达到 5 份回答后即显示结果，并说明影响最大的因素。"
+        },
+        {
+          "quando": "计划",
+          "t": "有负责人和期限的行动",
+          "d": "按优先级排列的行动计划，经持证心理学家审核，并在仪表板中跟踪。"
+        },
+        {
+          "quando": "复评",
+          "t": "再次测量",
+          "d": "开展新一轮调查，检查行动是否降低了风险，并更新 PGR。"
+        },
+        {
+          "quando": "始终",
+          "t": "审计证据",
+          "d": "记录方法、问卷版本和历史，以便向检查人员展示流程。"
+        }
+      ],
+      "apoioTitulo": "您不会独自面对仪表板",
+      "apoio": [
+        "协助上线，并与 Psyra 团队一起解读结果",
+        "所有套餐都提供支持，Panorama 享有优先支持",
+        "签约前提供免费初步诊断"
+      ]
+    },
+    ctaFixo: {
+      "texto": "免费 NR-1 诊断",
+      "botao": "预约"
     },
     faq: {
       rotulo: "常见问题",
       titulo: "常见问题",
       itens: [
+        {
+          p: "免费诊断包括什么？",
+          r: "与团队沟通，了解公司在 NR-1 方面的现状（本页的自我评估会有帮助）；用示例数据演示仪表板；并提出群组（GHE）划分和调查时间表建议。免费，且不要求签约。",
+        },
         { p: "企业能看到每位员工的回答吗？", r: "不能。结果只按至少有 5 份回答的群组（GHE）呈现，更小的群组会被隐藏。" },
         {
           p: "自由文本会被怎样处理？",
@@ -1077,7 +1459,7 @@ export const TEXTOS = {
         },
         {
           p: "Psyra 的 AI 已经过验证了吗？",
-          r: "量表模型已完成训练，并在训练时未见过的企业上测试：F1 为 0.70，ROC-AUC 为 0.87（见“模型”部分）。使用真实回答的实地验证将在获得研究伦理委员会批准后的试点中进行。文本模型（MentalBERT-PT）仍在调整中；在此之前，仪表板使用规则并在页面上注明。",
+          r: "量表模型已完成训练，并在训练时未见过的企业上测试：F1 为 0.73，ROC-AUC 为 0.89（见“模型”部分）。使用真实回答的实地验证将在获得研究伦理委员会批准后的试点中进行。文本模型（MentalBERT-PT）仍在调整中；在此之前，仪表板使用规则并在页面上注明。",
         },
         {
           p: "员工回答的是什么问卷？",
@@ -1108,8 +1490,10 @@ export const TEXTOS = {
         telefone: "电话",
         porte: "大致员工人数（选填）",
         selecione: "请选择",
+        interesse: "您希望了解什么？",
       },
       faixas: ["最多 50", "51 至 200", "201 至 1,000", "超过 1,000"],
+      interesses: ["免费诊断", "参加 2026 年试点", "了解套餐", "其他事项"],
       consentimentoAntes: "我已阅读",
       consentimentoLink: "隐私政策",
       consentimentoDepois: "，并同意这些数据仅用于就诊断事宜与我联系。",
