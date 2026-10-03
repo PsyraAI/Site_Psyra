@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Check, ChevronDown, Globe } from "lucide-react";
 
 import { IDIOMAS, ORDEM_IDIOMAS, salvarIdioma } from "../lib/idiomas";
+import { guardarPosicaoTroca } from "../lib/navegacao";
 
 export default function SeletorIdioma({ atual, rotulo, destino, aoTrocar, className = "", alinhar = "fim" }) {
   const [aberto, setAberto] = useState(false);
@@ -31,6 +32,8 @@ export default function SeletorIdioma({ atual, rotulo, destino, aoTrocar, classN
   function escolher(id) {
     salvarIdioma(id);
     setAberto(false);
+    // troca sem recarregar: guarda a seção visível para a página no novo idioma voltar a ela
+    if (destino && id !== atual) guardarPosicaoTroca();
     if (aoTrocar) aoTrocar(id);
   }
 
@@ -64,6 +67,7 @@ export default function SeletorIdioma({ atual, rotulo, destino, aoTrocar, classN
                 {destino ? (
                   <Link
                     to={destino(id)}
+                    preventScrollReset
                     hrefLang={cfg.html}
                     lang={cfg.html}
                     aria-current={id === atual ? "true" : undefined}
