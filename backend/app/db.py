@@ -180,7 +180,11 @@ def conectar(caminho: str | None = None) -> Any:
                 "pip install 'psycopg[binary]'"
             ) from erro
         try:
-            raw = psycopg.connect(config.DATABASE_URL, row_factory=dict_row)
+            raw = psycopg.connect(
+                config.DATABASE_URL,
+                row_factory=dict_row,
+                connect_timeout=8,
+            )
             logger.info("conectado ao Postgres/Supabase")
             return _ConexaoPg(raw)
         except Exception as erro:

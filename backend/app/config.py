@@ -96,6 +96,10 @@ class Config:
                 hosts.append("*.onrender.com")
             if "site-psyra.onrender.com" not in hosts:
                 hosts.append("site-psyra.onrender.com")
+            # O health check do Render pode chegar com Host localhost.
+            for extra in ("localhost", "127.0.0.1"):
+                if extra not in hosts:
+                    hosts.append(extra)
         self.HOSTS_PERMITIDOS = hosts
         if not self.PUBLIC_URL and os.getenv("RENDER_EXTERNAL_URL"):
             self.PUBLIC_URL = os.getenv("RENDER_EXTERNAL_URL", "").rstrip("/")

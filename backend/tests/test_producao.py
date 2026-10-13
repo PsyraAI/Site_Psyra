@@ -6,6 +6,20 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.config import Config
+from app.main import app
+
+
+def test_health_live_sobe_sem_banco(monkeypatch: pytest.MonkeyPatch) -> None:
+    """O processo precisa responder no Render mesmo se o Postgres ainda não acordou."""
+
+    def falha(*_args: object, **_kwargs: object) -> None:
+        raise ConnectionError("sem banco")
+
+    monkeypatch.setattr("app.main.conectar", falha)
+    with TestClient(app) as isolado:
+        resposta = isolado.get("/health/live")
+    assert resposta.status_code == 200
+    assert resposta.json()["status"] == "ok"
 
 
 def test_health_live_e_ready(cliente: TestClient) -> None:

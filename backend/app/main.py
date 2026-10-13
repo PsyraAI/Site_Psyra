@@ -6,6 +6,8 @@ Postgres, segredos fortes, HTTPS público e oculta a documentação OpenAPI.
 
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -46,11 +48,8 @@ def _configurar_sentry() -> None:
     )
 
 
-@asynccontextmanager
-async def ciclo_de_vida(_: FastAPI) -> AsyncIterator[None]:
-    """Valida produção, aplica schema e registra o backend ativo."""
-    config.validar_producao()
-    _configurar_sentry()
+def _subir_banco() -> None:
+    """Aplica o schema. Falha rápido se o Postgres não responder."""
     conexao = conectar()
     try:
         criar_schema(conexao)
@@ -63,7 +62,38 @@ async def ciclo_de_vida(_: FastAPI) -> AsyncIterator[None]:
         )
     finally:
         conexao.close()
-    yield
+
+
+async def _preparar_banco() -> None:
+    """Tenta o banco em segundo plano para o processo escutar a porta na hora."""
+    espera = 5
+    while True:
+        try:
+            await asyncio.to_thread(_subir_banco)
+            return
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            logger.exception(
+                "banco indisponível na inicialização; nova tentativa em %ss",
+                espera,
+            )
+            await asyncio.sleep(espera)
+            espera = min(espera * 2, 30)
+
+
+@asynccontextmanager
+async def ciclo_de_vida(_: FastAPI) -> AsyncIterator[None]:
+    """Valida produção e sobe o HTTP sem esperar o banco travar o boot."""
+    config.validar_producao()
+    _configurar_sentry()
+    tarefa = asyncio.create_task(_preparar_banco())
+    try:
+        yield
+    finally:
+        tarefa.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await tarefa
 
 
 docs_url = "/docs" if (config.DOCS_ATIVOS and not config.em_producao) else None
