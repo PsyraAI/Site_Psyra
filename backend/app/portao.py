@@ -120,22 +120,28 @@ class MiddlewarePortao(BaseHTTPMiddleware):
             return _recusar_pagina()
 
         if request.url.path == "/acesso" and request.method == "POST":
-            try:
-                limitador.verificar(
-                    f"/acesso:{cliente_ip(request)}",
-                    config.RATE_LOGIN,
-                )
-            except HTTPException as erro:
-                if erro.status_code != 429:
-                    raise
-                return JSONResponse(
-                    status_code=429,
-                    content={
-                        "detail": "muitas requisicoes; tente novamente em instantes"
-                    },
-                )
-            senha = await _ler_senha(request)
+            senha = (await _ler_senha(request)).strip()
             if not verificar_senha(senha, config.portao_hash()):
+                try:
+                    limitador.verificar(
+                        f"/acesso:{cliente_ip(request)}",
+                        config.RATE_LOGIN,
+                    )
+                except HTTPException as erro:
+                    if erro.status_code != 429:
+                        raise
+                    if "application/json" in request.headers.get("content-type", ""):
+                        return JSONResponse(
+                            status_code=429,
+                            content={
+                                "detail": (
+                                    "muitas requisicoes; tente novamente em instantes"
+                                )
+                            },
+                        )
+                    return _recusar_pagina(
+                        "Muitas tentativas. Espere um instante e tente de novo."
+                    )
                 if "application/json" in request.headers.get("content-type", ""):
                     return JSONResponse(
                         status_code=401,

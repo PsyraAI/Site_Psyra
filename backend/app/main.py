@@ -163,11 +163,15 @@ def health_ready() -> JSONResponse:
             conexao.execute("SELECT 1").fetchone()
         finally:
             conexao.close()
-    except Exception:
+    except Exception as erro:
         logger.exception("readiness falhou ao consultar o banco")
         return JSONResponse(
             status_code=503,
-            content={"status": "indisponivel", "motivo": "banco_indisponivel"},
+            content={
+                "status": "indisponivel",
+                "motivo": "banco_indisponivel",
+                "causa": type(erro).__name__,
+            },
         )
     return JSONResponse(
         {

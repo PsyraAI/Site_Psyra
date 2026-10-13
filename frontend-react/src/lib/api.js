@@ -62,7 +62,7 @@ async function requisitarComSessao(caminho, opcoes = {}, armazenamento = sessao)
     throw new ErroApi("Não foi possível falar com o servidor. Ele está rodando?", 0);
   }
 
-  if (resposta.status === 401) {
+  if (resposta.status === 401 && atual?.access_token) {
     armazenamento.limpar();
     throw new ErroApi("Sessão expirada. Entre novamente.", 401);
   }

@@ -168,6 +168,14 @@ class _ConexaoPg:
         self._conexao.close()
 
 
+def _url_postgres(url: str) -> str:
+    """Garante SSL no Supabase sem alterar uma URI que já define sslmode."""
+    if "supabase" not in url.lower() or "sslmode=" in url.lower():
+        return url
+    separador = "&" if "?" in url else "?"
+    return f"{url}{separador}sslmode=require"
+
+
 def conectar(caminho: str | None = None) -> Any:
     """Abre conexão SQLite ou Postgres conforme configuração."""
     if config.usa_postgres:
@@ -180,10 +188,12 @@ def conectar(caminho: str | None = None) -> Any:
                 "pip install 'psycopg[binary]'"
             ) from erro
         try:
+            # prepare_threshold=None evita erro no pooler do Supabase (porta 6543).
             raw = psycopg.connect(
-                config.DATABASE_URL,
+                _url_postgres(config.DATABASE_URL),
                 row_factory=dict_row,
                 connect_timeout=8,
+                prepare_threshold=None,
             )
             logger.info("conectado ao Postgres/Supabase")
             return _ConexaoPg(raw)
@@ -341,7 +351,16 @@ def criar_schema(conexao: Any) -> None:
 
 def obter_conexao() -> Iterator[Any]:
     """Dependência FastAPI: entrega conexão e garante o fechamento."""
-    conexao = conectar()
+    from fastapi import HTTPException
+
+    try:
+        conexao = conectar()
+    except Exception as erro:
+        logger.exception("banco indisponivel ao abrir conexao")
+        raise HTTPException(
+            status_code=503,
+            detail="Nao foi possivel verificar a senha agora. O banco esta indisponivel.",
+        ) from erro
     try:
         yield conexao
     finally:
