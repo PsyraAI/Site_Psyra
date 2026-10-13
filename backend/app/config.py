@@ -41,6 +41,13 @@ class Config:
         url = self.DATABASE_URL.lower()
         return url.startswith("postgres://") or url.startswith("postgresql://")
 
+    # Porta de acesso do site. Em produção vale o hash abaixo, a menos que
+    # PSYRA_GATE=off ou PSYRA_GATE_HASH substitua a frase.
+    PORTAO_HASH_PRODUCAO: str = (
+        "pbkdf2_sha256$120000$ffc4a30ffa363ec40878cea9860ea56f$"
+        "50a08d3ee4a80a16f2d936e0f956282c9d97e101f2c5f727bb579b106b82c52f"
+    )
+
     # JWT (HS256 implementado com hmac da stdlib — sem dependência externa).
     JWT_SEGREDO: str = os.getenv("PSYRA_JWT_SECRET", "dev-somente-local-trocar-em-prod")
     JWT_EXPIRA_MIN: int = int(os.getenv("PSYRA_JWT_EXP_MIN", "480"))
@@ -107,6 +114,22 @@ class Config:
     @property
     def em_producao(self) -> bool:
         return self.AMBIENTE == "production"
+
+    def portao_hash(self) -> str:
+        """Hash da frase de acesso. Vazio desliga a porta (desenvolvimento)."""
+        modo = os.getenv("PSYRA_GATE", "").strip().lower()
+        if modo in {"0", "false", "off", "nao", "não"}:
+            return ""
+        definido = os.getenv("PSYRA_GATE_HASH", "").strip()
+        if definido:
+            return definido
+        if self.em_producao:
+            return self.PORTAO_HASH_PRODUCAO
+        return ""
+
+    @property
+    def portao_ativo(self) -> bool:
+        return bool(self.portao_hash())
 
     def validar_producao(self) -> None:
         """Recusa iniciar produção com banco local ou segredos de demonstração."""

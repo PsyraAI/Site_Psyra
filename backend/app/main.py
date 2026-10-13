@@ -21,6 +21,7 @@ from fastapi.staticfiles import StaticFiles
 from .config import DIR_REACT, config
 from .db import conectar, criar_schema
 from .middleware import MiddlewareSeguranca
+from .portao import MiddlewarePortao
 from .routers import admin, auth, coleta, empresas, integracoes, painel
 
 logging.basicConfig(
@@ -115,6 +116,7 @@ app = FastAPI(
 )
 
 app.add_middleware(MiddlewareSeguranca)
+app.add_middleware(MiddlewarePortao)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=config.CORS_ORIGENS,
