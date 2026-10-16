@@ -372,19 +372,38 @@ def _recriar_view_painel(conexao: Any) -> None:
     conexao.commit()
 
 
+def _aplicar_schema_base(conexao: Any, script: str) -> None:
+    """Cria tabelas e índices. A view do painel fica para depois das colunas novas.
+
+    Num banco que já existia, `CREATE TABLE IF NOT EXISTS` não acrescenta
+    `n_excluidas`. Criar a view nesse momento derruba a migração inteira e o
+    login passa a falhar ao gravar `ultimo_acesso_em`.
+    """
+    for trecho in _partir_sql(script):
+        if "vw_painel_ghe" in trecho.lower():
+            continue
+        conexao.execute(trecho)
+    conexao.commit()
+
+
 def criar_schema(conexao: Any) -> None:
     """Cria tabelas, índices e a view agregada (idempotente)."""
     try:
-        if config.usa_postgres:
-            script = CAMINHO_SCHEMA_PG.read_text(encoding="utf-8")
-            conexao.executescript(script)
-        else:
-            conexao.executescript(CAMINHO_SCHEMA_SQLITE.read_text(encoding="utf-8"))
-            conexao.commit()
+        script = (
+            CAMINHO_SCHEMA_PG.read_text(encoding="utf-8")
+            if config.usa_postgres
+            else CAMINHO_SCHEMA_SQLITE.read_text(encoding="utf-8")
+        )
+        _aplicar_schema_base(conexao, script)
         _migrar_operacao_producao(conexao)
         _migrar_integracao_forms(conexao)
         _migrar_banca_v2(conexao)
         _recriar_view_painel(conexao)
+        if _DRIVER == "postgres":
+            conexao.execute(
+                "REVOKE ALL ON TABLE vw_painel_ghe FROM anon, authenticated"
+            )
+            conexao.commit()
         logger.info("schema aplicado (%s)", _DRIVER)
     except Exception as erro:
         logger.error("falha ao aplicar schema: %s", erro)

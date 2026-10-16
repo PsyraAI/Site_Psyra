@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from app.db import CAMINHO_SCHEMA_PG, _partir_sql, adaptar_sql_para_teste
+import sqlite3
+
+from app.db import CAMINHO_SCHEMA_PG, _partir_sql, adaptar_sql_para_teste, criar_schema
 
 
 def test_placeholders_e_datetime():
@@ -29,3 +31,38 @@ def test_schema_postgres_particiona():
         for p in partes
     )
     assert CAMINHO_SCHEMA_PG.exists()
+
+
+def test_banco_antigo_recebe_colunas_antes_da_view(tmp_path):
+    """Banco de produção anterior não tem n_excluidas; a view não pode nascer antes."""
+    conexao = sqlite3.connect(tmp_path / "antigo.db")
+    conexao.row_factory = sqlite3.Row
+    conexao.executescript(
+        """
+        CREATE TABLE empresa (
+            id TEXT PRIMARY KEY, razao_social TEXT, cnpj TEXT, plano TEXT, ativo INTEGER
+        );
+        CREATE TABLE usuario_empresa (
+            id TEXT PRIMARY KEY, empresa_id TEXT, nome TEXT, email TEXT,
+            senha_hash TEXT, papel TEXT, ativo INTEGER
+        );
+        CREATE TABLE resultado_ghe (
+            id TEXT PRIMARY KEY, coleta_id TEXT, ghe_id TEXT,
+            n_respostas INTEGER, indice_likert REAL, indice_texto REAL,
+            divergencia REAL, nivel_risco TEXT, fatores_json TEXT,
+            motor_versao TEXT, calculado_em TEXT
+        );
+        """
+    )
+    conexao.commit()
+    criar_schema(conexao)
+    colunas_usuario = {
+        linha["name"] for linha in conexao.execute("PRAGMA table_info(usuario_empresa)")
+    }
+    colunas_resultado = {
+        linha["name"] for linha in conexao.execute("PRAGMA table_info(resultado_ghe)")
+    }
+    assert {"sessao_versao", "trocar_senha", "ultimo_acesso_em"} <= colunas_usuario
+    assert "n_excluidas" in colunas_resultado
+    conexao.execute("SELECT n_excluidas, mascarado FROM vw_painel_ghe").fetchall()
+    conexao.close()
