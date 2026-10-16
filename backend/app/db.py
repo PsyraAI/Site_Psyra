@@ -329,16 +329,44 @@ def _migrar_banca_v2(conexao: Any) -> None:
             for nome, tipo in novas.items():
                 if nome not in existentes:
                     conexao.execute(f"ALTER TABLE {tabela} ADD COLUMN {nome} {tipo}")
+    # Grava as colunas antes da tabela nova. No Postgres de produção o id é UUID;
+    # um REFERENCES em TEXT derruba a transação inteira e o painel fica sem essas colunas.
+    conexao.commit()
+    tipo_coleta = _tipo_id(conexao, "coleta")
+    tipo_ghe = _tipo_id(conexao, "ghe")
     conexao.execute(
-        "CREATE TABLE IF NOT EXISTS coleta_inicio ("
-        " id TEXT PRIMARY KEY,"
-        " coleta_id TEXT NOT NULL REFERENCES coleta(id) ON DELETE CASCADE,"
-        " ghe_id TEXT REFERENCES ghe(id) ON DELETE CASCADE,"
+        f"CREATE TABLE IF NOT EXISTS coleta_inicio ("
+        f" id {tipo_coleta} PRIMARY KEY,"
+        f" coleta_id {tipo_coleta} NOT NULL REFERENCES coleta(id) ON DELETE CASCADE,"
+        f" ghe_id {tipo_ghe} REFERENCES ghe(id) ON DELETE CASCADE,"
         " etapa TEXT NOT NULL CHECK (etapa IN ('inicio', 'grupo')),"
         " dia TEXT NOT NULL)"
     )
-    conexao.execute("CREATE INDEX IF NOT EXISTS idx_inicio_coleta ON coleta_inicio(coleta_id)")
+    conexao.execute(
+        "CREATE INDEX IF NOT EXISTS idx_inicio_coleta ON coleta_inicio(coleta_id)"
+    )
+    if _DRIVER == "postgres":
+        conexao.execute("ALTER TABLE coleta_inicio ENABLE ROW LEVEL SECURITY")
+        conexao.execute(
+            "REVOKE ALL ON TABLE coleta_inicio FROM anon, authenticated"
+        )
     conexao.commit()
+
+
+def _tipo_id(conexao: Any, tabela: str) -> str:
+    """TEXT no SQLite e nos bancos novos; UUID quando a produção já gravou o id assim."""
+    if tabela not in ("coleta", "ghe"):
+        return "TEXT"
+    if _DRIVER != "postgres":
+        return "TEXT"
+    linha = conexao.execute(
+        "SELECT data_type FROM information_schema.columns "
+        "WHERE table_schema = 'public' AND table_name = ? AND column_name = 'id'",
+        (tabela,),
+    ).fetchone()
+    if linha and str(linha["data_type"]).lower() == "uuid":
+        return "UUID"
+    return "TEXT"
 
 
 def _recriar_view_painel(conexao: Any) -> None:
@@ -382,8 +410,14 @@ def _aplicar_schema_base(conexao: Any, script: str) -> None:
     for trecho in _partir_sql(script):
         if "vw_painel_ghe" in trecho.lower():
             continue
-        conexao.execute(trecho)
-    conexao.commit()
+        try:
+            conexao.execute(trecho)
+            conexao.commit()
+        except Exception as erro:
+            # Um trecho incompatível com o banco antigo (id UUID, por exemplo)
+            # não pode impedir as colunas que o painel passa a ler.
+            logger.warning("trecho de schema ignorado: %s", erro)
+            conexao.rollback()
 
 
 def criar_schema(conexao: Any) -> None:
