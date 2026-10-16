@@ -61,11 +61,15 @@ def login(dados: LoginEntrada, conexao: Conexao) -> LoginSaida:
         logger.warning("login negado para %s", dados.email)
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "E-mail ou senha incorretos.")
 
-    executar(
-        conexao,
-        "UPDATE usuario_empresa SET ultimo_acesso_em = datetime('now') WHERE id = ?",
-        (usuario["id"],),
-    )
+    try:
+        executar(
+            conexao,
+            "UPDATE usuario_empresa SET ultimo_acesso_em = datetime('now') WHERE id = ?",
+            (usuario["id"],),
+        )
+    except Exception:
+        # Banco antigo ainda sem a coluna: o acesso vale mesmo assim.
+        logger.exception("ultimo acesso nao gravado para %s", usuario["id"])
     registrar(
         conexao,
         ator=usuario["id"],
