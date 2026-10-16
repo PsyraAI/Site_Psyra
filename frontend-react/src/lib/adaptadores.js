@@ -26,8 +26,9 @@ export const NIVEIS = {
 export const corDoNivel = (nivel) => NIVEIS[nivel]?.cor ?? "var(--ardosia)";
 
 /** Formata índice 0–100 preservando a diferença entre "zero" e "suprimido". */
-export function formatarIndice(valor) {
-  return valor === null || valor === undefined ? "—" : valor.toFixed(1);
+export function formatarIndice(valor, locale = "pt-BR") {
+  if (valor === null || valor === undefined) return "—";
+  return new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(valor);
 }
 
 /** Normaliza o payload da API para as props consumidas pelas telas do painel. */

@@ -1,6 +1,5 @@
 // Psyra AI — preferência de tema (claro, escuro ou do sistema).
-// A marca nasce escura; o modo claro vale para a landing e a privacidade (botão no cabeçalho).
-// O questionário do colaborador e as telas de uso ficam no tema escuro.
+// A marca nasce escura; o modo claro vale para todas as telas (botão no cabeçalho de cada uma).
 // A escolha fica só neste navegador (localStorage); não é dado pessoal e não vai ao servidor.
 
 import { useCallback, useEffect, useState } from "react";

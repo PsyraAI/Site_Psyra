@@ -7,17 +7,19 @@ O respondente não tem login, não informa nome e não recebe resultado individu
 from __future__ import annotations
 
 import logging
+import uuid
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from ..anonimizador import FalhaAnonimizacao
 from ..auditoria import registrar
 from ..config import config
-from ..db import buscar_todos, buscar_um
+from ..db import buscar_todos, buscar_um, executar
 from ..deps import Conexao
 from ..instrumento import carregar_instrumento
 from ..rate_limit import limitar
-from ..schemas import RespostaEntrada, RespostaSaida
+from ..schemas import InicioEntrada, RespostaEntrada, RespostaSaida
 from ..servico_respostas import gravar_resposta_anonima
 
 logger = logging.getLogger(__name__)
@@ -88,6 +90,7 @@ def receber_resposta(dados: RespostaEntrada, conexao: Conexao) -> RespostaSaida:
             ghe_id=ghe["id"],
             likert=dados.likert,
             texto_livre=dados.texto_livre,
+            tempos_partes=dados.tempos_partes,
         )
     except ValueError as erro:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(erro)) from erro
@@ -111,3 +114,38 @@ def receber_resposta(dados: RespostaEntrada, conexao: Conexao) -> RespostaSaida:
         resposta.anonimizacao["motor"],
     )
     return resposta
+
+
+@router.post(
+    "/v1/coletas/{token}/inicio",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    dependencies=[Depends(limitar(config.RATE_COLETA))],
+)
+def registrar_inicio(token: str, dados: InicioEntrada, conexao: Conexao) -> Response:
+    """Conta quem começou o questionário, para medir a evasão (começaram × responderam).
+
+    Risco: R2 — guarda só a coleta, o grupo (na etapa "grupo") e o DIA; sem horário, sem IP,
+    sem identificador, para não dar para ligar o começo a uma resposta. Sprint: S10
+    """
+    coleta = buscar_um(
+        conexao, "SELECT id, empresa_id, status FROM coleta WHERE token_publico = ?", (token,)
+    )
+    if not coleta or coleta["status"] != "aberta":
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    ghe_id = None
+    if dados.etapa == "grupo" and dados.ghe_codigo:
+        ghe = buscar_um(
+            conexao,
+            "SELECT id FROM ghe WHERE empresa_id = ? AND codigo = ?",
+            (coleta["empresa_id"], dados.ghe_codigo),
+        )
+        if not ghe:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "GHE invalido para a empresa")
+        ghe_id = ghe["id"]
+    executar(
+        conexao,
+        "INSERT INTO coleta_inicio (id, coleta_id, ghe_id, etapa, dia) VALUES (?,?,?,?,?)",
+        (uuid.uuid4().hex, coleta["id"], ghe_id, dados.etapa, datetime.now(UTC).date().isoformat()),
+    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

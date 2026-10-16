@@ -303,7 +303,8 @@ def redefinir_senha(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "usuario nao encontrado")
     executar(
         conexao,
-        "UPDATE usuario_empresa SET senha_hash = ? WHERE id = ?",
+        "UPDATE usuario_empresa SET senha_hash = ?, trocar_senha = 1, "
+        "sessao_versao = sessao_versao + 1 WHERE id = ?",
         (gerar_hash_senha(dados.senha), usuario_id),
     )
     registrar(

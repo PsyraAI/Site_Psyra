@@ -1142,3 +1142,64 @@
   color: #4b4f6b;
   max-width: 52rem;
 }
+
+/* Casos na Justiça do Trabalho (seção O problema). Sprint: S10 | Risco: None */
+.lp-justica {
+  margin-top: 2.5rem;
+}
+
+.lp-justica__lista {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.lp-justica__caso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.lp-justica__caso p {
+  margin: 0;
+  color: var(--lp-mist);
+}
+
+.lp-justica .lp-justica__tribunal {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lp-warning);
+}
+
+.lp-card .lp-justica__valor {
+  font-family: var(--lp-display);
+  font-size: 1.4rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--lp-primary);
+}
+
+.lp-justica__fonte {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--lp-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lp-justica__nota {
+  margin: 0.9rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--lp-muted);
+}
+
+@media (min-width: 768px) {
+  .lp-justica__lista {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

@@ -1,12 +1,16 @@
 """Porta de acesso do site. A frase vira hash PBKDF2; o cookie é um JWT HS256.
 
 Fica desligada em desenvolvimento. Em produção bloqueia o site, menos a
-sonda de saúde e o webhook do Google Forms (que já tem assinatura própria).
+sonda de saúde, o webhook do Google Forms (que já tem assinatura própria) e o
+caminho do colaborador: o questionário anônimo precisa abrir pelo link do
+ciclo, sem frase de acesso. Esse caminho só expõe o formulário de um token
+válido e o envio anônimo; painel, login e dados continuam atrás da porta.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Awaitable, Callable
 from urllib.parse import parse_qs
 
@@ -21,10 +25,41 @@ from .security import TokenInvalido, criar_token, validar_token, verificar_senha
 
 COOKIE = "psyra_acesso"
 _CAMINHOS_LIVRES = ("/health", "/health/live", "/health/ready")
+# Arquivos públicos de que o questionário precisa para abrir (sem dado nenhum).
+_ARQUIVOS_PUBLICOS = ("/psyra-logo.svg", "/psyra-logo.png", "/tema-inicial.js", "/favicon.ico")
+_TOKEN = re.compile(r"^[A-Za-z0-9_-]{6,64}$")
 
 
-def _caminho_livre(caminho: str) -> bool:
+def _rota_do_colaborador(caminho: str, metodo: str) -> bool:
+    """Questionário anônimo: página, arquivos do app, formulário do token e envio."""
+    if caminho in _ARQUIVOS_PUBLICOS or caminho.startswith("/assets/"):
+        return metodo in ("GET", "HEAD")
+    if caminho == "/responder" or caminho.startswith("/responder/"):
+        return metodo in ("GET", "HEAD")
+    partes = caminho.strip("/").split("/")
+    if (
+        metodo == "GET"
+        and len(partes) == 4
+        and partes[:2] == ["v1", "coletas"]
+        and partes[3] == "formulario"
+        and _TOKEN.match(partes[2])
+    ):
+        return True
+    if (
+        metodo == "POST"
+        and len(partes) == 4
+        and partes[:2] == ["v1", "coletas"]
+        and partes[3] == "inicio"
+        and _TOKEN.match(partes[2])
+    ):
+        return True  # contagem anônima de quem começou (evasão)
+    return caminho == "/v1/coleta" and metodo == "POST"
+
+
+def _caminho_livre(caminho: str, metodo: str = "GET") -> bool:
     if caminho in _CAMINHOS_LIVRES:
+        return True
+    if _rota_do_colaborador(caminho, metodo):
         return True
     return caminho.startswith("/v1/integracoes/")
 
@@ -111,7 +146,7 @@ class MiddlewarePortao(BaseHTTPMiddleware):
         request: Request,
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
-        if not config.portao_ativo or _caminho_livre(request.url.path):
+        if not config.portao_ativo or _caminho_livre(request.url.path, request.method):
             return await call_next(request)
         if request.method == "OPTIONS":
             return await call_next(request)

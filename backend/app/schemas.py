@@ -13,6 +13,7 @@ class LoginEntrada(BaseModel):
 
     email: EmailStr
     senha: str = Field(min_length=6, max_length=128)
+    lembrar: bool = False  # "manter conectado": sessão de 7 dias neste aparelho
 
 
 class LoginSaida(BaseModel):
@@ -23,6 +24,68 @@ class LoginSaida(BaseModel):
     empresa_id: str
     empresa_nome: str
     plano: str = "starter"
+    email: str = ""
+    trocar_senha: bool = False
+    lembrar: bool = False
+
+
+class TrocaSenhaEntrada(BaseModel):
+    """Troca de senha pelo próprio usuário (exige a senha atual). Sprint: S10 | Risco: R2"""
+
+    senha_atual: str = Field(min_length=1, max_length=128)
+    senha_nova: str = Field(min_length=1, max_length=128)
+
+
+class ContaAtualizacao(BaseModel):
+    nome: str = Field(min_length=2, max_length=120)
+
+
+class ConfigEmpresaSaida(BaseModel):
+    razao_social: str
+    plano: str
+    porte: str
+    atuacao: str
+    excluir_sinalizadas: bool
+    n_minimo: int
+    pode_editar: bool
+
+
+class ConfigEmpresaAtualizacao(BaseModel):
+    porte: str | None = Field(default=None, pattern="^(micro|pequena|media|grande)$")
+    atuacao: str | None = Field(
+        default=None, pattern="^(saude|industria|servicos|comercio|tecnologia|outro)$"
+    )
+    excluir_sinalizadas: bool | None = None
+
+
+class UsuarioEquipeSaida(BaseModel):
+    id: str
+    nome: str
+    email: str
+    papel: str
+    ativo: bool
+    voce: bool = False
+    trocar_senha: bool = False
+    ultimo_acesso_em: datetime | str | None = None
+
+
+class ConviteEntrada(BaseModel):
+    nome: str = Field(min_length=2, max_length=120)
+    email: EmailStr
+    papel: str = Field(default="gestor", pattern="^(gestor|admin|crp)$")
+
+
+class SenhaTemporariaSaida(BaseModel):
+    usuario: UsuarioEquipeSaida
+    senha_temporaria: str
+    aviso: str = "Mostrada uma única vez. A pessoa cria a própria senha no primeiro acesso."
+
+
+class InicioEntrada(BaseModel):
+    """Contagem anônima de quem começou o questionário (evasão). Sem identificador."""
+
+    etapa: str = Field(pattern="^(inicio|grupo)$")
+    ghe_codigo: str | None = Field(default=None, max_length=32)
 
 
 class SuperadminLoginSaida(BaseModel):
@@ -157,6 +220,8 @@ class RespostaEntrada(BaseModel):
     likert: dict[str, int]
     texto_livre: str | None = Field(default=None, max_length=4000)
     consentimento: bool
+    # segundos gastos em cada parte (só para a verificação de pressa; nunca exibidos sozinhos)
+    tempos_partes: list[int] | None = Field(default=None, max_length=20)
 
     @field_validator("likert")
     @classmethod

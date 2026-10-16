@@ -21,8 +21,7 @@ from fastapi.staticfiles import StaticFiles
 from .config import DIR_REACT, config
 from .db import conectar, criar_schema
 from .middleware import MiddlewareSeguranca
-from .portao import MiddlewarePortao
-from .routers import admin, auth, coleta, empresas, integracoes, painel
+from .routers import admin, auth, coleta, configuracoes, empresas, integracoes, painel
 
 logging.basicConfig(
     level=logging.INFO,
@@ -116,7 +115,6 @@ app = FastAPI(
 )
 
 app.add_middleware(MiddlewareSeguranca)
-app.add_middleware(MiddlewarePortao)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=config.CORS_ORIGENS,
@@ -128,6 +126,8 @@ if config.HOSTS_PERMITIDOS:
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=config.HOSTS_PERMITIDOS)
 
 app.include_router(auth.router)
+app.include_router(auth.conta)
+app.include_router(configuracoes.router)
 app.include_router(admin.router)
 app.include_router(empresas.router)
 app.include_router(coleta.router)

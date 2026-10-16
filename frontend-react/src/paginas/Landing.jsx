@@ -4,10 +4,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
+  ArrowRight,
   BarChart3,
   CalendarCheck,
   ClipboardCheck,
   ClipboardList,
+  ChevronDown,
+  Eraser,
+  ExternalLink,
   EyeOff,
   Gauge,
   Headphones,
@@ -19,12 +23,15 @@ import {
   ListOrdered,
   Lock,
   MessageSquareText,
+  Monitor,
   Moon,
   Scale,
   ShieldCheck,
+  Smartphone,
   Sun,
   UserX,
   Users,
+  UsersRound,
 } from "lucide-react";
 
 import { PLANOS } from "../lib/planos";
@@ -42,6 +49,8 @@ import {
 } from "../lib/idiomas";
 import { useIdiomaEscolhido, useRestaurarPosicaoTroca, useRolarParaHash } from "../lib/navegacao";
 import { TEXTOS } from "../lib/textosLanding";
+import { TEXTOS3 } from "../lib/textosLanding3";
+import { EXPLICACOES } from "../lib/textosExplicacoes";
 import { useTema } from "../lib/tema";
 
 const ICONES_PASSOS = [MessageSquareText, ShieldCheck, Users, ClipboardCheck];
@@ -87,6 +96,28 @@ function Reveal({ children, delay = 0, className = "" }) {
   return (
     <div ref={ref} className={`lp-reveal ${className}`} data-visible={visible ? "true" : "false"} style={{ transitionDelay: `${delay}ms` }}>
       {children}
+    </div>
+  );
+}
+
+/** "Entenda como funciona": seta que expande a explicação de uma parte da solução. */
+function SaibaMais({ paragrafos, idioma }) {
+  const [aberto, setAberto] = useState(false);
+  const ex = EXPLICACOES[idioma] ?? EXPLICACOES.pt;
+  const id = `saiba-${paragrafos[0].length}-${paragrafos.length}`;
+  return (
+    <div className={`lp-saiba${aberto ? " lp-saiba--aberto" : ""}`}>
+      <button type="button" className="lp-saiba__botao" aria-expanded={aberto} aria-controls={id} onClick={() => setAberto((v) => !v)}>
+        <span>{aberto ? ex.fechar : ex.abrir}</span>
+        <ChevronDown size={16} aria-hidden="true" className="lp-saiba__seta" />
+      </button>
+      <div id={id} className="lp-saiba__painel" role="region" aria-hidden={!aberto}>
+        <div className="lp-saiba__conteudo">
+          {paragrafos.map((texto) => (
+            <p key={texto.slice(0, 24)}>{texto}</p>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -271,58 +302,117 @@ function AvisoTraducao({ t }) {
   );
 }
 
+/** Seletor de tema em três posições (sistema, claro, escuro), como nos rodapés de sites de produto. */
+function SeletorTemaRodape({ t }) {
+  const { preferencia, definirPreferencia } = useTema();
+  const r = t.rodape3.tema;
+  const opcoes = [
+    ["sistema", r.sistema, Monitor],
+    ["claro", r.claro, Sun],
+    ["escuro", r.escuro, Moon],
+  ];
+  return (
+    <div className="lp-tema-seg" role="radiogroup" aria-label={r.rotulo}>
+      {opcoes.map(([id, rotulo, Icone]) => (
+        <button
+          key={id}
+          type="button"
+          role="radio"
+          aria-checked={preferencia === id}
+          className="lp-tema-seg__opcao"
+          title={rotulo}
+          onClick={() => definirPreferencia(id)}
+        >
+          <Icone size={15} aria-hidden="true" />
+          <span className="sr-only">{rotulo}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Footer({ t, idioma, destino }) {
+  const r3 = t.rodape3;
+  const colunas = [
+    [
+      r3.produto,
+      [
+        ["solucao", t.nav.solucao],
+        ["para-quem", r3.paraQuem],
+        ["como-funciona", t.nav.como],
+        ["painel", t.nav.painel],
+        ["planos", t.nav.planos],
+        ["prontidao", t.prontidao.menu],
+      ],
+    ],
+    [
+      r3.confianca,
+      [
+        ["privacidade", r3.anonimato],
+        ["ia", r3.ia],
+        [null, t.rodape.privacidade],
+      ],
+    ],
+    [
+      r3.projeto,
+      [
+        ["sobre", t.rodape.sobre],
+        ["duvidas", r3.duvidas],
+        ["contato", t.rodape.contato],
+        ["/entrar", t.acoes.entrar],
+      ],
+    ],
+  ];
   return (
     <footer className="lp-footer">
-      <div className="lp-wrap lp-footer__grid">
+      <div className="lp-wrap lp-footer__grid lp-footer__grid--v3">
         <div className="lp-footer__brand">
           <Link to={IDIOMAS[idioma].inicio} className="lp-brand">
             <Logo />
             <span className="lp-brand__name">Psyra AI</span>
           </Link>
           <p>{t.rodape.descricao}</p>
+          <a className="lp-footer__email" href={`mailto:${EMAIL_CONTATO}`}>{EMAIL_CONTATO}</a>
           <p className="lp-footer__origem">{t.rodape.origem}</p>
         </div>
-        <div>
-          <h3>{t.rodape.navegacao}</h3>
-          <ul>
-            <li>
-              <LinkSecao idioma={idioma} secao="sobre">{t.rodape.sobre}</LinkSecao>
-            </li>
-            <li>
-              <LinkSecao idioma={idioma} secao="planos">{t.nav.planos}</LinkSecao>
-            </li>
-            <li>
-              <LinkSecao idioma={idioma} secao="prontidao">{t.prontidao.menu}</LinkSecao>
-            </li>
-            <li>
-              <LinkSecao idioma={idioma} secao="contato">{t.rodape.contato}</LinkSecao>
-            </li>
-            <li>
-              <Link to={IDIOMAS[idioma].privacidade}>{t.rodape.privacidade}</Link>
-            </li>
-            <li>
-              <Link to="/entrar">{t.acoes.entrar}</Link>
-            </li>
-          </ul>
+        {colunas.map(([titulo, links]) => (
+          <nav key={titulo} aria-label={titulo}>
+            <h3>{titulo}</h3>
+            <ul>
+              {links.map(([alvo, texto]) => (
+                <li key={texto}>
+                  {alvo === null ? (
+                    <Link to={IDIOMAS[idioma].privacidade}>{texto}</Link>
+                  ) : alvo.startsWith("/") ? (
+                    <Link to={alvo}>{texto}</Link>
+                  ) : (
+                    <LinkSecao idioma={idioma} secao={alvo}>{texto}</LinkSecao>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
+      </div>
+      <div className="lp-wrap lp-footer__base">
+        <p className="lp-footer__status">
+          <span className="lp-footer__ponto" aria-hidden="true" />
+          {r3.status}
+        </p>
+        <div className="lp-footer__controles">
+          <SeletorTemaRodape t={t} />
+          <SeletorIdioma atual={idioma} rotulo={t.idioma.rotulo} destino={destino} alinhar="fim" />
         </div>
-        <div>
-          <h3>{t.rodape.contato}</h3>
-          <a href={`mailto:${EMAIL_CONTATO}`}>{EMAIL_CONTATO}</a>
-          <div className="lp-footer__idioma">
-            <SeletorIdioma atual={idioma} rotulo={t.idioma.rotulo} destino={destino} alinhar="inicio" />
-          </div>
-          <p className="lp-footer__copy">
-            © {new Date().getFullYear()} Psyra AI. {t.rodape.direitos}
-          </p>
-        </div>
+        <p className="lp-footer__copy">
+          © {new Date().getFullYear()} Psyra AI. {t.rodape.direitos}
+        </p>
       </div>
     </footer>
   );
 }
 
 export default function Landing({ idioma = "pt" }) {
-  const t = TEXTOS[idioma] || TEXTOS.pt;
+  const t = { ...(TEXTOS[idioma] || TEXTOS.pt), ...(TEXTOS3[idioma] || TEXTOS3.pt) };
   const destino = (id) => IDIOMAS[id].inicio;
   useIdiomaDaPagina(idioma, t.meta.titulo, t.meta.descricao, destino);
   const [autoavaliacao, setAutoavaliacao] = useState(null);
@@ -334,10 +424,12 @@ export default function Landing({ idioma = "pt" }) {
       <AvisoTraducao t={t} />
       <main>
         <Hero t={t} idioma={idioma} />
+        <Numeros t={t} />
         <Problema t={t} />
         <Prontidao t={t} idioma={idioma} aoConcluir={setAutoavaliacao} />
         <Solucao t={t} idioma={idioma} />
-        <ComoFunciona t={t} />
+        <ParaQuem t={t} idioma={idioma} />
+        <ComoFunciona t={t} idioma={idioma} />
         <Modelo t={t} />
         <Painel t={t} idioma={idioma} />
         <Entregas t={t} />
@@ -365,6 +457,11 @@ function Hero({ t, idioma }) {
           <h1>
             <span className="lp-metric">{t.hero.numero}</span> {t.hero.titulo}
           </h1>
+          <p className="lp-hero__fonte">
+            <a href={t.heroFonte.url} target="_blank" rel="noopener noreferrer">
+              {t.heroFonte.texto}
+            </a>
+          </p>
           <p className="lp-lead">{t.hero.lead}</p>
           <div className="lp-hero__ctas">
             <a className="lp-btn lp-btn--primary lp-btn--lg" href="#contato">
@@ -442,6 +539,26 @@ function Problema({ t }) {
             </div>
           </Reveal>
         </div>
+        {p.justica && (
+          <Reveal delay={160}>
+            <div className="lp-justica" aria-labelledby="titulo-justica">
+              <h3 id="titulo-justica" className="lp-card__titulo-pequeno">{p.justica.titulo}</h3>
+              <ul className="lp-justica__lista">
+                {p.justica.casos.map((c) => (
+                  <li key={c.url} className="lp-card lp-justica__caso">
+                    <p className="lp-justica__tribunal">{c.tribunal}</p>
+                    <p className="lp-justica__valor">{c.valor}</p>
+                    <p>{c.texto}</p>
+                    <a className="lp-justica__fonte" href={c.url} target="_blank" rel="noopener noreferrer">
+                      {p.justica.fonteRotulo}: {c.fonte}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p className="lp-justica__nota">{p.justica.nota}</p>
+            </div>
+          </Reveal>
+        )}
         <Reveal delay={200}>
           <div className="lp-banner">
             <p>{p.banner}</p>
@@ -466,9 +583,10 @@ function Solucao({ t, idioma }) {
         <div className="lp-grid lp-grid--3">
           {s.cards.map((c, i) => (
             <Reveal key={c.t} delay={i * 120}>
-              <div className="lp-card">
+              <div className="lp-card lp-card--saiba">
                 <h3>{c.t}</h3>
                 <p>{c.d}</p>
+                <SaibaMais idioma={idioma} paragrafos={(EXPLICACOES[idioma] ?? EXPLICACOES.pt).solucao[i]} />
               </div>
             </Reveal>
           ))}
@@ -491,7 +609,7 @@ function Solucao({ t, idioma }) {
   );
 }
 
-function ComoFunciona({ t }) {
+function ComoFunciona({ t, idioma }) {
   const c = t.como;
   return (
     <section id="como-funciona" className="lp-section lp-section--night" aria-labelledby="titulo-como">
@@ -512,6 +630,7 @@ function ComoFunciona({ t }) {
                     </div>
                     <h3>{p.t}</h3>
                     <p>{p.d}</p>
+                    <SaibaMais idioma={idioma} paragrafos={(EXPLICACOES[idioma] ?? EXPLICACOES.pt).como[i]} />
                   </div>
                 </Reveal>
               </li>
@@ -739,6 +858,7 @@ function Confianca({ t, idioma }) {
         <Reveal>
           <Cabecalho id="titulo-confianca" rotulo={c.rotulo} titulo={c.titulo} intro={c.intro} />
         </Reveal>
+        <CaminhoResposta t={t} />
         <div className="lp-grid lp-grid--3">
           {c.itens.map((item, i) => {
             const Icone = ICONES_CONFIANCA[i];
@@ -754,7 +874,7 @@ function Confianca({ t, idioma }) {
           })}
         </div>
         <Reveal delay={150}>
-          <div className="lp-ia">
+          <div className="lp-ia" id="ia">
             <h3>{c.iaTitulo}</h3>
             <ul>
               {c.ia.map((linha) => (
@@ -1131,7 +1251,9 @@ function CtaFixo({ t, idioma }) {
       const contato = document.getElementById("contato");
       const r = contato ? contato.getBoundingClientRect() : null;
       const contatoNaTela = r ? r.top < window.innerHeight && r.bottom > 0 : false;
-      setVisivel(window.scrollY > window.innerHeight * 0.9 && !contatoNaTela);
+      const rodape = document.querySelector(".lp-footer");
+      const rodapeNaTela = rodape ? rodape.getBoundingClientRect().top < window.innerHeight : false;
+      setVisivel(window.scrollY > window.innerHeight * 0.9 && !contatoNaTela && !rodapeNaTela);
     };
     const aoRolar = () => {
       if (!quadro) quadro = window.requestAnimationFrame(medir);
@@ -1157,7 +1279,7 @@ function CtaFixo({ t, idioma }) {
 }
 
 export function Privacidade({ idioma = "pt" }) {
-  const t = TEXTOS[idioma] || TEXTOS.pt;
+  const t = { ...(TEXTOS[idioma] || TEXTOS.pt), ...(TEXTOS3[idioma] || TEXTOS3.pt) };
   const p = t.privacidade;
   const destino = (id) => IDIOMAS[id].privacidade;
   useIdiomaDaPagina(idioma, `${p.titulo} — Psyra AI`, p.intro, destino);
@@ -1192,5 +1314,165 @@ export function Privacidade({ idioma = "pt" }) {
       </main>
       <Footer t={t} idioma={idioma} destino={destino} />
     </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+ * Blocos da parte 4 da banca (engenharia reversa de sites de produto):
+ * faixa de números com fonte (Stripe), abas por perfil com tela real (Culture Amp,
+ * Vercel, Linear) e o caminho da resposta (diferencial: anonimato explicado na página).
+ * ------------------------------------------------------------------------- */
+
+function Numeros({ t }) {
+  const n = t.numeros;
+  return (
+    <section id="numeros" className="lp-section lp-section--night lp-numeros" aria-labelledby="titulo-numeros">
+      <div className="lp-wrap">
+        <Reveal>
+          <Cabecalho id="titulo-numeros" rotulo={n.rotulo} titulo={n.titulo} intro={n.intro} />
+        </Reveal>
+        <ul className="lp-numeros__lista">
+          {n.itens.map((item, i) => (
+            <li key={item.url} className="lp-numeros__item">
+              <Reveal delay={i * 90}>
+                <p className="lp-numeros__valor lp-metric">{item.valor}</p>
+                <p className="lp-numeros__texto">{item.texto}</p>
+                <p className="lp-numeros__acao">
+                  <ArrowRight size={14} aria-hidden="true" />
+                  <span>{item.acao}</span>
+                </p>
+                <a className="lp-numeros__fonte" href={item.url} target="_blank" rel="noopener noreferrer">
+                  {n.fonteRotulo}: {item.fonte}
+                  <ExternalLink size={12} aria-hidden="true" />
+                </a>
+              </Reveal>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function ParaQuem({ t, idioma }) {
+  const pq = t.paraQuem;
+  const ids = pq.perfis.map((p) => p.id);
+  const [aba, setAba] = useState(ids[0]);
+  const perfil = pq.perfis.find((p) => p.id === aba) ?? pq.perfis[0];
+
+  function teclado(evento) {
+    const mapa = { ArrowRight: 1, ArrowLeft: -1, Home: "inicio", End: "fim" };
+    if (!(evento.key in mapa)) return;
+    evento.preventDefault();
+    const passo = mapa[evento.key];
+    let i = ids.indexOf(aba);
+    if (passo === "inicio") i = 0;
+    else if (passo === "fim") i = ids.length - 1;
+    else i = (i + passo + ids.length) % ids.length;
+    setAba(ids[i]);
+    document.getElementById(`perfil-aba-${ids[i]}`)?.focus();
+  }
+
+  return (
+    <section id="para-quem" className="lp-section lp-section--deep lp-para-quem" aria-labelledby="titulo-para-quem">
+      <div className="lp-wrap">
+        <Reveal>
+          <Cabecalho id="titulo-para-quem" rotulo={pq.rotulo} titulo={pq.titulo} intro={pq.intro} />
+        </Reveal>
+        <Reveal delay={100}>
+          <div className="lp-abas lp-para-quem__abas" role="tablist" aria-label={pq.abasRotulo}>
+            {pq.perfis.map((p) => (
+              <button
+                key={p.id}
+                id={`perfil-aba-${p.id}`}
+                type="button"
+                role="tab"
+                className="lp-aba"
+                aria-selected={aba === p.id}
+                aria-controls="perfil-painel"
+                tabIndex={aba === p.id ? 0 : -1}
+                onClick={() => setAba(p.id)}
+                onKeyDown={teclado}
+              >
+                {p.aba}
+              </button>
+            ))}
+          </div>
+          <div
+            id="perfil-painel"
+            role="tabpanel"
+            aria-labelledby={`perfil-aba-${perfil.id}`}
+            className={`lp-para-quem__painel${perfil.celular ? " lp-para-quem__painel--celular" : ""}`}
+            key={perfil.id}
+          >
+            <div className="lp-para-quem__texto">
+              <h3>{perfil.titulo}</h3>
+              <ul>
+                {perfil.itens.map((linha) => (
+                  <li key={linha}>{linha}</li>
+                ))}
+              </ul>
+              <LinkSecao className="lp-link lp-para-quem__link" idioma={idioma} secao={perfil.secao}>
+                {perfil.link} <ArrowRight size={15} aria-hidden="true" />
+              </LinkSecao>
+            </div>
+            <figure className="lp-para-quem__tela">
+              <img src={perfil.imagem} alt={perfil.alt} loading="lazy" decoding="async" width={perfil.celular ? 390 : 1178} height={perfil.celular ? 844 : 900} />
+              <figcaption className="lp-selo">{pq.selo}</figcaption>
+            </figure>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+const ICONES_CAMINHO = [Smartphone, Eraser, UsersRound, EyeOff];
+
+function CaminhoResposta({ t }) {
+  const c = t.caminho;
+  const ex = c.exemplo;
+  return (
+    <Reveal delay={80}>
+      <div className="lp-caminho" aria-labelledby="titulo-caminho">
+        <div className="lp-caminho__topo">
+          <h3 id="titulo-caminho">{c.titulo}</h3>
+          <p>{c.intro}</p>
+        </div>
+        <ol className="lp-caminho__passos">
+          {c.passos.map((passo, i) => {
+            const Icone = ICONES_CAMINHO[i];
+            return (
+              <li key={passo.t} className="lp-caminho__passo">
+                <span className="lp-caminho__icone" aria-hidden="true">
+                  <Icone size={20} strokeWidth={1.8} />
+                </span>
+                <span className="lp-caminho__num lp-metric">{String(i + 1).padStart(2, "0")}</span>
+                <h4>{passo.t}</h4>
+                <p>{passo.d}</p>
+              </li>
+            );
+          })}
+        </ol>
+        <div className="lp-caminho__exemplo">
+          <div className="lp-caminho__exemplo-topo">
+            <p className="lp-eyebrow">{ex.rotulo}</p>
+            <span className="lp-selo">{t.ilustrativo}</span>
+          </div>
+          <div className="lp-caminho__grupo">
+            <span className="lp-caminho__grupo-nome">{ex.visivel.nome}</span>
+            <span className="lp-caminho__grupo-n lp-metric">{ex.visivel.n}</span>
+            <span className="lp-chip lp-chip--warn">{ex.visivel.nivel}</span>
+          </div>
+          <div className="lp-caminho__grupo lp-caminho__grupo--oculto">
+            <span className="lp-caminho__grupo-nome">{ex.oculto.nome}</span>
+            <span className="lp-caminho__grupo-n lp-metric">{ex.oculto.n}</span>
+            <span className="lp-caminho__trava">
+              <Lock size={13} aria-hidden="true" /> {ex.oculto.nivel}
+            </span>
+          </div>
+        </div>
+      </div>
+    </Reveal>
   );
 }

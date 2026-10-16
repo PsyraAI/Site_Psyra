@@ -9,18 +9,12 @@ import Painel from "./paginas/Painel";
 import Responder from "./paginas/Responder";
 import { aplicarTema } from "./lib/tema";
 
-// A landing e a privacidade (pt-BR, inglês e chinês) seguem a preferência de tema (botão no cabeçalho).
-// O questionário do colaborador e as telas de uso ficam no tema escuro da marca.
-const ROTAS_COM_TEMA = ["/", "/privacidade", "/en", "/en/privacy", "/zh", "/zh/privacy"];
-
+// Todas as telas seguem a preferência de tema (claro, escuro ou do sistema): landing,
+// privacidade, acesso, painel do RH e questionário do colaborador. Sprint: S10 | Risco: None
 function TemaPorRota() {
   const { pathname } = useLocation();
   useEffect(() => {
-    const rota = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-    const comTema = ROTAS_COM_TEMA.includes(rota);
-    aplicarTema(!comTema);
-    const publica = comTema || rota.startsWith("/responder");
-    if (!publica && !rota.startsWith("/entrar")) document.documentElement.lang = "pt-BR";
+    aplicarTema();
   }, [pathname]);
   return null;
 }

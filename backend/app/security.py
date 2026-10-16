@@ -87,3 +87,37 @@ def validar_token(token: str) -> dict[str, Any]:
     if payload.get("exp", 0) < int(time.time()):
         raise TokenInvalido("token expirado")
     return payload
+
+
+_SENHAS_COMUNS = {
+    "psyra12345", "1234567890", "senha12345", "password123", "qwerty1234",
+    "abc1234567", "0123456789", "senhasenha", "mudar12345", "admin12345",
+}
+
+
+def validar_politica_senha(senha: str, email: str = "", nome: str = "") -> list[str]:
+    """Regras de senha no espírito da NIST SP 800-63B: tamanho mínimo e lista de senhas óbvias,
+    sem exigir combinação de símbolos. Devolve a lista de problemas (vazia = senha aceita).
+
+    Sprint: S10 | Risco: R2
+    """
+    problemas = []
+    if len(senha) < 10:
+        problemas.append("use pelo menos 10 caracteres")
+    base = senha.lower()
+    local = email.split("@")[0].lower()
+    if local and len(local) >= 4 and local in base:
+        problemas.append("não use o seu e-mail na senha")
+    primeiro = (nome.split() or [""])[0].lower()
+    if primeiro and len(primeiro) >= 4 and primeiro in base:
+        problemas.append("não use o seu nome na senha")
+    if base in _SENHAS_COMUNS or len(set(base)) <= 2:
+        problemas.append("essa senha é muito óbvia")
+    return problemas
+
+
+def gerar_senha_temporaria() -> str:
+    """Senha temporária legível (troca obrigatória no primeiro acesso). Sprint: S10 | Risco: R2"""
+    alfabeto = "abcdefghjkmnpqrstuvwxyz23456789"
+    partes = ["".join(secrets.choice(alfabeto) for _ in range(4)) for _ in range(3)]
+    return "Psyra-" + "-".join(partes)

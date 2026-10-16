@@ -139,3 +139,21 @@ def test_api_professional_retorna_estimativa(cliente, sessao_gestor) -> None:
     assert "disclaimer" in corpo
     assert "setores" in corpo
     assert corpo["ghes_omitidos_mascarados"] >= 0
+
+
+def test_metodo_fiemg_bate_com_o_exemplo_do_slide() -> None:
+    """14 pessoas em risco alto: 14 × 25% × 14% × R$ 4.997,59 = R$ 2.448,82 por mês."""
+    from app.capital_risco import PRODUTIVIDADE_MENSAL, perda_mensal_fiemg
+
+    assert PRODUTIVIDADE_MENSAL == 4997.59
+    assert perda_mensal_fiemg(14, "alto") == 2448.82
+    # na média (20%), a perda é 2,8% da produtividade, o mesmo % do PIB potencial da FIEMG
+    assert round(perda_mensal_fiemg(1, "moderado") / PRODUTIVIDADE_MENSAL, 4) == 0.028
+
+
+def test_setor_compara_palavra_inteira() -> None:
+    """Administrativo, Marketing e Logística não recebem mais o ajuste de TI."""
+    base = salario_mensal_estimado("servicos", "media", "Geral")
+    for setor in ("Administrativo", "Marketing", "Logística"):
+        assert salario_mensal_estimado("servicos", "media", setor) == base
+    assert salario_mensal_estimado("servicos", "media", "TI") == round(base * 1.25, 2)

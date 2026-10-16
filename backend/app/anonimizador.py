@@ -12,10 +12,11 @@ from __future__ import annotations
 
 import logging
 import re
+import unicodedata
 
 logger = logging.getLogger(__name__)
 
-MOTOR_REGEX = "regex-ptbr-v1"
+MOTOR_REGEX = "regex-ptbr-v2"
 MOTOR_PRESIDIO = "presidio-v1"
 
 # Padrões de PII mais comuns em texto livre de colaborador brasileiro.
@@ -50,6 +51,77 @@ _PADROES: list[tuple[str, re.Pattern[str]]] = [
 ]
 
 
+# Prenomes mais comuns no Brasil (Censo IBGE 2010), sem acento e em minúsculas. Servem
+# para achar nome de terceiro em qualquer posição ("falei com o Carlos Souza").
+_PRENOMES = frozenset(
+    """
+    maria jose ana joao antonio francisco carlos paulo pedro lucas luiz marcos luis gabriel
+    rafael francisca daniel marcelo bruno eduardo felipe raimundo rodrigo manoel mateus andre
+    fernando fabio leonardo gustavo guilherme leandro tiago anderson ricardo marcio jorge
+    sebastiao alexandre roberto edson diego vitor sergio claudio matheus thiago geraldo adriano
+    luciano julio renato alex vinicius rogerio samuel ronaldo mario flavio douglas igor davi
+    manuel jeferson cicero victor miguel robson mauricio danilo henrique caio reginaldo joaquim
+    benedito gilberto marco alan nelson cristiano elias wilson valdir emerson luan david renan
+    severino fabricio mauro jonas gilmar jean fabiano wesley diogo adilson jair alessandro
+    everton osvaldo gilson willian joel silvio helio maicon reinaldo pablo artur vagner
+    valter celso arthur heitor bernardo enzo murilo otavio
+    antonia adriana juliana marcia fernanda patricia aline sandra camila amanda bruna jessica
+    leticia julia luciana vanessa mariana gabriela vera vitoria larissa claudia beatriz luana
+    rita sonia renata eliane josefa simone natalia cristiane carla debora rosangela jaqueline
+    rosa daniela aparecida marlene terezinha raimunda andreia fabiana lucia raquel ivone
+    tatiane thais regina sara cristina isabela rafaela priscila carolina rosana alessandra
+    roberta helena valeria michele joana paula viviane laura sabrina silvia monica tania
+    sueli vania lorena milena alice cecilia heloisa manuela livia sophia sofia valentina
+    lara yasmin isadora clara marina giovana lais bianca debora estela gisele joice karina
+    kelly luzia marta neide rose solange tereza
+    """.split()
+)
+_PALAVRA = r"[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõçà-ÿ]+"
+_SEQUENCIA = re.compile(rf"(?<![\wÀ-ÿ<])({_PALAVRA}(?:\s+(?:d[aeo]s?\s+)?{_PALAVRA}){{0,3}})")
+_LUGAR_ANTES = re.compile(r"(?:S[ãa]o|Sant[ao]|Rio|Porto|Belo|Campo|Vila)\s*$")
+# Começos que indicam lugar ou área da empresa, não pessoa ("São Paulo", "Recursos Humanos").
+_NAO_PESSOA = frozenset(
+    """
+    sao santa santo rio porto belo campo campos vila nova novo minas mato espirito
+    recursos departamento setor diretoria gerencia tecnologia comercial financeiro operacional
+    marketing logistica atendimento juridico vendas compras seguranca qualidade producao
+    engenharia administrativo administracao contabilidade suporte operacoes comite conselho
+    ministerio justica governo prefeitura receita caixa banco empresa grupo psyra
+    """.split()
+)
+
+
+def _sem_acento(palavra: str) -> str:
+    return unicodedata.normalize("NFKD", palavra).encode("ascii", "ignore").decode().lower()
+
+
+def _mascarar_nomes(texto: str) -> str:
+    """Troca por <PESSOA> o que parece nome de pessoa em qualquer posição.
+
+    É nome quando começa por um prenome comum ou quando são duas ou mais palavras
+    com inicial maiúscula no meio da frase. Lugares ("São Paulo") ficam. Prefere
+    errar para o lado de apagar: um falso positivo custa uma palavra, um falso
+    negativo expõe alguém.
+    """
+
+    def trocar(achado: re.Match[str]) -> str:
+        trecho = achado.group(1)
+        antes = texto[: achado.start(1)]
+        if _LUGAR_ANTES.search(antes):
+            return trecho
+        palavras = [p for p in trecho.split() if not re.fullmatch(r"d[aeo]s?", p)]
+        if _sem_acento(palavras[0]) in _NAO_PESSOA:
+            return trecho
+        inicio_de_frase = not antes.strip() or antes.rstrip()[-1] in ".!?\n:;\"“("
+        if _sem_acento(palavras[0]) in _PRENOMES:
+            return "<PESSOA>"
+        if len(palavras) >= 2 and not inicio_de_frase:
+            return "<PESSOA>"
+        return trecho
+
+    return _SEQUENCIA.sub(trocar, texto)
+
+
 class FalhaAnonimizacao(Exception):
     """Anonimização não pôde ser concluída — a resposta deve ser recusada."""
 
@@ -69,7 +141,7 @@ def _anonimizar_regex(texto: str) -> str:
     limpo = texto
     for substituicao, padrao in _PADROES:
         limpo = padrao.sub(substituicao, limpo)
-    return limpo
+    return _mascarar_nomes(limpo)
 
 
 def _anonimizar_presidio(texto: str) -> str:  # pragma: no cover - opcional

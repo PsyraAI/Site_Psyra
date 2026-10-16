@@ -8,6 +8,9 @@ import "./estilos/landing.css";
 import "./estilos/landing-s10.css";
 import "./estilos/landing-claro.css";
 import "./estilos/landing-fluidez.css";
+import "./estilos/landing-v3.css";
+import "./estilos/app-v2.css";
+import "./estilos/app-v3.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

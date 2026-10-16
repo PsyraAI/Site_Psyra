@@ -3,17 +3,23 @@
 
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Building2, Lock, Mail, Shield } from "lucide-react";
+import { ArrowLeft, ArrowRight, Building2, KeyRound, Lock, Mail, Shield, TimerReset } from "lucide-react";
 
 import { useAuth } from "../contexto/Auth";
-import { apiAdmin, sessaoAdmin } from "../lib/api";
+import { api, apiAdmin, sessao, sessaoAdmin } from "../lib/api";
 import MarcaLogo from "../componentes/MarcaLogo";
 import SeletorIdioma from "../componentes/SeletorIdioma";
-import { EMAIL_CONTATO, IDIOMAS, aplicarIdiomaNoDocumento, idiomaPreferido } from "../lib/idiomas";
+import AlternarTema from "../componentes/AlternarTema";
+import CampoSenha from "../componentes/CampoSenha";
+import Dialogo from "../componentes/Dialogo";
+import { useIdiomaApp } from "../lib/idiomaApp";
+import { TEXTOS_APP } from "../lib/textosApp";
+import { TEXTOS_CONTA } from "../lib/textosConta";
+import { EMAIL_CONTATO, IDIOMAS, aplicarIdiomaNoDocumento } from "../lib/idiomas";
 import { TEXTOS_ENTRADA } from "../lib/textosEntrada";
 
 export default function Entrada() {
-  const { usuario, entrar } = useAuth();
+  const { usuario, entrar, atualizarSessao, expirou } = useAuth();
   const navegar = useNavigate();
   const local = useLocation();
 
@@ -29,8 +35,24 @@ export default function Entrada() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
-  const [idioma, setIdioma] = useState(idiomaPreferido);
+  const [lembrar, setLembrar] = useState(false);
+  const [esqueciAberto, setEsqueciAberto] = useState(false);
+  const [senhaNova, setSenhaNova] = useState("");
+  const [senhaConfirma, setSenhaConfirma] = useState("");
+  const [pedirAtual, setPedirAtual] = useState(false);
+  const [idioma, setIdioma] = useIdiomaApp();
   const t = TEXTOS_ENTRADA[idioma];
+  const tc = TEXTOS_CONTA[idioma];
+
+  // sessão com senha temporária (recarregou a página no meio do primeiro acesso)
+  useEffect(() => {
+    const guardada = sessao.ler();
+    if (guardada?.trocar_senha && etapa !== "primeiro") {
+      setPerfil("empresa");
+      setPedirAtual(true);
+      setEtapa("primeiro");
+    }
+  }, [etapa]);
 
   useEffect(() => {
     aplicarIdiomaNoDocumento(idioma, t.titulo);
@@ -70,7 +92,30 @@ export default function Entrada() {
         navegar("/admin", { replace: true });
         return;
       }
-      await entrar(email.trim(), senha);
+      const dados = await entrar(email.trim(), senha, lembrar);
+      if (dados.trocar_senha) {
+        setEtapa("primeiro");
+        return;
+      }
+      navegar("/painel", { replace: true });
+    } catch (falha) {
+      setErro(falha.message);
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  async function aoCriarSenha(evento) {
+    evento.preventDefault();
+    setErro("");
+    if (senhaNova !== senhaConfirma) {
+      setErro(tc.entrada.naoConfere);
+      return;
+    }
+    setEnviando(true);
+    try {
+      const dados = await api.trocarSenha(senha, senhaNova);
+      atualizarSessao({ ...dados, trocar_senha: false });
       navegar("/painel", { replace: true });
     } catch (falha) {
       setErro(falha.message);
@@ -88,6 +133,7 @@ export default function Entrada() {
         <div className="entrada__grain" />
       </div>
       <div className="entrada__idioma">
+        <AlternarTema rotuloClaro={TEXTOS_APP[idioma].temaClaro} rotuloEscuro={TEXTOS_APP[idioma].temaEscuro} />
         <SeletorIdioma atual={idioma} rotulo={t.idioma} aoTrocar={setIdioma} />
       </div>
 
@@ -100,6 +146,12 @@ export default function Entrada() {
           <MarcaLogo className="marca__logo marca__logo--entrada" size={64} />
           <span className="marca__nome">Psyra AI</span>
         </div>
+
+        {expirou && etapa !== "primeiro" ? (
+          <p className="entrada__expirou" role="status">
+            <TimerReset size={15} aria-hidden="true" /> {tc.entrada.expirou}
+          </p>
+        ) : null}
 
         {etapa === "escolha" ? (
           <>
@@ -160,6 +212,44 @@ export default function Entrada() {
               <Mail size={15} aria-hidden="true" /> {t.solicitar}
             </a>
           </>
+        ) : etapa === "primeiro" ? (
+          <div className="entrada__form rise">
+            <div className="entrada__form-card">
+              <p className="entrada__form-perfil">
+                <KeyRound size={13} aria-hidden="true" /> {perfilAtual?.rotulo}
+              </p>
+              <h1>{tc.entrada.primeiroTitulo}</h1>
+              <p className="entrada__form-apoio">{tc.entrada.primeiroTexto}</p>
+              <form onSubmit={aoCriarSenha} noValidate>
+                {pedirAtual ? (
+                  <CampoSenha id="senha-temp" rotulo={tc.config.seguranca.atual} valor={senha} aoMudar={setSenha} textos={tc.senha} />
+                ) : null}
+                <CampoSenha
+                  id="senha-nova"
+                  rotulo={tc.entrada.nova}
+                  valor={senhaNova}
+                  aoMudar={setSenhaNova}
+                  textos={tc.senha}
+                  autoComplete="new-password"
+                  mostrarForca
+                />
+                <CampoSenha
+                  id="senha-confirma"
+                  rotulo={tc.entrada.confirmar}
+                  valor={senhaConfirma}
+                  aoMudar={setSenhaConfirma}
+                  textos={tc.senha}
+                  autoComplete="new-password"
+                />
+                <p className="erro" role="alert">
+                  {erro}
+                </p>
+                <button className="botao" type="submit" style={{ width: "100%" }} disabled={enviando || !senhaNova}>
+                  {enviando ? tc.entrada.salvando : tc.entrada.salvarEntrar} <ArrowRight size={17} aria-hidden="true" />
+                </button>
+              </form>
+            </div>
+          </div>
         ) : (
           <div className="entrada__form rise">
             <div className="entrada__form-card">
@@ -181,18 +271,18 @@ export default function Entrada() {
                     required
                   />
                 </div>
-                <div className="campo">
-                  <label htmlFor="senha">{t.senha}</label>
-                  <input
-                    id="senha"
-                    type="password"
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                    required
-                  />
-                </div>
+                <CampoSenha id="senha" rotulo={t.senha} valor={senha} aoMudar={setSenha} textos={tc.senha} />
+                {perfil !== "superadmin" ? (
+                  <div className="entrada__opcoes">
+                    <label className="entrada__lembrar">
+                      <input type="checkbox" checked={lembrar} onChange={(e) => setLembrar(e.target.checked)} />
+                      <span>{tc.entrada.lembrar}</span>
+                    </label>
+                    <button type="button" className="link-acao entrada__esqueci" onClick={() => setEsqueciAberto(true)}>
+                      {tc.entrada.esqueci}
+                    </button>
+                  </div>
+                ) : null}
                 <p className="erro" role="alert">
                   {erro}
                 </p>
@@ -244,9 +334,32 @@ export default function Entrada() {
           </div>
         )}
 
+        <Dialogo
+          aberto={esqueciAberto}
+          titulo={tc.entrada.esqueciTitulo}
+          aoFechar={() => setEsqueciAberto(false)}
+          rotuloFechar={tc.entrada.entendi}
+          acoes={
+            <>
+              <a className="botao botao--fantasma" href={`mailto:${EMAIL_CONTATO}?subject=${encodeURIComponent(tc.entrada.esqueciTitulo)}`}>
+                <Mail size={15} aria-hidden="true" /> {tc.entrada.falarEquipe}
+              </a>
+              <button className="botao" type="button" onClick={() => setEsqueciAberto(false)}>
+                {tc.entrada.entendi}
+              </button>
+            </>
+          }
+        >
+          <ol className="entrada__esqueci-passos">
+            {tc.entrada.esqueciTexto.map((linha) => (
+              <li key={linha}>{linha}</li>
+            ))}
+          </ol>
+        </Dialogo>
+
         {import.meta.env.DEV ? (
           <p className="credenciais rise" style={{ animationDelay: "0.48s" }}>
-            Ambiente local · empresa demo: gestor@demo.psyra.ai
+            Ambiente local · conta de teste: gestor@demo.psyra.ai
           </p>
         ) : null}
       </div>

@@ -1,4 +1,7 @@
-"""A porta de acesso bloqueia o site até a frase bater com o hash."""
+"""A frase de acesso do site foi retirada: a página abre direto.
+
+O login do RH (e-mail e senha) continua na API. O questionário anônimo também.
+"""
 
 from __future__ import annotations
 
@@ -12,43 +15,43 @@ SENHA = "senha-do-portao-teste"
 
 
 def test_desenvolvimento_segue_aberto(cliente: TestClient) -> None:
-    assert config.portao_ativo is False
     assert cliente.get("/health/live").status_code == 200
+    pagina = cliente.get("/", headers={"accept": "text/html"})
+    assert pagina.status_code != 401
+    assert "Acesso restrito" not in pagina.text
 
 
-def test_portao_bloqueia_libera_e_preserva_saude(
-    monkeypatch,
-) -> None:
+def test_site_abre_sem_frase_mesmo_com_hash_configurado(monkeypatch) -> None:
+    """Hash antigo no ambiente não devolve a tela de frase."""
     monkeypatch.setattr(config, "portao_hash", lambda: gerar_hash_senha(SENHA))
     with TestClient(app) as isolado:
-        bloqueado = isolado.get("/", headers={"accept": "text/html"})
-        assert bloqueado.status_code == 401
-        assert "Acesso restrito" in bloqueado.text
+        pagina = isolado.get("/", headers={"accept": "text/html"})
+        assert pagina.status_code != 401
+        assert "Acesso restrito" not in pagina.text
 
         assert isolado.get("/health/live").status_code == 200
-        api = isolado.post(
+        login = isolado.post(
             "/v1/auth/login",
             json={"email": "a@b.c", "senha": "qualquer"},
         )
-        assert api.status_code == 401
-        assert api.json()["detail"] == "acesso restrito"
+        assert login.status_code == 401
+        assert login.json()["detail"] != "acesso restrito"
 
-        webhook = isolado.post("/v1/integracoes/google-forms/coleta-x", json={})
-        assert webhook.json()["detail"] == "assinatura invalida"
 
-        ruim = isolado.post(
-            "/acesso",
-            data={"senha": "errada"},
-            headers={"accept": "text/html"},
-        )
-        assert ruim.status_code == 401
+def test_portao_deixa_o_colaborador_responder_sem_frase(monkeypatch) -> None:
+    """O link do questionário abre sem frase de acesso."""
+    monkeypatch.setattr(config, "portao_hash", lambda: gerar_hash_senha(SENHA))
+    with TestClient(app) as isolado:
+        formulario = isolado.get("/v1/coletas/nebula-nr1-2026/formulario")
+        assert formulario.status_code != 401
+        envio = isolado.post("/v1/coleta", json={})
+        assert envio.status_code != 401
+        pagina = isolado.get("/responder/nebula-nr1-2026", headers={"accept": "text/html"})
+        assert pagina.status_code != 401
+        assert "Acesso restrito" not in pagina.text
 
-        bom = isolado.post(
-            "/acesso",
-            data={"senha": SENHA},
-            follow_redirects=False,
-        )
-        assert bom.status_code == 303
-        liberado = isolado.get("/", headers={"accept": "text/html"})
-        assert liberado.status_code != 401
-        assert "Acesso restrito" not in liberado.text
+        inicio = isolado.post("/v1/coletas/nebula-nr1-2026/inicio", json={"etapa": "inicio"})
+        assert inicio.status_code != 401
+        painel = isolado.get("/painel", headers={"accept": "text/html"})
+        assert painel.status_code != 401
+        assert "Acesso restrito" not in painel.text

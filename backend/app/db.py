@@ -301,6 +301,46 @@ def _migrar_operacao_producao(conexao: Any) -> None:
     conexao.commit()
 
 
+def _migrar_banca_v2(conexao: Any) -> None:
+    """Qualidade das respostas, evasão e sessões (banca final). Idempotente. Sprint: S10 | Risco: R2"""
+    colunas = {
+        "usuario_empresa": {
+            "sessao_versao": "INTEGER NOT NULL DEFAULT 0",
+            "trocar_senha": "INTEGER NOT NULL DEFAULT 0",
+            "ultimo_acesso_em": "TIMESTAMPTZ" if _DRIVER == "postgres" else "TEXT",
+        },
+        "empresa": {"excluir_sinalizadas": "INTEGER NOT NULL DEFAULT 1"},
+        "resposta": {
+            "duracao_s": "INTEGER",
+            "tempos_partes_json": "TEXT",
+            "qualidade_json": "TEXT",
+            "sinalizada": "INTEGER NOT NULL DEFAULT 0",
+        },
+        "resultado_ghe": {"n_excluidas": "INTEGER NOT NULL DEFAULT 0"},
+    }
+    for tabela, novas in colunas.items():
+        if _DRIVER == "postgres":
+            for nome, tipo in novas.items():
+                conexao.execute(f"ALTER TABLE {tabela} ADD COLUMN IF NOT EXISTS {nome} {tipo}")
+        else:
+            existentes = {
+                linha["name"] for linha in conexao.execute(f"PRAGMA table_info({tabela})").fetchall()
+            }
+            for nome, tipo in novas.items():
+                if nome not in existentes:
+                    conexao.execute(f"ALTER TABLE {tabela} ADD COLUMN {nome} {tipo}")
+    conexao.execute(
+        "CREATE TABLE IF NOT EXISTS coleta_inicio ("
+        " id TEXT PRIMARY KEY,"
+        " coleta_id TEXT NOT NULL REFERENCES coleta(id) ON DELETE CASCADE,"
+        " ghe_id TEXT REFERENCES ghe(id) ON DELETE CASCADE,"
+        " etapa TEXT NOT NULL CHECK (etapa IN ('inicio', 'grupo')),"
+        " dia TEXT NOT NULL)"
+    )
+    conexao.execute("CREATE INDEX IF NOT EXISTS idx_inicio_coleta ON coleta_inicio(coleta_id)")
+    conexao.commit()
+
+
 def _recriar_view_painel(conexao: Any) -> None:
     """Mantém o limiar SQL sincronizado com PSYRA_N_MINIMO."""
     n = int(config.N_MINIMO_GHE)
@@ -321,6 +361,7 @@ def _recriar_view_painel(conexao: Any) -> None:
             CASE WHEN r.n_respostas >= {n} THEN r.divergencia END AS divergencia,
             CASE WHEN r.n_respostas >= {n} THEN r.nivel_risco END AS nivel_risco,
             CASE WHEN r.n_respostas >= {n} THEN r.fatores_json END AS fatores_json,
+            CASE WHEN r.n_respostas >= {n} THEN r.n_excluidas END AS n_excluidas,
             CASE WHEN r.n_respostas >= {n} THEN 0 ELSE 1 END AS mascarado,
             r.motor_versao AS motor_versao
         FROM resultado_ghe r
@@ -342,6 +383,7 @@ def criar_schema(conexao: Any) -> None:
             conexao.commit()
         _migrar_operacao_producao(conexao)
         _migrar_integracao_forms(conexao)
+        _migrar_banca_v2(conexao)
         _recriar_view_painel(conexao)
         logger.info("schema aplicado (%s)", _DRIVER)
     except Exception as erro:

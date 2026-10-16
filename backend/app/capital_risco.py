@@ -1,22 +1,39 @@
-"""Estimativa ilustrativa de capital em risco por setor.
+"""Estimativa de capital em risco por setor, pelo método da FIEMG. Sprint: S10 | Risco: R1.
 
-Não é laudo financeiro nem modelo treinado. Usado apenas em planos
-professional/enterprise para apoiar conversa gerencial.
+Perda mensal do grupo = pessoas × parcela afetada pelo nível de risco × 14% de
+produtividade perdida × R$ 4.997,59 de produtividade mensal por ocupado.
+Fonte: FIEMG, "Os Custos Econômicos dos Transtornos Mentais" (dados de 2019):
+20% dos ocupados com algum problema de saúde mental (RSPH), 51 dias de vida
+saudável perdidos por ano (DALY ÷ prevalência = 0,14, GBD 2019) e produtividade
+de R$ 59.971,10 por ocupado ao ano (PIB ÷ ocupações). O ajuste da parcela pelo
+nível do grupo usa os multiplicadores de cenário da própria FIEMG (0,75 · 1 ·
+1,25) e é adaptação da Psyra. Não é laudo financeiro nem modelo treinado.
 """
 
 from __future__ import annotations
 
+import re
+import unicodedata
 from collections import defaultdict
 from typing import Any
 
-VERSAO_ESTIMATIVA = "capital-ilustrativo-v1"
+VERSAO_ESTIMATIVA = "capital-fiemg-v2"
+PRODUTIVIDADE_MENSAL = round(59971.10 / 12, 2)  # R$ 4.997,59 por ocupado (FIEMG, 2019)
+PERDA_PRODUTIVIDADE = 0.14  # 51 dias de vida saudável por ano (FIEMG, GBD 2019)
+# 20% afetados (RSPH via FIEMG) × multiplicadores de cenário 0,75 / 1 / 1,25
+_PARCELA_AFETADA: dict[str, float] = {"baixo": 0.15, "moderado": 0.20, "alto": 0.25, "critico": 0.25}
+METODO = (
+    "Método FIEMG: pessoas × parcela afetada (15%, 20% ou 25% pelo nível) × 14% "
+    "de produtividade perdida × R$ 4.997,59 de produtividade mensal (dados de 2019)"
+)
 
 PLANOS_COM_CAPITAL = frozenset({"professional", "enterprise"})
 
 DISCLAIMER = (
-    "Estimativa ilustrativa com tabelas internas da Psyra. Não constitui laudo "
-    "financeiro, contábil ou pericial. Não substitui análise de folha, PGR ou "
-    "parecer CRP. Use apenas como ordem de grandeza para decisão gerencial."
+    "Ordem de grandeza pelo método da FIEMG (Os Custos Econômicos dos Transtornos "
+    "Mentais, dados de 2019, sem correção pela inflação). Não constitui laudo "
+    "financeiro, contábil ou pericial e não substitui o PGR nem o parecer da "
+    "psicóloga com CRP."
 )
 
 # Salário-base mensal (BRL) por atuação econômica.
@@ -60,6 +77,16 @@ _FATOR_RISCO: dict[str, float] = {
 }
 
 
+def _sem_acento(texto: str) -> str:
+    return unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode()
+
+
+def perda_mensal_fiemg(pessoas: int, nivel: str) -> float:
+    """Perda mensal estimada de um grupo (R$). Sprint: S10 | Risco: R1"""
+    parcela = _PARCELA_AFETADA.get(nivel, _PARCELA_AFETADA["moderado"])
+    return round(pessoas * parcela * PERDA_PRODUTIVIDADE * PRODUTIVIDADE_MENSAL, 2)
+
+
 def plano_permite_capital(plano: str | None) -> bool:
     return (plano or "").strip().lower() in PLANOS_COM_CAPITAL
 
@@ -76,10 +103,12 @@ def salario_mensal_estimado(atuacao: str, porte: str, setor: str | None) -> floa
     mult_porte = _MULT_PORTE.get(
         _normalizar_chave(porte, "media"), _MULT_PORTE["media"]
     )
-    setor_chave = _normalizar_chave(setor, "geral")
+    # Compara palavras inteiras: antes, "ti" casava dentro de "Administrativo",
+    # "Marketing" e "Logística" e dava o ajuste de TI por engano.
+    palavras = set(re.findall(r"[a-z]+", _sem_acento(_normalizar_chave(setor, "geral"))))
     mult_setor = 1.0
     for chave, fator in _MULT_SETOR.items():
-        if chave in setor_chave:
+        if chave in palavras:
             mult_setor = fator
             break
     return round(base * mult_porte * mult_setor, 2)
@@ -121,9 +150,8 @@ def calcular_capital_risco(
             nivel = "moderado"
         setor = (item.get("setor") or "").strip() or "Geral"
         afetados = afetados_estimados(item.get("efetivo"), item.get("n_respostas", 0))
-        salario = salario_mensal_estimado(atuacao, porte, setor)
-        fator = _FATOR_RISCO[nivel]
-        perda_mensal = round(afetados * salario * fator, 2)
+        fator = round(_PARCELA_AFETADA[nivel] * PERDA_PRODUTIVIDADE, 4)
+        perda_mensal = perda_mensal_fiemg(afetados, nivel)
         perda_anual = round(perda_mensal * 12, 2)
         detalhe = {
             "ghe_codigo": item.get("codigo"),
@@ -133,7 +161,8 @@ def calcular_capital_risco(
             "efetivo": int(item.get("efetivo") or 0),
             "afetados": afetados,
             "nivel_risco": nivel,
-            "salario_mensal_ref": salario,
+            "produtividade_mensal_ref": PRODUTIVIDADE_MENSAL,
+            "parcela_afetada": _PARCELA_AFETADA[nivel],
             "fator_risco": fator,
             "perda_mensal": perda_mensal,
             "perda_anual": perda_anual,
@@ -154,6 +183,7 @@ def calcular_capital_risco(
 
     return {
         "versao_estimativa": VERSAO_ESTIMATIVA,
+        "metodo": METODO,
         "disclaimer": DISCLAIMER,
         "porte": _normalizar_chave(porte, "media"),
         "atuacao": _normalizar_chave(atuacao, "servicos"),

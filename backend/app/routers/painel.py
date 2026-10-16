@@ -24,6 +24,8 @@ from ..db import buscar_todos, buscar_um, executar
 from ..deps import Conexao, Usuario, exigir_empresa
 from ..instrumento import carregar_instrumento
 from ..schemas import CapitalRiscoSaida, PainelSaida
+from ..qualidade import SEG_POR_ITEM_MIN, ritmo_por_parte
+from ..qualidade import VERSAO as VERSAO_QUALIDADE
 from ..scoring import agregar_ghe, mascarar
 
 logger = logging.getLogger(__name__)
@@ -44,11 +46,22 @@ _ACOES_POR_BLOCO: dict[str, str] = {
 }
 
 
-def _recalcular(conexao: Any, coleta_id: str, instrumento: str) -> None:
-    """Recalcula e persiste `resultado_ghe` para todos os GHEs da coleta."""
+def _excluir_sinalizadas(conexao: Any, empresa_id: str) -> bool:
+    """Política da empresa (Configurações): tirar do cálculo as respostas sinalizadas."""
+    linha = buscar_um(conexao, "SELECT excluir_sinalizadas FROM empresa WHERE id = ?", (empresa_id,))
+    return bool(int((linha or {}).get("excluir_sinalizadas", 1) or 0))
+
+
+def _recalcular(conexao: Any, coleta_id: str, instrumento: str, excluir: bool = True) -> None:
+    """Recalcula e persiste `resultado_ghe` para todos os GHEs da coleta.
+
+    Respostas sinalizadas pela verificação de qualidade saem do índice do grupo quando a empresa
+    escolhe isso E o grupo continua com n ≥ N_MINIMO válidas; senão, entram todas (o grupo nunca
+    é calculado com menos de 5 pessoas). Sprint: S10 | Risco: R1/R2
+    """
     respostas = buscar_todos(
         conexao,
-        "SELECT ghe_id, likert_json, texto_anonimizado FROM resposta WHERE coleta_id = ?",
+        "SELECT ghe_id, likert_json, texto_anonimizado, sinalizada FROM resposta WHERE coleta_id = ?",
         (coleta_id,),
     )
     por_ghe: dict[str, list[dict[str, Any]]] = {}
@@ -57,22 +70,29 @@ def _recalcular(conexao: Any, coleta_id: str, instrumento: str) -> None:
             {
                 "likert": json.loads(linha["likert_json"]),
                 "texto": linha["texto_anonimizado"],
+                "sinalizada": bool(int(linha.get("sinalizada") or 0)),
             }
         )
 
     for ghe_id, itens in por_ghe.items():
+        validas = [item for item in itens if not item["sinalizada"]]
+        usar = itens
+        if excluir and len(validas) < len(itens) and len(validas) >= config.N_MINIMO_GHE:
+            usar = validas
         try:
-            resultado = agregar_ghe(itens, instrumento)
+            resultado = agregar_ghe(usar, instrumento)
         except ValueError as erro:
             logger.error("GHE %s sem resposta valida: %s", ghe_id, erro)
             continue
+        resultado["n_respostas"] = len(itens)
+        n_excluidas = len(itens) - len(usar)
         executar(
             conexao,
             "INSERT INTO resultado_ghe (id, coleta_id, ghe_id, n_respostas, "
             "indice_likert, indice_texto, divergencia, nivel_risco, fatores_json, "
-            "motor_versao, calculado_em) VALUES (?,?,?,?,?,?,?,?,?,?, datetime('now')) "
+            "motor_versao, n_excluidas, calculado_em) VALUES (?,?,?,?,?,?,?,?,?,?,?, datetime('now')) "
             "ON CONFLICT(coleta_id, ghe_id) DO UPDATE SET "
-            "n_respostas=excluded.n_respostas,"
+            "n_respostas=excluded.n_respostas, n_excluidas=excluded.n_excluidas,"
             " indice_likert=excluded.indice_likert, indice_texto=excluded.indice_texto,"
             " divergencia=excluded.divergencia, nivel_risco=excluded.nivel_risco,"
             " fatores_json=excluded.fatores_json, calculado_em=datetime('now')",
@@ -87,6 +107,7 @@ def _recalcular(conexao: Any, coleta_id: str, instrumento: str) -> None:
                 resultado["nivel_risco"],
                 json.dumps(resultado["fatores"], ensure_ascii=False),
                 resultado["motor_versao"],
+                n_excluidas,
             ),
         )
 
@@ -123,7 +144,7 @@ def obter_painel(
     if not coleta:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "coleta nao encontrada")
 
-    _recalcular(conexao, coleta_id, coleta["instrumento"])
+    _recalcular(conexao, coleta_id, coleta["instrumento"], _excluir_sinalizadas(conexao, empresa_id))
     linhas = buscar_todos(
         conexao,
         "SELECT * FROM vw_painel_ghe WHERE coleta_id = ? AND empresa_id = ? "
@@ -158,6 +179,7 @@ def obter_painel(
             "fatores": fatores,
             "mascarado": False,
             "motor_versao": linha["motor_versao"],
+            "n_excluidas": int(linha.get("n_excluidas") or 0),
         }
         ghes.append(item)
         visiveis.append(item)
@@ -217,6 +239,7 @@ def obter_painel(
             "ghes_avaliados": len(ghes),
             "ghes_visiveis": len(visiveis),
             "ghes_mascarados": len(ghes) - len(visiveis),
+            "respostas_fora_do_calculo": sum(item.get("n_excluidas", 0) for item in visiveis),
             "indice_geral": indice_geral,
             "distribuicao_risco": distribuicao,
         },
@@ -285,7 +308,7 @@ def obter_capital_risco(
     if not coleta:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "coleta nao encontrada")
 
-    _recalcular(conexao, coleta_id, coleta["instrumento"])
+    _recalcular(conexao, coleta_id, coleta["instrumento"], _excluir_sinalizadas(conexao, empresa_id))
     linhas = buscar_todos(
         conexao,
         "SELECT g.codigo AS codigo, g.nome AS nome, g.setor AS setor, "
@@ -324,3 +347,120 @@ def obter_capital_risco(
         empresa_id,
     )
     return CapitalRiscoSaida(plano=plano, **resultado)
+
+
+# ---------------------------------------------------------------- qualidade da coleta
+REFERENCIAS_QUALIDADE = [
+    "Meade e Craig (2012), Psychological Methods: 10% a 12% de respostas descuidadas numa amostra de estudantes.",
+    "Huang et al. (2012), Journal of Business and Psychology: menos de 2 s por item indica pressa.",
+    "Bowling et al. (2023), Organizational Research Methods: tempo por página com a regra dos 2 s por item.",
+    "Galesic e Bošnjak (2009), Public Opinion Quarterly: questionário longo, menos gente termina e as respostas do fim ficam mais rápidas e uniformes.",
+    "Baruch e Holtom (2008), Human Relations: taxa média de resposta de 52,7% em pesquisas com pessoas nas organizações.",
+]
+
+
+@router.get("/{empresa_id}/coletas/{coleta_id}/qualidade")
+def obter_qualidade(empresa_id: str, coleta_id: str, usuario: Usuario, conexao: Conexao) -> dict[str, Any]:
+    """Participação, evasão, pressa e atenção da coleta — sempre agregado (n ≥ 5).
+
+    Sprint: S10 | Risco: R2 — nenhum dado de resposta individual sai daqui; contagens de
+    respostas sinalizadas só aparecem em grupos com 5+ respostas.
+    """
+    exigir_empresa(usuario, empresa_id)
+    coleta = buscar_um(
+        conexao, "SELECT id, instrumento FROM coleta WHERE id = ? AND empresa_id = ?", (coleta_id, empresa_id)
+    )
+    if not coleta:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "coleta nao encontrada")
+    n_min = int(config.N_MINIMO_GHE)
+    excluir = _excluir_sinalizadas(conexao, empresa_id)
+    ghes = buscar_todos(
+        conexao, "SELECT id, codigo, nome, setor, efetivo FROM ghe WHERE empresa_id = ? ORDER BY codigo", (empresa_id,)
+    )
+    respostas = buscar_todos(
+        conexao,
+        "SELECT ghe_id, sinalizada, qualidade_json, duracao_s, tempos_partes_json, origem_externa "
+        "FROM resposta WHERE coleta_id = ?",
+        (coleta_id,),
+    )
+    inicios = buscar_todos(
+        conexao,
+        "SELECT ghe_id, etapa, COUNT(*) AS n FROM coleta_inicio WHERE coleta_id = ? GROUP BY ghe_id, etapa",
+        (coleta_id,),
+    )
+    comecaram_grupo = {linha["ghe_id"]: int(linha["n"]) for linha in inicios if linha["etapa"] == "grupo"}
+    abriram = sum(int(linha["n"]) for linha in inicios if linha["etapa"] == "inicio")
+
+    por_ghe: dict[str, list[dict[str, Any]]] = {}
+    for linha in respostas:
+        por_ghe.setdefault(linha["ghe_id"], []).append(linha)
+
+    def motivos(lista: list[dict[str, Any]]) -> dict[str, int]:
+        cont = {"rapida": 0, "linha_reta": 0, "incoerente": 0}
+        for linha in lista:
+            for m in json.loads(linha.get("qualidade_json") or "{}").get("motivos", []):
+                if m in cont:
+                    cont[m] += 1
+        return cont
+
+    grupos = []
+    for g in ghes:
+        lista = por_ghe.get(g["id"], [])
+        n = len(lista)
+        efetivo = int(g["efetivo"] or 0)
+        comecou = comecaram_grupo.get(g["id"])
+        do_site = sum(1 for linha in lista if not linha.get("origem_externa"))
+        mascarado = n < n_min
+        sinal = sum(1 for linha in lista if int(linha.get("sinalizada") or 0))
+        validas = n - sinal
+        excluidas = sinal if (excluir and sinal and validas >= n_min) else 0
+        grupos.append({
+            "codigo": g["codigo"],
+            "nome": g["nome"],
+            "setor": g["setor"],
+            "efetivo": efetivo,
+            "comecaram": comecou,
+            "respostas": n,
+            "participacao": round(n / efetivo, 3) if efetivo else None,
+            "conclusao": round(do_site / comecou, 3) if comecou and comecou >= do_site else None,
+            "mascarado": mascarado,
+            "sinalizadas": None if mascarado else sinal,
+            "motivos": None if mascarado else motivos(lista),
+            "fora_do_calculo": None if mascarado else excluidas,
+            "faltam_para_5": max(0, n_min - n),
+        })
+
+    total = len(respostas)
+    do_site_total = sum(1 for linha in respostas if not linha.get("origem_externa"))
+    efetivo_total = sum(item["efetivo"] for item in grupos)
+    com_tempo = [linha for linha in respostas if linha.get("tempos_partes_json")]
+    duracoes = sorted(int(linha["duracao_s"]) for linha in com_tempo if linha.get("duracao_s") is not None)
+    ritmo = (
+        ritmo_por_parte([json.loads(linha["tempos_partes_json"]) for linha in com_tempo], coleta["instrumento"])
+        if len(com_tempo) >= n_min
+        else []
+    )
+    visivel = total >= n_min
+    sinal_total = sum(1 for linha in respostas if int(linha.get("sinalizada") or 0))
+    resumo = {
+        "respostas": total,
+        "efetivo": efetivo_total,
+        "participacao": round(total / efetivo_total, 3) if efetivo_total else None,
+        "abriram": abriram or None,
+        "conclusao": round(do_site_total / abriram, 3) if abriram and abriram >= do_site_total else None,
+        "sinalizadas": sinal_total if visivel else None,
+        "motivos": motivos(respostas) if visivel else None,
+        "fora_do_calculo": sum(item["fora_do_calculo"] or 0 for item in grupos),
+        "tempo_mediano_min": round(duracoes[len(duracoes) // 2] / 60, 1) if len(duracoes) >= n_min else None,
+        "excluir_sinalizadas": excluir,
+        "n_minimo": n_min,
+    }
+    registrar(conexao, usuario["id"], "consultar_qualidade", f"coleta:{coleta_id}", empresa_id)
+    return {
+        "resumo": resumo,
+        "grupos": grupos,
+        "ritmo_por_parte": ritmo,
+        "seg_por_item_min": SEG_POR_ITEM_MIN,
+        "versao": VERSAO_QUALIDADE,
+        "referencias": REFERENCIAS_QUALIDADE,
+    }

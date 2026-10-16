@@ -4,24 +4,43 @@
 const CHAVE_SESSAO = "psyra.sessao";
 const CHAVE_ADMIN = "psyra.admin.sessao";
 
+// Sessão: por padrão some ao fechar a aba (sessionStorage). Com "manter conectado",
+// fica neste aparelho (localStorage) pelo prazo do token (7 dias). Só o token e o perfil;
+// nenhum dado de resposta fica no navegador.
 function criarSessao(chave) {
+  const ler = (armazenamento) => {
+    try {
+      const bruto = armazenamento.getItem(chave);
+      return bruto ? JSON.parse(bruto) : null;
+    } catch {
+      return null;
+    }
+  };
   return {
     ler() {
-      try {
-        const bruto = sessionStorage.getItem(chave);
-        return bruto ? JSON.parse(bruto) : null;
-      } catch {
-        return null;
-      }
+      return ler(sessionStorage) ?? ler(localStorage);
     },
     gravar(dados) {
-      sessionStorage.setItem(chave, JSON.stringify(dados));
+      try {
+        const persistente = Boolean(dados?.lembrar);
+        (persistente ? localStorage : sessionStorage).setItem(chave, JSON.stringify(dados));
+        (persistente ? sessionStorage : localStorage).removeItem(chave);
+      } catch {
+        /* navegador sem armazenamento: a sessão vive só na memória da página */
+      }
     },
     limpar() {
-      sessionStorage.removeItem(chave);
+      try {
+        sessionStorage.removeItem(chave);
+        localStorage.removeItem(chave);
+      } catch {
+        /* nada a limpar */
+      }
     },
   };
 }
+
+export const EVENTO_SESSAO_EXPIRADA = "psyra:sessao-expirada";
 
 export const sessao = criarSessao(CHAVE_SESSAO);
 export const sessaoAdmin = criarSessao(CHAVE_ADMIN);
@@ -64,9 +83,11 @@ async function requisitarComSessao(caminho, opcoes = {}, armazenamento = sessao)
 
   if (resposta.status === 401 && atual?.access_token) {
     armazenamento.limpar();
+    window.dispatchEvent(new CustomEvent(EVENTO_SESSAO_EXPIRADA));
     throw new ErroApi("Sessão expirada. Entre novamente.", 401);
   }
 
+  if (resposta.status === 204) return null;
   const corpo = await resposta.json().catch(() => ({}));
   if (!resposta.ok) {
     const detalhe = corpo.detail ?? corpo;
@@ -80,13 +101,37 @@ const requisitar = (caminho, opcoes = {}) =>
 
 export const api = {
   saude: () => requisitar("/health"),
-  entrar: (email, senha) =>
+  entrar: (email, senha, lembrar = false) =>
     requisitar("/v1/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, senha }),
+      body: JSON.stringify({ email, senha, lembrar }),
     }),
   perfil: () => requisitar("/v1/auth/me"),
+  sairDeTodos: () => requisitar("/v1/auth/sair-de-todos", { method: "POST" }),
+  trocarSenha: (senhaAtual, senhaNova) =>
+    requisitar("/v1/conta/senha", {
+      method: "PUT",
+      body: JSON.stringify({ senha_atual: senhaAtual, senha_nova: senhaNova }),
+    }),
+  atualizarConta: (dados) => requisitar("/v1/conta", { method: "PATCH", body: JSON.stringify(dados) }),
+  configuracoes: (empresaId) => requisitar(`/v1/empresas/${empresaId}/configuracoes`),
+  salvarConfiguracoes: (empresaId, dados) =>
+    requisitar(`/v1/empresas/${empresaId}/configuracoes`, { method: "PATCH", body: JSON.stringify(dados) }),
+  equipe: (empresaId) => requisitar(`/v1/empresas/${empresaId}/usuarios`),
+  convidar: (empresaId, dados) =>
+    requisitar(`/v1/empresas/${empresaId}/usuarios`, { method: "POST", body: JSON.stringify(dados) }),
+  acessoUsuario: (empresaId, usuarioId, ativo) =>
+    requisitar(`/v1/empresas/${empresaId}/usuarios/${usuarioId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ ativo }),
+    }),
+  senhaTemporaria: (empresaId, usuarioId) =>
+    requisitar(`/v1/empresas/${empresaId}/usuarios/${usuarioId}/senha-temporaria`, { method: "POST" }),
+  qualidade: (empresaId, coletaId) => requisitar(`/v1/empresas/${empresaId}/coletas/${coletaId}/qualidade`),
   listarColetas: (empresaId) => requisitar(`/v1/empresas/${empresaId}/coletas`),
+  listarGhes: (empresaId) => requisitar(`/v1/empresas/${empresaId}/ghes`),
+  encerrarColeta: (empresaId, coletaId) =>
+    requisitar(`/v1/empresas/${empresaId}/coletas/${coletaId}/encerrar`, { method: "POST" }),
   criarColeta: (empresaId, dados) =>
     requisitar(`/v1/empresas/${empresaId}/coletas`, {
       method: "POST",
@@ -108,6 +153,11 @@ export const api = {
   formularioPublico: (token) => requisitar(`/v1/coletas/${token}/formulario`),
   enviarResposta: (payload) =>
     requisitar("/v1/coleta", { method: "POST", body: JSON.stringify(payload) }),
+  registrarInicio: (token, etapa, gheCodigo = null) =>
+    requisitar(`/v1/coletas/${token}/inicio`, {
+      method: "POST",
+      body: JSON.stringify({ etapa, ghe_codigo: gheCodigo }),
+    }).catch(() => null),
 };
 
 const adminRequest = (caminho, opcoes = {}) =>

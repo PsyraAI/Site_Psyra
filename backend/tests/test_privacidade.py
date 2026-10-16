@@ -71,7 +71,7 @@ def test_painel_mascara_ghe_com_n_menor_que_cinco(
     coletas = cliente.get(
         f"/v1/empresas/{empresa}/coletas", headers=sessao_gestor["headers"]
     ).json()
-    coleta_demo = next(c for c in coletas if c["token_publico"] == "demo-nr1-2026")
+    coleta_demo = next(c for c in coletas if c["token_publico"] == "nebula-nr1-2026")
     painel = cliente.get(
         f"/v1/empresas/{empresa}/coletas/{coleta_demo['id']}/painel",
         headers=sessao_gestor["headers"],
@@ -112,3 +112,23 @@ def test_coleta_real_bloqueada_sem_cep(cliente: TestClient, sessao_gestor: dict)
     )
     assert resposta.status_code == 403
     assert "cep" in resposta.json()["detail"].lower()
+
+
+def test_anonimizador_remove_nome_de_terceiro_em_qualquer_posicao() -> None:
+    """Nome sem gatilho ("falei com o Carlos Souza") também cai no fallback."""
+    limpo, _ = anonimizar("Desde que a meta dobrou eu nao durmo. Falei com o Carlos Souza e nada mudou.")
+    assert limpo is not None
+    assert "Carlos" not in limpo and "Souza" not in limpo
+    assert "meta dobrou" in limpo and "nao durmo" in limpo
+
+
+def test_anonimizador_remove_prenome_sozinho_e_preserva_lugar() -> None:
+    limpo, _ = anonimizar("A Juliana me cobra todo dia. Moro em São Paulo e pego dois ônibus.")
+    assert limpo is not None
+    assert "Juliana" not in limpo
+    assert "São Paulo" in limpo
+
+
+def test_anonimizador_nao_apaga_inicio_de_frase_comum() -> None:
+    limpo, _ = anonimizar("Sinto cansaço. Trabalho demais e Não consigo descansar.")
+    assert limpo == "Sinto cansaço. Trabalho demais e Não consigo descansar."

@@ -94,7 +94,7 @@
   margin-top: 8px;
 }
 
-.grupo--cartao {
+.grupo--cartao { align-content: start;
   padding: 16px 18px;
   border: 1px solid var(--linha);
   background: rgba(18, 20, 42, 0.35);

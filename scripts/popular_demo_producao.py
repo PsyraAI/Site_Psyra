@@ -17,7 +17,7 @@ from app.instrumento import carregar_instrumento  # noqa: E402
 
 SEMENTE = 42
 EMAIL_GESTOR = "gestor@demo.psyra.ai"
-TOKEN = "demo-nr1-2026"
+TOKEN = "nebula-nr1-2026"
 
 GHES_DEMO = [
     ("GHE-01", "Atendimento ao cliente", "Operações", 24, "alto", "alinhado"),
@@ -54,13 +54,18 @@ FAIXAS = {"alto": (4, 5), "moderado": (2, 4), "baixo": (1, 3)}
 
 
 def _likert(perfil: str, aleatorio: random.Random) -> dict[str, int]:
-    instrumento = carregar_instrumento("nr1_v2_demo")
+    instrumento = carregar_instrumento("psyra_form_v1")
     minimo, maximo = FAIXAS["baixo" if perfil == "revelador" else perfil]
     respostas: dict[str, int] = {}
     for bloco in instrumento["blocos"]:
-        for indice, _ in enumerate(bloco["itens"], start=1):
+        for indice, item in enumerate(bloco["itens"], start=1):
             bruto = aleatorio.randint(minimo, maximo)
-            valor = 6 - bruto if bloco["reverso"] else bruto
+            reverso = (
+                bool(item.get("reverso", bloco.get("reverso", False)))
+                if isinstance(item, dict)
+                else bool(bloco.get("reverso", False))
+            )
+            valor = 6 - bruto if reverso else bruto
             respostas[f"{bloco['codigo']}{indice}"] = max(1, min(5, valor))
     return respostas
 
@@ -154,8 +159,8 @@ def main() -> None:
         (
             coleta_id,
             empresa_id,
-            "Mapeamento NR-1 — ciclo demonstrativo",
-            "nr1_v2_demo",
+            "Mapeamento NR-1 · 2º semestre de 2026",
+            "psyra_form_v1",
             "sintetico",
             TOKEN,
         ),

@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.instrumento import listar_ids_itens
 
-TOKEN_DEMO = "demo-nr1-2026"
+TOKEN_DEMO = "nebula-nr1-2026"
 
 
 def test_health_declara_motor_provisorio(cliente: TestClient) -> None:

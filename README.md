@@ -49,7 +49,7 @@ FastAPI. Em sistemas com `make`, use `make instalar`, `make seed` e `make rodar`
 | Endereço | O que é |
 |---|---|
 | http://localhost:8000/ | Tela de entrada + painel do gestor |
-| http://localhost:8000/responder/demo-nr1-2026 | Questionário anônimo do colaborador |
+| http://localhost:8000/responder/nebula-nr1-2026 | Questionário anônimo do colaborador |
 | http://localhost:8000/docs | Documentação OpenAPI interativa |
 | http://localhost:8000/health/ready | Readiness (banco acessível) |
 | http://localhost:8000/admin | Superadmin (empresas e usuários) |
@@ -61,24 +61,50 @@ FastAPI. Em sistemas com `make`, use `make instalar`, `make seed` e `make rodar`
 Passo a passo de deploy HTTPS, secrets, backups, superadmin e smoke test do
 Google Forms: [`docs/PRODUCAO.md`](docs/PRODUCAO.md).
 
-## Google Forms por empresa
+## Questionário no próprio site (padrão desde a banca final)
 
-O painel permite criar uma coleta com o instrumento `psyra_form_v1` e vincular uma
-cópia exclusiva do Google Form. O formulário exibido depende da empresa do JWT e da
-coleta selecionada; o respondente nunca informa `empresa_id`.
+O colaborador responde em `/responder/<token>`, dentro da Psyra: sem login, sem
+nome, sem passar por serviço de terceiros. O gestor cria o ciclo no painel
+(**Novo ciclo**), copia o link ou mostra o QR code (seção **Questionário**) e
+acompanha quantas respostas cada grupo já tem até chegar a 5. **Encerrar coleta**
+fecha o link na hora.
 
-Antes de usar:
+- O questionário é público: `/responder/*`, `GET /v1/coletas/{token}/formulario`,
+  `POST /v1/coletas/{token}/inicio` e `POST /v1/coleta`. O painel continua atrás do login.
+- O texto livre passa pela anonimização antes de ser gravado. Em produção,
+  instale o Presidio com o modelo em português; sem ele, o fallback
+  `regex-ptbr-v2` mascara CPF, e-mail, telefone e nomes comuns, mas não substitui
+  o Presidio antes de dados reais.
 
-1. Defina `PSYRA_FORMS_WEBHOOK_SECRET` no `.env`.
-2. Faça uma cópia do formulário-base para cada empresa/coleta.
-3. No painel, crie um ciclo Google Forms e cole a URL pública da cópia.
-4. Instale o script e o gatilho descritos em
-   `integracoes/google-forms/README.md`.
+### Qualidade das respostas (cansaço, pressa, evasão)
 
-O webhook exige HTTPS público. Apps Script não acessa `localhost`; use um domínio
-de implantação ou um túnel HTTPS apenas durante o desenvolvimento. IDs repetidos
-do Google Forms são ignorados, o texto livre é anonimizado e a empresa sempre é
-resolvida pela coleta vinculada no servidor.
+Cada resposta passa por 3 verificações em `app/qualidade.py` (versão `qualidade-v1`):
+pressa (partes a menos de 2 s por pergunta, Huang et al., 2012), mesma nota em 70%+ das
+perguntas (Meade e Craig, 2012) e incoerência entre frases de direção oposta. Os limiares
+vieram da validação da base simulada v6 (`ci/scripts/S10_ML_qualidade_respostas_v6_v1.py`):
+no teste, 95% das descuidadas encontradas e 2,5% das atentas sinalizadas.
+
+- A resposta sinalizada nunca é apagada nem mostrada sozinha. Se a empresa escolher
+  (Configurações → Empresa), ela sai do índice do grupo, desde que o grupo continue com 5+
+  respostas válidas.
+- `POST /v1/coletas/{token}/inicio` conta, sem identificar, quem começou (evasão): só a coleta,
+  o grupo e o dia.
+- `GET /v1/empresas/{id}/coletas/{id}/qualidade` devolve participação, término, sinalizadas
+  por grupo (só n ≥ 5) e o ritmo por parte.
+
+### Conta e configurações
+
+Login com mostrar senha, aviso de Caps Lock e "manter conectado por 7 dias"; senha
+temporária com troca obrigatória no primeiro acesso; troca de senha (mínimo de 10
+caracteres, sem e-mail/nome, sem senhas óbvias); "sair de todos os aparelhos" (versão da
+sessão no token); equipe com convite, nova senha temporária e tirar acesso (gestão e
+administração; a psicóloga CRP só consulta).
+
+### Google Forms (legado, desligado na interface)
+
+O webhook continua no backend (`integracoes/google-forms/README.md`) para quem já
+tinha ciclos vinculados, mas a interface não oferece mais essa opção: o questionário
+do site protege melhor os dados e não depende de Apps Script.
 
 ---
 
@@ -88,7 +114,8 @@ resolvida pela coleta vinculada no servidor.
 2. **Riscos por grupo** → mostrar a *Diretoria* (n=3): sem nenhum número na tela. É o k-anonimato funcionando, não uma falha de dado.
 3. **O Revelador** → *Desenvolvimento de produto*: escala 24,9 (risco baixo) contra texto livre 89,2. Divergência **+64,3**. É a tese do produto: a nota diz que está tudo bem, o texto diz o contrário.
 4. **Conformidade NR-1** → checklist com CEP e assinatura CRP explicitamente pendentes.
-5. **Responder o questionário** em outra aba, escrevendo um CPF e um e-mail no Bloco K. Voltar ao painel e mostrar que o texto foi anonimizado antes de ser gravado.
+5. **Questionário** → mostrar o link e o QR code. Abrir no celular, responder escrevendo um nome e um e-mail no texto livre. Voltar ao painel: a resposta entrou no ciclo e o texto foi gravado sem o nome e sem o e-mail.
+6. **Tema e idioma** → alternar claro/escuro e trocar para English ou 中文 no topo do painel.
 
 ---
 
@@ -185,12 +212,19 @@ teste (`tests/test_privacidade.py::test_painel_nao_expoe_resposta_individual`).
 ## Qualidade
 
 ```bash
-make teste   # 30 testes
+make teste   # 79 testes do backend
 make lint    # ruff + black
+
+# ponta a ponta no navegador (Playwright, 49 checagens), com o servidor rodando:
+python3 scripts/e2e_site.py --base http://localhost:8000 --saida e2e_saida --banco backend/psyra.db
+# prints usados no guia da banca (docs/prints/):
+python3 scripts/prints_site.py --base http://localhost:8000 --saida docs/prints
 ```
 
-Cobertura por arquivo: `test_auth.py` (5) · `test_privacidade.py` (7) ·
-`test_scoring.py` (9) · `test_api.py` (9).
+Cobertura por arquivo: `test_privacidade.py` (12) · `test_scoring.py` (11) ·
+`test_qualidade.py` (9) · `test_api.py` (9) · `test_conta.py` (7) · `test_capital_risco.py` (7) ·
+`test_integracao_google_forms.py` (6) · `test_auth.py` (5) · `test_admin.py` (4) ·
+`test_producao.py` (4) · `test_portao.py` (3) · `test_db_adaptador.py` (2).
 Se qualquer teste de `test_privacidade.py` falhar, **o produto não vai para piloto** —
 o CI trata esse arquivo como etapa separada e bloqueante.
 

@@ -25,10 +25,8 @@ def _payload_bearer(authorization: str) -> dict[str, Any]:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(erro)) from erro
 
 
-def usuario_atual(
-    conexao: Conexao, authorization: str = Header(default="")
-) -> dict[str, Any]:
-    """Extrai e valida o JWT do header Authorization; devolve o usuário."""
+def _carregar_usuario(conexao: Any, authorization: str) -> dict[str, Any]:
+    """Valida o JWT, a conta ativa e a versão da sessão ("sair de todos os aparelhos")."""
     payload = _payload_bearer(authorization)
     if payload.get("scope") == "superadmin":
         raise HTTPException(status.HTTP_403_FORBIDDEN, "token fora do escopo")
@@ -40,14 +38,43 @@ def usuario_atual(
         "WHERE u.id = ? AND u.ativo = 1 AND e.ativo = 1",
         (payload.get("sub"),),
     )
-    if not usuario:
+    if not usuario or usuario["empresa_id"] != payload.get("emp"):
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED, "usuario inativo ou inexistente"
+        )
+    if int(payload.get("sv", 0)) != int(usuario.get("sessao_versao") or 0):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "sessao encerrada")
+    return usuario
+
+
+def usuario_atual(
+    conexao: Conexao, authorization: str = Header(default="")
+) -> dict[str, Any]:
+    """Usuário do token. Com senha temporária, só a troca de senha fica liberada."""
+    usuario = _carregar_usuario(conexao, authorization)
+    if int(usuario.get("trocar_senha") or 0):
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            detail={"codigo": "trocar_senha", "mensagem": "Crie a sua senha para continuar."},
         )
     return usuario
 
 
+def usuario_em_troca_de_senha(
+    conexao: Conexao, authorization: str = Header(default="")
+) -> dict[str, Any]:
+    """Usuário do token, mesmo com senha temporária (perfil, troca de senha, sair)."""
+    return _carregar_usuario(conexao, authorization)
+
+
 Usuario = Annotated[dict[str, Any], Depends(usuario_atual)]
+UsuarioTrocaSenha = Annotated[dict[str, Any], Depends(usuario_em_troca_de_senha)]
+
+
+def exigir_gestao(usuario: dict[str, Any]) -> None:
+    """Configurações da empresa e equipe: só gestor e admin (a psicóloga CRP só consulta)."""
+    if usuario.get("papel") not in ("gestor", "admin"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "papel sem permissao para gerenciar")
 
 
 def superadmin_atual(

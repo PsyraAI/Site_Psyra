@@ -723,3 +723,30 @@ html.tema-transicao *::after {
 .lp-ciclo > li > .lp-reveal {
   height: 100%;
 }
+
+/* ---------------------------------------------------------------------------
+   "Entenda como funciona": explicação expansível em cada parte da solução
+   (cartões de Solução e passos de Como funciona). Sprint: S10 | Risco: None
+   ------------------------------------------------------------------------- */
+.lp-card--saiba,
+.lp-step { display: flex; flex-direction: column; }
+.lp-saiba { margin-top: auto; padding-top: 0.9rem; }
+.lp-saiba__botao {
+  display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.25rem; padding: 0.45rem 0.75rem 0.45rem 0.85rem;
+  border-radius: 999px; border: 1px solid var(--lp-border); background: transparent; color: var(--lp-primary);
+  font: 600 0.82rem var(--lp-sans); cursor: pointer; transition: background 0.2s, border-color 0.2s;
+}
+.lp-saiba__botao:hover { background: rgba(188, 132, 195, 0.12); border-color: rgba(188, 132, 195, 0.45); }
+.lp-saiba__botao:focus-visible { outline: 2px solid var(--lp-primary); outline-offset: 2px; }
+.lp-saiba__seta { transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.lp-saiba--aberto .lp-saiba__seta { transform: rotate(180deg); }
+.lp-saiba__painel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.32s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.lp-saiba--aberto .lp-saiba__painel { grid-template-rows: 1fr; }
+.lp-saiba__conteudo { overflow: hidden; }
+.lp-saiba__conteudo p {
+  margin: 0.75rem 0 0; padding-left: 0.85rem; border-left: 2px solid rgba(188, 132, 195, 0.45);
+  font-size: 0.9rem; line-height: 1.6; opacity: 0.92;
+}
+@media (prefers-reduced-motion: reduce) { .lp-saiba__painel, .lp-saiba__seta { transition: none; } }
+/* Quando uma explicação abre, os cartões vizinhos não esticam junto (sem vazio no meio deles). */
+.lp-grid:has(.lp-saiba--aberto) { align-items: start; }

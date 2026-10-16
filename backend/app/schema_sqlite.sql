@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS empresa (
                      'saude', 'industria', 'servicos', 'comercio', 'tecnologia', 'outro'
                  )),
     ativo        INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0, 1)),
+    excluir_sinalizadas INTEGER NOT NULL DEFAULT 1 CHECK (excluir_sinalizadas IN (0, 1)),
     criado_em    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -41,6 +42,9 @@ CREATE TABLE IF NOT EXISTS usuario_empresa (
     papel      TEXT NOT NULL DEFAULT 'gestor'
                CHECK (papel IN ('gestor', 'admin', 'crp')),
     ativo      INTEGER NOT NULL DEFAULT 1,
+    sessao_versao INTEGER NOT NULL DEFAULT 0,
+    trocar_senha  INTEGER NOT NULL DEFAULT 0 CHECK (trocar_senha IN (0, 1)),
+    ultimo_acesso_em TEXT,
     criado_em  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -91,6 +95,10 @@ CREATE TABLE IF NOT EXISTS resposta (
     recebida_em       TEXT NOT NULL DEFAULT (datetime('now')),
     origem_externa    TEXT CHECK (origem_externa IN ('google_forms')),
     id_externo        TEXT,
+    duracao_s         INTEGER,
+    tempos_partes_json TEXT,
+    qualidade_json    TEXT,
+    sinalizada        INTEGER NOT NULL DEFAULT 0 CHECK (sinalizada IN (0, 1)),
     CHECK (texto_anonimizado IS NULL OR anonimizacao_ok = 1)
 );
 
@@ -105,9 +113,20 @@ CREATE TABLE IF NOT EXISTS resultado_ghe (
     divergencia    REAL,
     nivel_risco    TEXT CHECK (nivel_risco IN ('baixo', 'moderado', 'alto')),
     fatores_json   TEXT,
+    n_excluidas    INTEGER NOT NULL DEFAULT 0,
     motor_versao   TEXT NOT NULL,
     calculado_em   TEXT NOT NULL DEFAULT (datetime('now')),
     UNIQUE (coleta_id, ghe_id)
+);
+
+-- coleta_inicio — quantas pessoas começaram (para medir a evasão). Sem id de pessoa e
+-- sem horário (só o dia), para não dar para cruzar com a resposta.
+CREATE TABLE IF NOT EXISTS coleta_inicio (
+    id         TEXT PRIMARY KEY,
+    coleta_id  TEXT NOT NULL REFERENCES coleta(id) ON DELETE CASCADE,
+    ghe_id     TEXT REFERENCES ghe(id) ON DELETE CASCADE,
+    etapa      TEXT NOT NULL CHECK (etapa IN ('inicio', 'grupo')),
+    dia        TEXT NOT NULL
 );
 
 -- 8) log_auditoria — cadeia de hash SHA-256 (LGPD Art. 37) ---------------
@@ -126,6 +145,7 @@ CREATE INDEX IF NOT EXISTS idx_resposta_coleta ON resposta(coleta_id);
 CREATE INDEX IF NOT EXISTS idx_resposta_ghe    ON resposta(ghe_id);
 CREATE INDEX IF NOT EXISTS idx_resultado_coleta ON resultado_ghe(coleta_id);
 CREATE INDEX IF NOT EXISTS idx_log_empresa     ON log_auditoria(empresa_id);
+CREATE INDEX IF NOT EXISTS idx_inicio_coleta   ON coleta_inicio(coleta_id);
 
 -- View de leitura do painel: k-anonimato n>=5 aplicado no próprio banco.
 -- Equivalente à vw_painel_ghe do Supabase (lá com RLS por empresa).
@@ -142,6 +162,7 @@ SELECT
     CASE WHEN r.n_respostas >= 5 THEN r.divergencia   END AS divergencia,
     CASE WHEN r.n_respostas >= 5 THEN r.nivel_risco   END AS nivel_risco,
     CASE WHEN r.n_respostas >= 5 THEN r.fatores_json  END AS fatores_json,
+    CASE WHEN r.n_respostas >= 5 THEN r.n_excluidas END AS n_excluidas,
     CASE WHEN r.n_respostas >= 5 THEN 0 ELSE 1 END AS mascarado,
     r.motor_versao                                AS motor_versao
 FROM resultado_ghe r

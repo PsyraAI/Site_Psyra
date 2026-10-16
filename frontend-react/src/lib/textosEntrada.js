@@ -1,5 +1,5 @@
 // Textos da tela de acesso em pt-BR, inglês e chinês simplificado. Sprint: S10 | Risco: None
-// O painel e a operação continuam em português; o aviso deixa isso claro antes do login.
+// O painel do RH tem os três idiomas; o questionário e a análise de texto seguem em pt-BR.
 
 export const TEXTOS_ENTRADA = {
   pt: {
@@ -74,7 +74,7 @@ export const TEXTOS_ENTRADA = {
     entrar: "Sign in",
     privacidade: "Results always by group. Never individual data.",
     voltar: "Back to the home page",
-    avisoIdioma: "The dashboard and the questionnaire are in Brazilian Portuguese.",
+    avisoIdioma: "The dashboard is available in English. The employee questionnaire and the text analysis are in Brazilian Portuguese.",
   },
   zh: {
     titulo: "登录 — Psyra AI",
@@ -111,6 +111,6 @@ export const TEXTOS_ENTRADA = {
     entrar: "登录",
     privacidade: "结果始终按群组呈现，绝不显示个人数据。",
     voltar: "返回首页",
-    avisoIdioma: "仪表板和问卷目前为巴西葡萄牙语。",
+    avisoIdioma: "仪表板提供中文界面。员工问卷和文本分析目前仅支持巴西葡萄牙语。",
   },
 };

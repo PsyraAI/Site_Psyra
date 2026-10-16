@@ -75,6 +75,16 @@ export const TEXTOS = {
         { data: "25/09/2026", texto: "A suspensão é prorrogada por 90 dias, com conciliação sobre critérios de avaliação." },
         { data: "Hoje", texto: "A multa está suspensa; a obrigação de mapear e controlar o risco continua." },
       ],
+      justica: {
+        titulo: "Na Justiça do Trabalho, o risco psicossocial já virou condenação",
+        casos: [
+          { tribunal: "TRT-2 (SP) · maio de 2026", valor: "R$ 50 mil + pensão vitalícia", texto: "Bancária com depressão, ansiedade e burnout depois de metas abusivas. Para o tribunal, a empresa não adotou medidas eficazes para preservar a saúde da empregada.", fonte: "Migalhas", url: "https://www.migalhas.com.br/quentes/455204/burnout-e-doenca-ocupacional-e-banco-deve-indenizar-decide-trt-2" },
+          { tribunal: "TRT-18 (GO) · janeiro de 2026", valor: "Dispensa discriminatória", texto: "Vendedor cobrado por metas até fora do horário desenvolveu ansiedade e burnout e foi demitido ao voltar do afastamento. A empresa foi condenada por danos morais, danos materiais e pela estabilidade.", fonte: "ConJur", url: "https://conjur.com.br/2026-jan-16/empresa-e-condenada-por-transtorno-mental-e-dispensa/" },
+          { tribunal: "TST · 2025", valor: "R$ 100 mil por dano coletivo", texto: "Banco condenado por assédio moral organizacional: metas abusivas e tratamento degradante afetavam o ambiente de trabalho de toda a equipe.", fonte: "Jornal da Ordem (OAB/RS)", url: "https://www2.oabrs.org.br/jornalDaOrdem/banco-e-condenado-ao-pagamento-de-indenizacao-por-dano-moral-coletivo-em-razao-da-pratica-de-assedio-moral-organizacional/51607" },
+        ],
+        fonteRotulo: "Fonte",
+        nota: "Casos públicos noticiados pela imprensa jurídica. A Psyra não tem relação com as partes.",
+      },
       banner: "Mapear risco psicossocial deixou de ser boa prática: é obrigação legal.",
     },
     solucao: {
@@ -115,7 +125,7 @@ export const TEXTOS = {
       itens: [
         { v: "0,73", t: "F1-macro", d: "Equilíbrio entre precisão e recall nas três faixas de risco. O máximo possível nesta base é 0,88." },
         { v: "0,89", t: "ROC-AUC", d: "Capacidade de separar as faixas de risco. 0,5 seria o acaso; 1,0, a separação perfeita." },
-        { v: "82%", t: "Risco alto encontrado (modo triagem)", d: "No modo triagem, ajustado para deixar passar o mínimo, o modelo encontra 82% dos casos de risco alto; quem fica de fora tem 93% de chance de não ser risco alto (VPN)." },
+        { v: "82%", t: "Risco alto detectado (modo triagem)", d: "No modo triagem, ajustado para deixar passar o mínimo, o modelo detecta 82% dos casos de risco alto; quem fica de fora tem 93% de chance de não ser risco alto (VPN)." },
         { v: "95%", t: "Especificidade no risco alto", d: "No modo padrão, dos casos sem risco alto o modelo descarta 95% corretamente, e 82% dos alertas de risco alto se confirmam." },
         { v: "0,02", t: "Erro de calibração (ECE)", d: "Quando o modelo indica 70% de chance, acerta perto de 70%: a probabilidade é confiável." },
         { v: "r = 0,85", t: "Concordância por grupo", d: "O percentual de risco alto previsto em cada grupo acompanha o percentual de referência." },
@@ -598,6 +608,16 @@ export const TEXTOS = {
         { data: "Sep 25, 2026", texto: "The suspension is extended for 90 days while assessment criteria are negotiated." },
         { data: "Today", texto: "Fines are suspended; the duty to map and control the risk still applies." },
       ],
+      justica: {
+        titulo: "In Brazil's labor courts, psychosocial risk is already leading to convictions",
+        casos: [
+          { tribunal: "TRT-2 (São Paulo) · May 2026", valor: "R$ 50k + lifetime pension", texto: "A bank employee developed depression, anxiety and burnout after abusive targets. The court found the company took no effective measures to protect her health.", fonte: "Migalhas (Portuguese)", url: "https://www.migalhas.com.br/quentes/455204/burnout-e-doenca-ocupacional-e-banco-deve-indenizar-decide-trt-2" },
+          { tribunal: "TRT-18 (Goiás) · January 2026", valor: "Discriminatory dismissal", texto: "A salesperson pressed for targets even after hours developed anxiety and burnout and was fired after returning from sick leave. The company was ordered to pay moral and material damages and compensation for job stability.", fonte: "ConJur (Portuguese)", url: "https://conjur.com.br/2026-jan-16/empresa-e-condenada-por-transtorno-mental-e-dispensa/" },
+          { tribunal: "Superior Labor Court (TST) · 2025", valor: "R$ 100k in collective damages", texto: "A bank was convicted of organizational moral harassment: abusive targets and degrading treatment harmed the work environment of the whole team.", fonte: "Jornal da Ordem (OAB/RS, Portuguese)", url: "https://www2.oabrs.org.br/jornalDaOrdem/banco-e-condenado-ao-pagamento-de-indenizacao-por-dano-moral-coletivo-em-razao-da-pratica-de-assedio-moral-organizacional/51607" },
+        ],
+        fonteRotulo: "Source",
+        nota: "Public cases reported by the legal press. Psyra has no relation to the parties.",
+      },
       banner: "Mapping psychosocial risk is no longer a good practice: it is a legal duty in Brazil.",
     },
     solucao: {
@@ -638,7 +658,7 @@ export const TEXTOS = {
       itens: [
         { v: "0.73", t: "Macro F1", d: "Balance between precision and recall across the three risk levels. The best possible score on this dataset is 0.88." },
         { v: "0.89", t: "ROC-AUC", d: "How well the model separates the risk levels. 0.5 would be chance; 1.0, perfect separation." },
-        { v: "82%", t: "High risk found (screening mode)", d: "In screening mode, tuned to miss as few as possible, the model finds 82% of high-risk cases; those it clears have a 93% chance of not being high risk (NPV)." },
+        { v: "82%", t: "High risk detected (screening mode)", d: "In screening mode, tuned to miss as few as possible, the model detects 82% of high-risk cases; those it clears have a 93% chance of not being high risk (NPV)." },
         { v: "95%", t: "Specificity for high risk", d: "In standard mode, the model correctly clears 95% of the cases without high risk, and 82% of its high-risk alerts are confirmed." },
         { v: "0.02", t: "Calibration error (ECE)", d: "When the model says 70%, it is right about 70% of the time: the probability can be trusted." },
         { v: "r = 0.85", t: "Agreement by group", d: "The predicted share of high risk in each group tracks the reference share." },
@@ -1114,6 +1134,16 @@ export const TEXTOS = {
         { data: "2026年9月25日", texto: "暂停期延长 90 天，同时就评估标准进行协商。" },
         { data: "目前", texto: "罚款暂停，但识别和控制风险的义务依然有效。" },
       ],
+      justica: {
+        titulo: "在巴西劳动法院，心理社会风险已经导致企业被判赔偿",
+        casos: [
+          { tribunal: "TRT-2（圣保罗）· 2026 年 5 月", valor: "5 万雷亚尔 + 终身抚恤金", texto: "一名银行员工在过高的业绩指标压力下患上抑郁、焦虑和职业倦怠。法院认定公司没有采取有效措施保护员工健康。", fonte: "Migalhas（葡萄牙语）", url: "https://www.migalhas.com.br/quentes/455204/burnout-e-doenca-ocupacional-e-banco-deve-indenizar-decide-trt-2" },
+          { tribunal: "TRT-18（戈亚斯）· 2026 年 1 月", valor: "歧视性解雇", texto: "一名销售人员在下班后仍被催促完成指标，患上焦虑和职业倦怠，病假结束返岗后被解雇。公司被判赔偿精神损害、物质损失和稳定期补偿。", fonte: "ConJur（葡萄牙语）", url: "https://conjur.com.br/2026-jan-16/empresa-e-condenada-por-transtorno-mental-e-dispensa/" },
+          { tribunal: "高等劳动法院（TST）· 2025 年", valor: "10 万雷亚尔集体损害赔偿", texto: "一家银行因组织性精神骚扰被判赔偿：过高的指标和侮辱性对待损害了整个团队的工作环境。", fonte: "Jornal da Ordem（OAB/RS，葡萄牙语）", url: "https://www2.oabrs.org.br/jornalDaOrdem/banco-e-condenado-ao-pagamento-de-indenizacao-por-dano-moral-coletivo-em-razao-da-pratica-de-assedio-moral-organizacional/51607" },
+        ],
+        fonteRotulo: "来源",
+        nota: "以上为法律媒体公开报道的案例。Psyra 与当事各方无任何关系。",
+      },
       banner: "在巴西，识别心理社会风险已不再只是良好实践，而是法定义务。",
     },
     solucao: {
@@ -1152,7 +1182,7 @@ export const TEXTOS = {
       itens: [
         { v: "0.73", t: "宏平均 F1", d: "三个风险等级上精确率与召回率的平衡。该数据集上的理论上限为 0.88。" },
         { v: "0.89", t: "ROC-AUC", d: "区分各风险等级的能力。0.5 相当于随机，1.0 为完全区分。" },
-        { v: "82%", t: "高风险检出率（筛查模式）", d: "在尽量不漏检的筛查模式下，模型能找出 82% 的高风险情况；被排除者中有 93% 确实不是高风险（阴性预测值）。" },
+        { v: "82%", t: "高风险检出率（筛查模式）", d: "在尽量不漏检的筛查模式下，模型能检出 82% 的高风险情况；被排除者中有 93% 确实不是高风险（阴性预测值）。" },
         { v: "95%", t: "高风险特异度", d: "在标准模式下，模型正确排除 95% 的非高风险情况，82% 的高风险提示得到确认。" },
         { v: "0.02", t: "校准误差（ECE）", d: "模型给出 70% 的概率时，实际正确率接近 70%：概率值可信。" },
         { v: "r = 0.85", t: "群组层面的一致性", d: "各群组预测的高风险比例与参考比例一致。" },
