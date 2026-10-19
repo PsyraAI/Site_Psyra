@@ -20,7 +20,7 @@
   font-size: 0.78rem;
 }
 .lp-hero__fonte a {
-  color: var(--lp-muted);
+  color: #a3a7c2; /* contraste 6,6:1 sobre a Noite (antes 4,3:1 com a Ardósia) */
   text-decoration: underline;
   text-decoration-color: rgba(127, 131, 160, 0.45);
   text-underline-offset: 3px;

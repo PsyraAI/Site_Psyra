@@ -18,14 +18,20 @@ def _atenta() -> dict[str, int]:
     saida = {}
     for bloco in carregar_instrumento(INSTR)["blocos"]:
         for i, item in enumerate(bloco["itens"], start=1):
-            reverso = bool(item.get("reverso", bloco.get("reverso", False))) if isinstance(item, dict) else bool(bloco.get("reverso"))
+            reverso = (
+                bool(item.get("reverso", bloco.get("reverso", False)))
+                if isinstance(item, dict)
+                else bool(bloco.get("reverso"))
+            )
             risco = 3 + (i % 2)
             saida[f"{bloco['codigo']}{i}"] = 6 - risco if reverso else risco
     return saida
 
 
 def _tempos(seg_item: float) -> list[int]:
-    return [int(len(b["itens"]) * seg_item) for b in carregar_instrumento(INSTR)["blocos"]]
+    return [
+        int(len(b["itens"]) * seg_item) for b in carregar_instrumento(INSTR)["blocos"]
+    ]
 
 
 def test_resposta_atenta_nao_e_sinalizada() -> None:
@@ -65,57 +71,119 @@ def test_envio_guarda_qualidade_e_nunca_devolve(cliente: TestClient) -> None:
 
 
 def test_inicio_conta_sem_identificar(cliente: TestClient) -> None:
-    assert cliente.post(f"/v1/coletas/{TOKEN_DEMO}/inicio", json={"etapa": "inicio"}).status_code == 204
     assert (
-        cliente.post(f"/v1/coletas/{TOKEN_DEMO}/inicio", json={"etapa": "grupo", "ghe_codigo": "GHE-02"}).status_code
+        cliente.post(
+            f"/v1/coletas/{TOKEN_DEMO}/inicio", json={"etapa": "inicio"}
+        ).status_code
         == 204
     )
-    assert cliente.post(f"/v1/coletas/{TOKEN_DEMO}/inicio", json={"etapa": "grupo", "ghe_codigo": "XX"}).status_code == 400
-    assert cliente.post(f"/v1/coletas/{TOKEN_DEMO}/inicio", json={"etapa": "outra"}).status_code == 422
+    assert (
+        cliente.post(
+            f"/v1/coletas/{TOKEN_DEMO}/inicio",
+            json={"etapa": "grupo", "ghe_codigo": "GHE-02"},
+        ).status_code
+        == 204
+    )
+    assert (
+        cliente.post(
+            f"/v1/coletas/{TOKEN_DEMO}/inicio",
+            json={"etapa": "grupo", "ghe_codigo": "XX"},
+        ).status_code
+        == 400
+    )
+    assert (
+        cliente.post(
+            f"/v1/coletas/{TOKEN_DEMO}/inicio", json={"etapa": "outra"}
+        ).status_code
+        == 422
+    )
 
 
-def test_painel_de_qualidade_respeita_n_minimo(cliente: TestClient, sessao_gestor: dict) -> None:
+def test_painel_de_qualidade_respeita_n_minimo(
+    cliente: TestClient, sessao_gestor: dict
+) -> None:
     emp = sessao_gestor["empresa_id"]
-    coletas = cliente.get(f"/v1/empresas/{emp}/coletas", headers=sessao_gestor["headers"]).json()
+    coletas = cliente.get(
+        f"/v1/empresas/{emp}/coletas", headers=sessao_gestor["headers"]
+    ).json()
     coleta = next(c for c in coletas if c["token_publico"] == TOKEN_DEMO)
-    q = cliente.get(f"/v1/empresas/{emp}/coletas/{coleta['id']}/qualidade", headers=sessao_gestor["headers"])
+    q = cliente.get(
+        f"/v1/empresas/{emp}/coletas/{coleta['id']}/qualidade",
+        headers=sessao_gestor["headers"],
+    )
     assert q.status_code == 200
     corpo = q.json()
     assert corpo["resumo"]["sinalizadas"] >= 3
     diretoria = next(g for g in corpo["grupos"] if g["codigo"] == "GHE-05")
-    assert diretoria["mascarado"] and diretoria["sinalizadas"] is None and diretoria["motivos"] is None
+    assert (
+        diretoria["mascarado"]
+        and diretoria["sinalizadas"] is None
+        and diretoria["motivos"] is None
+    )
     assert len(corpo["ritmo_por_parte"]) == 10
     assert all("protocolo" not in str(g) for g in corpo["grupos"])
 
 
-def test_sinalizadas_saem_do_calculo_so_com_5_validas(cliente: TestClient, sessao_gestor: dict) -> None:
+def test_sinalizadas_saem_do_calculo_so_com_5_validas(
+    cliente: TestClient, sessao_gestor: dict
+) -> None:
     emp = sessao_gestor["empresa_id"]
     h = sessao_gestor["headers"]
     coletas = cliente.get(f"/v1/empresas/{emp}/coletas", headers=h).json()
     coleta = next(c for c in coletas if c["token_publico"] == TOKEN_DEMO)
-    painel = cliente.get(f"/v1/empresas/{emp}/coletas/{coleta['id']}/painel", headers=h).json()
+    painel = cliente.get(
+        f"/v1/empresas/{emp}/coletas/{coleta['id']}/painel", headers=h
+    ).json()
     atendimento = next(g for g in painel["ghes"] if g["codigo"] == "GHE-01")
     assert atendimento["n_excluidas"] >= 2
     assert painel["resumo"]["respostas_fora_do_calculo"] >= 3
     # desligando a política, nada sai do cálculo
-    assert cliente.patch(f"/v1/empresas/{emp}/configuracoes", headers=h, json={"excluir_sinalizadas": False}).status_code == 200
-    painel2 = cliente.get(f"/v1/empresas/{emp}/coletas/{coleta['id']}/painel", headers=h).json()
+    assert (
+        cliente.patch(
+            f"/v1/empresas/{emp}/configuracoes",
+            headers=h,
+            json={"excluir_sinalizadas": False},
+        ).status_code
+        == 200
+    )
+    painel2 = cliente.get(
+        f"/v1/empresas/{emp}/coletas/{coleta['id']}/painel", headers=h
+    ).json()
     assert painel2["resumo"]["respostas_fora_do_calculo"] == 0
-    cliente.patch(f"/v1/empresas/{emp}/configuracoes", headers=h, json={"excluir_sinalizadas": True})
+    cliente.patch(
+        f"/v1/empresas/{emp}/configuracoes", headers=h, json={"excluir_sinalizadas": True}
+    )
 
 
-def test_grupo_pequeno_nunca_calcula_com_menos_de_5(cliente: TestClient, sessao_gestor: dict) -> None:
+def test_grupo_pequeno_nunca_calcula_com_menos_de_5(
+    cliente: TestClient, sessao_gestor: dict
+) -> None:
     """Coleta nova com 5 respostas, 1 sinalizada: ficam 4 válidas, então entram todas."""
     emp = sessao_gestor["empresa_id"]
     h = sessao_gestor["headers"]
     nova = cliente.post(
-        f"/v1/empresas/{emp}/coletas", headers=h,
-        json={"titulo": f"Teste k {uuid.uuid4().hex[:6]}", "origem_dados": "teste", "instrumento": INSTR},
+        f"/v1/empresas/{emp}/coletas",
+        headers=h,
+        json={
+            "titulo": f"Teste k {uuid.uuid4().hex[:6]}",
+            "origem_dados": "teste",
+            "instrumento": INSTR,
+        },
     ).json()
     for i in range(5):
         likert = {c: 4 for c in listar_ids_itens(INSTR)} if i == 0 else _atenta()
-        cliente.post("/v1/coleta", json={"token_coleta": nova["token_publico"], "ghe_codigo": "GHE-03",
-                                         "likert": likert, "consentimento": True, "tempos_partes": _tempos(5)})
-    painel = cliente.get(f"/v1/empresas/{emp}/coletas/{nova['id']}/painel", headers=h).json()
+        cliente.post(
+            "/v1/coleta",
+            json={
+                "token_coleta": nova["token_publico"],
+                "ghe_codigo": "GHE-03",
+                "likert": likert,
+                "consentimento": True,
+                "tempos_partes": _tempos(5),
+            },
+        )
+    painel = cliente.get(
+        f"/v1/empresas/{emp}/coletas/{nova['id']}/painel", headers=h
+    ).json()
     grupo = next(g for g in painel["ghes"] if g["codigo"] == "GHE-03")
     assert grupo["n_respostas"] == 5 and grupo["n_excluidas"] == 0

@@ -1,4 +1,5 @@
-"""Estimativa de capital em risco por setor, pelo método da FIEMG. Sprint: S10 | Risco: R1.
+"""Estimativa de capital em risco por setor, pelo método da FIEMG. Sprint: S10 | Risco:
+R1.
 
 Perda mensal do grupo = pessoas × parcela afetada pelo nível de risco × 14% de
 produtividade perdida × R$ 4.997,59 de produtividade mensal por ocupado.
@@ -21,7 +22,12 @@ VERSAO_ESTIMATIVA = "capital-fiemg-v2"
 PRODUTIVIDADE_MENSAL = round(59971.10 / 12, 2)  # R$ 4.997,59 por ocupado (FIEMG, 2019)
 PERDA_PRODUTIVIDADE = 0.14  # 51 dias de vida saudável por ano (FIEMG, GBD 2019)
 # 20% afetados (RSPH via FIEMG) × multiplicadores de cenário 0,75 / 1 / 1,25
-_PARCELA_AFETADA: dict[str, float] = {"baixo": 0.15, "moderado": 0.20, "alto": 0.25, "critico": 0.25}
+_PARCELA_AFETADA: dict[str, float] = {
+    "baixo": 0.15,
+    "moderado": 0.20,
+    "alto": 0.25,
+    "critico": 0.25,
+}
 METODO = (
     "Método FIEMG: pessoas × parcela afetada (15%, 20% ou 25% pelo nível) × 14% "
     "de produtividade perdida × R$ 4.997,59 de produtividade mensal (dados de 2019)"
@@ -87,6 +93,86 @@ def perda_mensal_fiemg(pessoas: int, nivel: str) -> float:
     return round(pessoas * parcela * PERDA_PRODUTIVIDADE * PRODUTIVIDADE_MENSAL, 2)
 
 
+# Cenário "com plano de ação": cada grupo cai um nível depois que as ações começam a
+# valer.
+NIVEL_ABAIXO: dict[str, str] = {
+    "critico": "alto",
+    "alto": "moderado",
+    "moderado": "baixo",
+    "baixo": "baixo",
+}
+MESES_PROJECAO = 12
+INICIO_EFEITO, FIM_EFEITO = (
+    2,
+    6,
+)  # efeito gradual: zero até o 2º mês, completo a partir do 6º
+PREMISSAS_PROJECAO = (
+    "Sem ação: a perda mensal de hoje se repete por 12 meses.",
+    "Com o plano de ação: cada grupo cai um nível de risco (alto → moderado, moderado → "
+    "baixo); "
+    "o efeito começa no 3º mês e fica completo no 6º, porque mudanças de gestão levam "
+    "tempo.",
+    "É uma hipótese de planejamento para priorizar ações, não uma promessa de resultado: "
+    "o efeito real é medido no ciclo seguinte do questionário.",
+)
+
+
+def perda_evitavel_mensal(pessoas: int, nivel: str) -> float:
+    """Quanto a perda mensal cai se o grupo descer um nível de risco. Sprint: S10 |
+    Risco: R1"""
+    abaixo = NIVEL_ABAIXO.get(nivel, "baixo")
+    return round(
+        perda_mensal_fiemg(pessoas, nivel) - perda_mensal_fiemg(pessoas, abaixo), 2
+    )
+
+
+def _efeito_no_mes(mes: int) -> float:
+    if mes <= INICIO_EFEITO:
+        return 0.0
+    if mes >= FIM_EFEITO:
+        return 1.0
+    return (mes - INICIO_EFEITO) / (FIM_EFEITO - INICIO_EFEITO)
+
+
+def projetar_perda(
+    detalhes_ghe: list[dict[str, Any]], meses: int = MESES_PROJECAO
+) -> dict[str, Any]:
+    """Perda acumulada em 12 meses sem ação e com o plano de ação. Sprint: S10 | Risco: R1
+
+    Usa só os grupos liberados (n ≥ 5) que já entraram em `detalhes_ghe`.
+    """
+    atual = round(sum(d["perda_mensal"] for d in detalhes_ghe), 2)
+    melhor = round(
+        sum(
+            perda_mensal_fiemg(d["afetados"], NIVEL_ABAIXO.get(d["nivel_risco"], "baixo"))
+            for d in detalhes_ghe
+        ),
+        2,
+    )
+    linhas: list[dict[str, Any]] = []
+    acum_sem = acum_com = 0.0
+    for mes in range(1, meses + 1):
+        com = atual - _efeito_no_mes(mes) * (atual - melhor)
+        acum_sem += atual
+        acum_com += com
+        linhas.append(
+            {
+                "mes": mes,
+                "sem_acao_mensal": round(atual, 2),
+                "com_plano_mensal": round(com, 2),
+                "sem_acao_acumulado": round(acum_sem, 2),
+                "com_plano_acumulado": round(acum_com, 2),
+            }
+        )
+    return {
+        "meses": linhas,
+        "perda_mensal_atual": atual,
+        "perda_mensal_com_plano": melhor,
+        "economia_12_meses": round(acum_sem - acum_com, 2),
+        "premissas": list(PREMISSAS_PROJECAO),
+    }
+
+
 def plano_permite_capital(plano: str | None) -> bool:
     return (plano or "").strip().lower() in PLANOS_COM_CAPITAL
 
@@ -100,9 +186,7 @@ def salario_mensal_estimado(atuacao: str, porte: str, setor: str | None) -> floa
     base = _SALARIO_BASE_ATUACAO.get(
         _normalizar_chave(atuacao, "servicos"), _SALARIO_BASE_ATUACAO["servicos"]
     )
-    mult_porte = _MULT_PORTE.get(
-        _normalizar_chave(porte, "media"), _MULT_PORTE["media"]
-    )
+    mult_porte = _MULT_PORTE.get(_normalizar_chave(porte, "media"), _MULT_PORTE["media"])
     # Compara palavras inteiras: antes, "ti" casava dentro de "Administrativo",
     # "Marketing" e "Logística" e dava o ajuste de TI por engano.
     palavras = set(re.findall(r"[a-z]+", _sem_acento(_normalizar_chave(setor, "geral"))))
@@ -166,6 +250,7 @@ def calcular_capital_risco(
             "fator_risco": fator,
             "perda_mensal": perda_mensal,
             "perda_anual": perda_anual,
+            "perda_evitavel_mensal": perda_evitavel_mensal(afetados, nivel),
         }
         detalhes_ghe.append(detalhe)
         bucket = por_setor[setor]
@@ -194,4 +279,5 @@ def calcular_capital_risco(
         "perda_anual_total": total_anual,
         "setores": setores,
         "ghes": detalhes_ghe,
+        "projecao": projetar_perda(detalhes_ghe),
     }

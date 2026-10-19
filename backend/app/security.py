@@ -90,14 +90,24 @@ def validar_token(token: str) -> dict[str, Any]:
 
 
 _SENHAS_COMUNS = {
-    "psyra12345", "1234567890", "senha12345", "password123", "qwerty1234",
-    "abc1234567", "0123456789", "senhasenha", "mudar12345", "admin12345",
+    "psyra12345",
+    "1234567890",
+    "senha12345",
+    "password123",
+    "qwerty1234",
+    "abc1234567",
+    "0123456789",
+    "senhasenha",
+    "mudar12345",
+    "admin12345",
 }
 
 
 def validar_politica_senha(senha: str, email: str = "", nome: str = "") -> list[str]:
-    """Regras de senha no espírito da NIST SP 800-63B: tamanho mínimo e lista de senhas óbvias,
-    sem exigir combinação de símbolos. Devolve a lista de problemas (vazia = senha aceita).
+    """Regras de senha no espírito da NIST SP 800-63B: tamanho mínimo e lista de senhas
+    óbvias,
+    sem exigir combinação de símbolos. Devolve a lista de problemas (vazia = senha
+    aceita).
 
     Sprint: S10 | Risco: R2
     """
@@ -117,7 +127,8 @@ def validar_politica_senha(senha: str, email: str = "", nome: str = "") -> list[
 
 
 def gerar_senha_temporaria() -> str:
-    """Senha temporária legível (troca obrigatória no primeiro acesso). Sprint: S10 | Risco: R2"""
+    """Senha temporária legível (troca obrigatória no primeiro acesso). Sprint: S10 |
+    Risco: R2"""
     alfabeto = "abcdefghjkmnpqrstuvwxyz23456789"
     partes = ["".join(secrets.choice(alfabeto) for _ in range(4)) for _ in range(3)]
     return "Psyra-" + "-".join(partes)

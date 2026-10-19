@@ -1,6 +1,7 @@
 """Teste ponta a ponta do site: landing, acesso, painel do RH e questionário no site.
 
-Sprint: S10 | Risco: R2 (confere que nada de "demo" aparece, que a resposta chega anonimizada
+Sprint: S10 | Risco: R2 (confere que nada de "demo" aparece, que a resposta chega
+anonimizada
 e que um ciclo encerrado recusa respostas).
 
 Uso (com o backend rodando e o seed local carregado):
@@ -20,7 +21,12 @@ from pathlib import Path
 from playwright.sync_api import Page, expect, sync_playwright
 
 EMAIL, SENHA = "gestor@demo.psyra.ai", "psyra123"
-IGNORAR = ("fonts.googleapis", "fonts.gstatic", "ERR_TUNNEL_CONNECTION_FAILED", "ERR_NAME_NOT_RESOLVED")
+IGNORAR = (
+    "fonts.googleapis",
+    "fonts.gstatic",
+    "ERR_TUNNEL_CONNECTION_FAILED",
+    "ERR_NAME_NOT_RESOLVED",
+)
 
 
 class Checagens:
@@ -47,13 +53,18 @@ def texto_visivel(pg: Page) -> str:
     return pg.evaluate("document.body.innerText")
 
 
-def responder_questionario(pg: Page, url: str, saida: Path, c: Checagens, fotos: bool) -> str:
+def responder_questionario(
+    pg: Page, url: str, saida: Path, c: Checagens, fotos: bool
+) -> str:
     pg.goto(url)
     pg.wait_for_selector(".rq-inicio")
     largura_inicio = pg.evaluate("document.documentElement.scrollWidth")
     if fotos:
         pg.screenshot(path=str(saida / "q1_inicio.png"), full_page=True)
-    c.conferir(pg.locator(".rq-botao").is_disabled(), "questionário: 'Começar' bloqueado sem consentimento")
+    c.conferir(
+        pg.locator(".rq-botao").is_disabled(),
+        "questionário: 'Começar' bloqueado sem consentimento",
+    )
     pg.locator(".rq-check input").check()
     pg.locator(".rq-botao").click()
     pg.wait_for_selector(".rq-grupos")
@@ -67,32 +78,50 @@ def responder_questionario(pg: Page, url: str, saida: Path, c: Checagens, fotos:
         itens = pg.locator(".rq-item")
         if partes == 0:
             pg.locator(".rq-botao").click()  # tenta avançar sem responder
-            c.conferir("Responda" in pg.locator(".erro").inner_text(), "questionário: avisa quando falta pergunta na parte")
+            c.conferir(
+                "Responda" in pg.locator(".erro").inner_text(),
+                "questionário: avisa quando falta pergunta na parte",
+            )
         if partes == 5:
-            c.conferir(pg.locator(".rq-pausa").count() == 1, "questionário: convite para pausar na metade (parte 6)")
+            c.conferir(
+                pg.locator(".rq-pausa").count() == 1,
+                "questionário: convite para pausar na metade (parte 6)",
+            )
         for i in range(itens.count()):
             nota = 2 + (i % 3)
             itens.nth(i).locator(".rq-opcao").nth(nota - 1).click()
         if partes == 0:
             largura = pg.evaluate("document.documentElement.scrollWidth")
             vp = pg.viewport_size["width"]
-            c.conferir(max(largura, largura_inicio) <= vp + 1, f"questionário: sem rolagem lateral no celular ({largura}px de {vp}px)")
+            c.conferir(
+                max(largura, largura_inicio) <= vp + 1,
+                f"questionário: sem rolagem lateral no celular ({largura}px de {vp}px)",
+            )
         if fotos and partes == 0:
             pg.screenshot(path=str(saida / "q3_parte1.png"), full_page=True)
         partes += 1
         pg.locator(".rq-botao").click()
         pg.wait_for_timeout(250)
-        # respondeu a menos de 2 s por pergunta: o questionário convida a revisar (sem bloquear)
+        # respondeu a menos de 2 s por pergunta: o questionário convida a
+        # revisar (sem bloquear)
         if pg.locator(".rq-pressa").count():
             if partes == 1:
-                c.conferir(True, "questionário: aviso de pressa (menos de 2 s por pergunta) aparece e não bloqueia")
+                c.conferir(
+                    True,
+                    "questionário: aviso de pressa (menos de 2 s por pergunta) aparece "
+                    "e não bloqueia",
+                )
             pg.locator(".rq-botao").click()
             pg.wait_for_timeout(250)
         if pg.locator(".rq-texto").count():
             break
     c.conferir(partes == 10, f"questionário: 10 partes respondidas (foram {partes})")
 
-    pg.fill(".rq-texto", "Desde que a meta dobrou eu nao durmo direito. Falei com o Carlos Souza, carlos@empresa.com.br, e nada mudou.")
+    pg.fill(
+        ".rq-texto",
+        "Desde que a meta dobrou eu nao durmo direito. Falei com o Carlos Souza, "
+        "carlos@empresa.com.br, e nada mudou.",
+    )
     if fotos:
         pg.screenshot(path=str(saida / "q4_texto.png"), full_page=True)
     pg.locator(".rq-botao").click()
@@ -104,7 +133,10 @@ def responder_questionario(pg: Page, url: str, saida: Path, c: Checagens, fotos:
     protocolo = pg.locator(".rq-protocolo .mono").inner_text()
     if fotos:
         pg.screenshot(path=str(saida / "q6_enviado.png"), full_page=True)
-    c.conferir(bool(re.fullmatch(r"[0-9A-F]{8}", protocolo)), f"questionário: protocolo recebido ({protocolo})")
+    c.conferir(
+        bool(re.fullmatch(r"[0-9A-F]{8}", protocolo)),
+        f"questionário: protocolo recebido ({protocolo})",
+    )
     return protocolo
 
 
@@ -123,7 +155,10 @@ def main() -> int:
         nav = p.chromium.launch()
         ctx = nav.new_context(viewport={"width": 1366, "height": 860}, locale="pt-BR")
         pg = ctx.new_page()
-        pg.on("console", lambda m: erros_console.append(m.text) if m.type == "error" else None)
+        pg.on(
+            "console",
+            lambda m: erros_console.append(m.text) if m.type == "error" else None,
+        )
         pg.on("pageerror", lambda e: erros_console.append(str(e)))
 
         print("1. Landing")
@@ -208,10 +243,18 @@ def main() -> int:
         pg.wait_for_selector(".questionario__link")
         url = pg.locator(".questionario .link-coleta__url").inner_text().strip()
         c.conferir("/responder/" in url, f"painel: novo ciclo gera link próprio ({url})")
-        c.conferir(pg.locator(".qr svg").count() == 1, "painel: QR code do link gerado no navegador")
+        c.conferir(
+            pg.locator(".qr svg").count() == 1,
+            "painel: QR code do link gerado no navegador",
+        )
         pg.screenshot(path=str(saida / "painel_questionario.png"), full_page=True)
 
-        anonimo = nav.new_context(viewport={"width": 390, "height": 844}, locale="pt-BR", is_mobile=True, has_touch=True)
+        anonimo = nav.new_context(
+            viewport={"width": 390, "height": 844},
+            locale="pt-BR",
+            is_mobile=True,
+            has_touch=True,
+        )
         qp = anonimo.new_page()
         qp.on("pageerror", lambda e: erros_console.append(str(e)))
         responder_questionario(qp, url, saida, c, fotos=True)
@@ -249,7 +292,10 @@ def main() -> int:
         c.conferir(True, "painel: ciclo encerrado pelo diálogo de confirmação")
         qp.goto(url)
         qp.wait_for_selector(".rq-titulo")
-        c.conferir("encerrado" in qp.locator(".rq-titulo").inner_text(), "questionário: link de ciclo encerrado recusa respostas")
+        c.conferir(
+            "encerrado" in qp.locator(".rq-titulo").inner_text(),
+            "questionário: link de ciclo encerrado recusa respostas",
+        )
 
         print("5. Celular")
         mp = anonimo.new_page()
@@ -296,28 +342,44 @@ def main() -> int:
         pg.locator(".config__cartao .botao[type=submit]").click()
         pg.wait_for_selector(".config__senha-temp")
         temporaria = pg.locator(".config__senha-temp code").inner_text().strip()
-        c.conferir(temporaria.startswith("Psyra-"), "equipe: acesso criado com senha temporária mostrada uma vez")
+        c.conferir(
+            temporaria.startswith("Psyra-"),
+            "equipe: acesso criado com senha temporária mostrada uma vez",
+        )
         pg.keyboard.press("Escape")
 
-        novo = nav.new_context(viewport={"width": 1366, "height": 860}, locale="pt-BR").new_page()
+        novo = nav.new_context(
+            viewport={"width": 1366, "height": 860}, locale="pt-BR"
+        ).new_page()
         novo.on("pageerror", lambda e: erros_console.append(str(e)))
         novo.goto(f"{base}/entrar")
         novo.locator(".entrada__perfil").first.click()
         novo.fill("input[type=email]", novo_email)
         novo.fill("#senha", temporaria)
         novo.locator(".campo-senha__olho").click()
-        c.conferir(novo.locator("#senha").get_attribute("type") == "text", "login: botão mostra a senha")
+        c.conferir(
+            novo.locator("#senha").get_attribute("type") == "text",
+            "login: botão mostra a senha",
+        )
         novo.locator(".entrada__esqueci").click()
-        c.conferir(novo.locator(".entrada__esqueci-passos li").count() == 3, "login: 'Esqueci minha senha' explica o caminho seguro")
+        c.conferir(
+            novo.locator(".entrada__esqueci-passos li").count() == 3,
+            "login: 'Esqueci minha senha' explica o caminho seguro",
+        )
         novo.keyboard.press("Escape")
         novo.locator("form .botao[type=submit]").click()
         novo.wait_for_selector("#senha-nova")
-        c.conferir(True, "primeiro acesso: senha temporária pede senha nova antes do painel")
+        c.conferir(
+            True, "primeiro acesso: senha temporária pede senha nova antes do painel"
+        )
         novo.fill("#senha-nova", "123")
         novo.fill("#senha-confirma", "123")
         novo.locator("form .botao[type=submit]").click()
         novo.wait_for_timeout(500)
-        c.conferir("10 caracteres" in novo.locator(".erro").inner_text(), "primeiro acesso: senha fraca recusada com o motivo")
+        c.conferir(
+            "10 caracteres" in novo.locator(".erro").inner_text(),
+            "primeiro acesso: senha fraca recusada com o motivo",
+        )
         novo.fill("#senha-nova", "girassol-azul-2026")
         novo.fill("#senha-confirma", "girassol-azul-2026")
         novo.locator("form .botao[type=submit]").click()
@@ -332,7 +394,10 @@ def main() -> int:
         novo.wait_for_url(re.compile(r".*/(entrar)?$"))
         novo.goto(f"{base}/painel")
         novo.wait_for_timeout(800)
-        c.conferir("/entrar" in novo.url, "segurança: 'Sair de todos os aparelhos' encerra a sessão")
+        c.conferir(
+            "/entrar" in novo.url,
+            "segurança: 'Sair de todos os aparelhos' encerra a sessão",
+        )
 
         anonimo.close()
         nav.close()

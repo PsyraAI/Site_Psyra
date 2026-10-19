@@ -1,12 +1,11 @@
 // Navegação das páginas públicas sem recarregar a página. Sprint: S10 | Risco: None
 // - Trocar de idioma mantém a seção que a pessoa estava lendo (sem voltar ao topo).
 // - Links para seções (#planos, #contato…) vindos de outra página não recarregam o site.
-// - Quem escolheu inglês ou chinês não volta sozinho para o português ao abrir "/".
+// - "/" abre sempre em português; /en e /zh só quando o visitante escolhe.
 
 import { useEffect, useLayoutEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
-import { idiomaSalvo } from "./idiomas";
 
 let posicaoTroca = null;
 
@@ -59,15 +58,9 @@ export function useRolarParaHash() {
 }
 
 /**
- * Nas rotas em português ("/" e "/privacidade"), quem já escolheu outro idioma é levado à versão
- * escolhida, sem recarregar. Só vale para escolha explícita (seletor), nunca para palpite do navegador.
+ * Mantido por compatibilidade com as páginas que o chamam. Desde 17/10/2026 a rota "/" abre
+ * SEMPRE em português: a escolha salva de outro idioma não redireciona mais para /en ou /zh
+ * (era isso que fazia a landing "abrir em inglês"). Os endereços /en e /zh seguem valendo.
  */
-export function useIdiomaEscolhido(idioma, destino) {
-  const navegar = useNavigate();
-  const { hash } = useLocation();
-  useEffect(() => {
-    if (idioma !== "pt") return;
-    const salvo = idiomaSalvo();
-    if (salvo && salvo !== "pt") navegar({ pathname: destino(salvo), hash }, { replace: true });
-  }, []); // só na entrada da página
-}
+// eslint-disable-next-line no-unused-vars
+export function useIdiomaEscolhido(idioma, destino) {}

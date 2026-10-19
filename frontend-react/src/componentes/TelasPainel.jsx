@@ -3,7 +3,7 @@
 // Textos em pt-BR, inglês e chinês (prop `t`); nomes de grupos e setores vêm da empresa.
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import {
   Users,
   Sparkles,
@@ -24,6 +24,7 @@ import {
 
 import { corDoNivel, formatarIndice } from "../lib/adaptadores";
 import { traduzirAcao, traduzirDimensao } from "../lib/textosApp";
+import { TEXTOS_PLANO, traduzirResponsavel } from "../lib/textosPlano";
 import { useTema } from "../lib/tema";
 import Explicacao from "./Explicacao";
 
@@ -177,6 +178,9 @@ export function VisaoGeral({ resumo, grupos, t, aoAbrirGrupo }) {
                   <Tooltip
                     cursor={{ fill: "rgba(188,132,195,0.08)" }}
                     contentStyle={{ background: cores.fundo, border: `1px solid ${cores.borda}`, borderRadius: 10, color: cores.texto, fontSize: 13 }}
+                    labelStyle={{ color: cores.texto, fontWeight: 600, marginBottom: 4 }}
+                    itemStyle={{ color: cores.texto, padding: 0 }}
+                    separator=": "
                     formatter={(valor) => [fmt(valor), t.indice]}
                   />
                   <Bar dataKey="indice" radius={[6, 6, 0, 0]} isAnimationActive={false}>
@@ -430,44 +434,259 @@ export function Conformidade({ conformidade, t }) {
 }
 
 /* --------------------------------------------------------- Plano de ação */
-export function PlanoAcao({ acoes, t, idioma }) {
+const LIMIAR_NIVEL = { alto: 60, moderado: 40 };
+
+function BarrasContribuicao({ itens, idioma, locale }) {
+  const max = Math.max(1, ...itens.map((c) => Math.abs(Number(c.contribuicao) || 0)));
+  const fmt = (v) => new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "always" }).format(v);
+  return (
+    <ul className="contrib">
+      {itens.map((c) => {
+        const v = Number(c.contribuicao) || 0;
+        return (
+          <li className="contrib__linha" key={c.dimensao}>
+            <span className="contrib__nome">{traduzirDimensao(c.dimensao, idioma)}</span>
+            <span className="contrib__trilho" aria-hidden="true">
+              <span
+                className={`contrib__barra ${v >= 0 ? "contrib__barra--mais" : "contrib__barra--menos"}`}
+                style={{ width: `${(Math.abs(v) / max) * 50}%` }}
+              />
+            </span>
+            <span className="contrib__valor numero">{fmt(v)}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function CartaoPlano({ acao, t, tp, idioma, mostrarValor }) {
+  const [aberto, setAberto] = useState(false);
+  const locale = t.locale;
+  const brl = (v) => new Intl.NumberFormat(locale, { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(Number(v) || 0);
+  const nivel = acao.nivel || (acao.prioridade === "alta" ? "alto" : "moderado");
+  const nivelAbaixo = nivel === "alto" ? "moderado" : "baixo";
+  const contribs = [...(acao.contribuicoes ?? [])].sort((a, b) => (Number(b.contribuicao) || 0) - (Number(a.contribuicao) || 0));
+  const lista = acao.acoes?.length ? acao.acoes : [{ dimensao: acao.dimensao, acao: acao.acao }];
+  const principal = lista[0];
+  const idDetalhe = `plano-${acao.grupo}`.replace(/\s+/g, "-");
+  const d = acao.textoLivre?.divergencia;
+
+  return (
+    <article className={`plano-item plano-item--${acao.prioridade === "alta" ? "alta" : "media"}`}>
+      <div className="grupo__cabecalho">
+        <div>
+          <p className="grupo__nome">{acao.grupo}</p>
+          <p className="grupo__setor">
+            {traduzirDimensao(principal.dimensao, idioma)}
+            {acao.indice != null ? (
+              <>
+                {" · "}
+                {t.indice} <span className="numero">{formatarIndice(acao.indice, locale)}</span>
+              </>
+            ) : null}
+          </p>
+        </div>
+        <div className="plano-item__etiquetas">
+          <span className={`etiqueta etiqueta--${acao.prioridade === "alta" ? "alto" : "moderado"}`}>
+            {t.prioridade[acao.prioridade] ?? acao.prioridade}
+          </span>
+          {acao.prazoDias ? (
+            <span className="etiqueta etiqueta--neutra">
+              {tp.prazo}: {tp.prazoDias(acao.prazoDias)}
+            </span>
+          ) : null}
+        </div>
+      </div>
+
+      <ol className="plano-acoes">
+        {lista.map((x, i) => (
+          <li key={`${x.dimensao}-${i}`} className="plano-acoes__item">
+            <p className="plano-item__acao">{traduzirAcao(x.acao, idioma)}</p>
+            <p className="plano-acoes__meta">
+              <span>{traduzirDimensao(x.dimensao, idioma)}</span>
+              {x.responsavel ? (
+                <span>
+                  {tp.responsavel}: <strong>{traduzirResponsavel(x.responsavel, idioma)}</strong>
+                </span>
+              ) : null}
+            </p>
+          </li>
+        ))}
+      </ol>
+
+      {mostrarValor && acao.perdaEvitavel > 0 ? (
+        <p className="plano-impacto">
+          <Banknote size={15} aria-hidden="true" /> {tp.impacto}: <strong className="numero">{brl(acao.perdaEvitavel)}</strong>{" "}
+          <span className="aviso">{tp.impactoNota}</span>
+        </p>
+      ) : null}
+
+      <button type="button" className="plano-item__alternar" aria-expanded={aberto} aria-controls={idDetalhe} onClick={() => setAberto((v) => !v)}>
+        <Sparkles size={14} aria-hidden="true" /> {aberto ? tp.ocultarDetalhes : tp.detalhes}
+        <ChevronRight size={14} aria-hidden="true" className={`plano-item__seta ${aberto ? "plano-item__seta--aberta" : ""}`} />
+      </button>
+
+      {aberto ? (
+        <div className="plano-detalhe" id={idDetalhe}>
+          <h3 className="plano-detalhe__titulo">{tp.porQueTitulo}</h3>
+          <p>
+            {tp.porQue(
+              {
+                indice: acao.indice ?? 0,
+                n: acao.n ?? "—",
+                nivelNome: tp.nivel[nivel],
+                limiar: LIMIAR_NIVEL[nivel] ?? 40,
+                principal: contribs[0]
+                  ? { ...contribs[0], dimensao: traduzirDimensao(contribs[0].dimensao, idioma), contribuicao: Number(contribs[0].contribuicao) || 0 }
+                  : null,
+              },
+              locale
+            )}
+          </p>
+
+          {contribs.length ? (
+            <>
+              <h3 className="plano-detalhe__titulo">{tp.contribTitulo}</h3>
+              <p className="aviso">{tp.contribLead}</p>
+              <BarrasContribuicao itens={contribs} idioma={idioma} locale={locale} />
+            </>
+          ) : null}
+
+          {d != null ? (
+            <>
+              <h3 className="plano-detalhe__titulo">{tp.textoTitulo}</h3>
+              <p>
+                {d > 0 ? tp.textoMais(d, locale) : tp.textoMenos(d, locale)} {d > 0 ? tp.textoLeituraMais : tp.textoLeituraMenos}
+              </p>
+            </>
+          ) : null}
+
+          <h3 className="plano-detalhe__titulo">{tp.indicador}</h3>
+          <ul className="plano-detalhe__lista">
+            {lista.map((x, i) =>
+              x.indice != null ? <li key={i}>{tp.indicadorTexto(traduzirDimensao(x.dimensao, idioma), x.indice, locale)}</li> : null
+            )}
+            <li>
+              <strong>{tp.meta}:</strong> {tp.metaTexto(tp.nivel[nivel], tp.nivel[nivelAbaixo])}
+            </li>
+          </ul>
+          <p className="aviso plano-detalhe__ref">{tp.referencia}</p>
+        </div>
+      ) : null}
+
+      <p className="plano-item__status">
+        <Lock size={13} aria-hidden="true" /> {t.status}: {t.statusAcao}
+      </p>
+    </article>
+  );
+}
+
+export function PlanoAcao({ acoes, t, idioma, mostrarValor = false }) {
+  const tp = TEXTOS_PLANO[idioma] || TEXTOS_PLANO.pt;
   return (
     <div className="superficie">
       <h2 className="secao-titulo">
         <ClipboardList size={18} aria-hidden="true" /> {t.planoTitulo}
       </h2>
-      <p className="aviso secao-lead">{t.planoLead}</p>
+      <p className="aviso secao-lead">{tp.lead}</p>
 
       {acoes.length === 0 ? (
         <Vazio icone={CheckCircle2}>{t.planoVazio}</Vazio>
       ) : (
         <div className="plano-lista">
           {acoes.map((acao) => (
-            <div className={`plano-item plano-item--${acao.prioridade === "alta" ? "alta" : "media"}`} key={`${acao.grupo}-${acao.dimensao}`}>
-              <div className="grupo__cabecalho">
-                <div>
-                  <p className="grupo__nome">{acao.grupo}</p>
-                  <p className="grupo__setor">{traduzirDimensao(acao.dimensao, idioma)}</p>
-                </div>
-                <span className={`etiqueta etiqueta--${acao.prioridade === "alta" ? "alto" : "moderado"}`}>
-                  {t.prioridade[acao.prioridade] ?? acao.prioridade}
-                </span>
-              </div>
-              <p className="plano-item__acao">{traduzirAcao(acao.acao, idioma)}</p>
-              <p className="plano-item__status">
-                <Lock size={13} aria-hidden="true" /> {t.status}: {t.statusAcao}
-              </p>
-            </div>
+            <CartaoPlano key={`${acao.grupo}-${acao.dimensao}`} acao={acao} t={t} tp={tp} idioma={idioma} mostrarValor={mostrarValor} />
           ))}
         </div>
       )}
+      <p className="aviso" style={{ marginTop: 12 }}>
+        {t.planoLead}
+      </p>
+    </div>
+  );
+}
+
+/* ------------------------------------------- projeção de perda (12 meses) */
+function ProjecaoPerda({ projecao, t, tp }) {
+  const { tema } = useTema();
+  const cores = corGrafico(tema);
+  const locale = t.locale;
+  const brl = (v) => new Intl.NumberFormat(locale, { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(Number(v) || 0);
+  const brlCurto = (v) => new Intl.NumberFormat(locale, { style: "currency", currency: "BRL", notation: "compact", maximumFractionDigits: 1 }).format(Number(v) || 0);
+  const dados = (projecao?.meses ?? []).map((m) => ({
+    mes: m.mes,
+    rotulo: tp.mes(m.mes),
+    sem: m.sem_acao_acumulado,
+    com: m.com_plano_acumulado,
+  }));
+  if (!dados.length) return null;
+  const roxo = "#BC84C3";
+  const perigo = "#D64045";
+  return (
+    <div className="superficie" style={{ marginBottom: 20 }}>
+      <h2 className="secao-titulo">
+        <TrendingUp size={18} aria-hidden="true" /> {tp.projTitulo}
+      </h2>
+      <p className="aviso secao-lead">{tp.projLead}</p>
+      <div className="grade grade--3" style={{ marginBottom: 16 }}>
+        <Kpi rotulo={tp.economia} valor={brl(projecao.economia_12_meses)} nota={tp.economiaNota} icone={Banknote} destaque />
+        <Kpi rotulo={tp.mensalHoje} valor={brl(projecao.perda_mensal_atual)} nota={tp.semAcao} icone={TrendingUp} />
+        <Kpi rotulo={tp.mensalDepois} valor={brl(projecao.perda_mensal_com_plano)} nota={tp.comPlano} icone={CheckCircle2} />
+      </div>
+      <div className="grafico-moldura" style={{ width: "100%", height: 300 }} role="img" aria-label={tp.projTitulo}>
+        <ResponsiveContainer>
+          <AreaChart data={dados} margin={{ top: 10, right: 16, left: 8, bottom: 0 }}>
+            <defs>
+              <linearGradient id="gradSem" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={perigo} stopOpacity={0.28} />
+                <stop offset="100%" stopColor={perigo} stopOpacity={0.02} />
+              </linearGradient>
+              <linearGradient id="gradCom" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={roxo} stopOpacity={0.35} />
+                <stop offset="100%" stopColor={roxo} stopOpacity={0.04} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid stroke={cores.grade} vertical={false} />
+            <XAxis dataKey="mes" tick={{ fill: cores.eixo, fontSize: 12 }} axisLine={false} tickLine={false} />
+            <YAxis tickFormatter={brlCurto} tick={{ fill: cores.eixo, fontSize: 12 }} axisLine={false} tickLine={false} width={72} />
+            <Tooltip
+              contentStyle={{ background: cores.fundo, border: `1px solid ${cores.borda}`, borderRadius: 10, color: cores.texto, fontSize: 13 }}
+              labelStyle={{ color: cores.texto, fontWeight: 600, marginBottom: 4 }}
+              itemStyle={{ color: cores.texto, padding: 0 }}
+              separator=": "
+              labelFormatter={(m) => tp.mes(m)}
+              formatter={(valor, nome) => [brl(valor), nome === "sem" ? tp.semAcao : tp.comPlano]}
+            />
+            <Area type="monotone" dataKey="sem" stroke={perigo} strokeWidth={2.5} fill="url(#gradSem)" isAnimationActive={false} />
+            <Area type="monotone" dataKey="com" stroke={roxo} strokeWidth={2.5} fill="url(#gradCom)" isAnimationActive={false} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="grafico-legenda">
+        <span>
+          <i style={{ background: perigo }} /> {tp.semAcao}
+        </span>
+        <span>
+          <i style={{ background: roxo }} /> {tp.comPlano}
+        </span>
+      </div>
+      <details className="plano-premissas">
+        <summary>{tp.premissas}</summary>
+        <ul>
+          {tp.premissasLista.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+      </details>
     </div>
   );
 }
 
 /* --------------------------------------------- Capital em risco (pago) */
-export function CapitalRisco({ bloqueado, dados, carregando, erro, t }) {
+export function CapitalRisco({ bloqueado, dados, carregando, erro, t, idioma = "pt" }) {
   const c = t.capital;
+  const tp = TEXTOS_PLANO[idioma] || TEXTOS_PLANO.pt;
   const brl = (valor) =>
     new Intl.NumberFormat(t.locale, { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(Number(valor) || 0);
 
@@ -506,6 +725,8 @@ export function CapitalRisco({ bloqueado, dados, carregando, erro, t }) {
         <Kpi rotulo={c.perdaAnual} valor={brl(dados.perda_anual_total)} nota={c.perdaAnualNota(dados.total_afetados)} icone={TrendingUp} />
         <Kpi rotulo={c.setores} valor={String(dados.setores?.length ?? 0)} nota={c.setoresNota(dados.ghes_omitidos_mascarados)} icone={Users} />
       </div>
+
+      <ProjecaoPerda projecao={dados.projecao} t={t} tp={tp} />
 
       <div className="superficie">
         <h2 className="secao-titulo">

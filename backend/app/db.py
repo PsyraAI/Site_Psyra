@@ -70,7 +70,7 @@ def _adaptar_sql(sql: str) -> str:
 
 def _normalizar_valor_pg(valor: Any) -> Any:
     """Converte tipos Postgres (UUID, datetime) para valores usáveis na API/JWT."""
-    if valor is None or isinstance(valor, (str, int, float, bool, bytes)):
+    if valor is None or isinstance(valor, str | int | float | bool | bytes):
         return valor
     # uuid.UUID, datetime, date, Decimal, etc.
     tipo = type(valor)
@@ -274,7 +274,8 @@ def _migrar_operacao_producao(conexao: Any) -> None:
             "ativo INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0, 1))"
         )
         conexao.execute(
-            "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS porte TEXT NOT NULL DEFAULT 'media'"
+            "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS porte TEXT NOT NULL DEFAULT "
+            "'media'"
         )
         conexao.execute(
             "ALTER TABLE empresa ADD COLUMN IF NOT EXISTS "
@@ -302,7 +303,8 @@ def _migrar_operacao_producao(conexao: Any) -> None:
 
 
 def _migrar_banca_v2(conexao: Any) -> None:
-    """Qualidade das respostas, evasão e sessões (banca final). Idempotente. Sprint: S10 | Risco: R2"""
+    """Qualidade das respostas, evasão e sessões (banca final). Idempotente. Sprint: S10
+    | Risco: R2"""
     colunas = {
         "usuario_empresa": {
             "sessao_versao": "INTEGER NOT NULL DEFAULT 0",
@@ -321,10 +323,13 @@ def _migrar_banca_v2(conexao: Any) -> None:
     for tabela, novas in colunas.items():
         if _DRIVER == "postgres":
             for nome, tipo in novas.items():
-                conexao.execute(f"ALTER TABLE {tabela} ADD COLUMN IF NOT EXISTS {nome} {tipo}")
+                conexao.execute(
+                    f"ALTER TABLE {tabela} ADD COLUMN IF NOT EXISTS {nome} {tipo}"
+                )
         else:
             existentes = {
-                linha["name"] for linha in conexao.execute(f"PRAGMA table_info({tabela})").fetchall()
+                linha["name"]
+                for linha in conexao.execute(f"PRAGMA table_info({tabela})").fetchall()
             }
             for nome, tipo in novas.items():
                 if nome not in existentes:

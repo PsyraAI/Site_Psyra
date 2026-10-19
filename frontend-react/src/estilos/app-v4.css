@@ -1,0 +1,165 @@
+/* Psyra AI — correções de visualização relatadas em 17/10/2026. Sprint: S10 | Risco: None
+   1. Barra lateral: em telas baixas não dava para rolar até "Conta".
+   2. Balões de explicação ("?") cortados pela borda do cartão ou da janela.
+   3. Tooltip do gráfico com texto escuro sobre fundo escuro (ver TelasPainel.jsx). */
+
+/* 1 · barra lateral rolável (desktop) */
+.sidebar {
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(188, 132, 195, 0.35) transparent;
+}
+.sidebar::-webkit-scrollbar { width: 8px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(188, 132, 195, 0.3); border-radius: 8px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+/* o rodapé (aviso de privacidade) fica no fim do conteúdo, sem esmagar a navegação */
+.sidebar__rodape { margin-top: auto; padding-top: var(--s4); }
+.sidebar > * { flex-shrink: 0; }
+
+/* 1b · gaveta no celular/tablet: altura real da tela visível (100dvh) */
+@media (max-width: 1024px) {
+  .sidebar {
+    /* altura explícita: com height:auto a gaveta crescia até o tamanho do conteúdo
+       (764 px numa tela de 700 px) e o fim da lista ficava fora da tela, sem rolagem */
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    top: 0;
+    bottom: auto;
+    padding-bottom: calc(var(--s5) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* 2 · balão de explicação em portal, com posição fixa calculada no JS */
+.explicacao__texto--flutuante {
+  position: fixed;
+  right: auto;
+  z-index: 300;
+  max-width: calc(100vw - 24px);
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  pointer-events: auto;
+}
+.explicacao__texto--flutuante::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: calc(var(--seta-x, 50%) - 6px);
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  border-left: 1px solid var(--linha-forte);
+  border-top: 1px solid var(--linha-forte);
+  transform: rotate(45deg);
+}
+.explicacao__texto--acima::before {
+  top: auto;
+  bottom: -6px;
+  transform: rotate(225deg);
+}
+[data-tema="claro"] .explicacao__texto--flutuante {
+  background: #ffffff;
+  color: #1c1f3a;
+  border-color: rgba(28, 31, 58, 0.14);
+  box-shadow: 0 12px 32px rgba(28, 31, 58, 0.16);
+}
+
+/* 3 · tooltip dos gráficos (Recharts) legível nos dois temas */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  box-shadow: var(--sombra-3);
+}
+.recharts-tooltip-wrapper .recharts-tooltip-item,
+.recharts-tooltip-wrapper .recharts-tooltip-item-name,
+.recharts-tooltip-wrapper .recharts-tooltip-item-value,
+.recharts-tooltip-wrapper .recharts-tooltip-item-separator {
+  color: inherit !important;
+}
+
+@media print {
+  .explicacao__texto--flutuante { display: none !important; }
+}
+
+/* 4 · plano de ação explicável (17/10/2026) */
+.plano-item__etiquetas { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.etiqueta--neutra { background: rgba(127, 131, 160, 0.16); color: var(--nevoa); }
+[data-tema="claro"] .etiqueta--neutra { color: #3a3e5c; background: rgba(28, 31, 58, 0.07); }
+.plano-acoes { margin: 4px 0 0; padding: 0 0 0 20px; display: grid; gap: 10px; }
+.plano-acoes__item::marker { color: var(--roxo); font-weight: 700; }
+.plano-acoes__meta { margin: 2px 0 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ardosia); }
+.plano-acoes__meta strong { color: var(--nevoa); font-weight: 600; }
+[data-tema="claro"] .plano-acoes__meta strong { color: #1c1f3a; }
+.plano-impacto { margin: 2px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13.5px; }
+.plano-impacto svg { color: var(--roxo); }
+.plano-item__alternar {
+  justify-self: start; display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;
+  padding: 6px 10px; border-radius: 9px; border: 1px solid var(--roxo-20); background: var(--roxo-12);
+  color: var(--roxo); font: 600 13px/1 var(--corpo); cursor: pointer;
+  transition: background 0.16s var(--lp-ease-out, ease), border-color 0.16s;
+}
+.plano-item__alternar:hover { background: rgba(188, 132, 195, 0.22); }
+.plano-item__alternar:focus-visible { outline: 2px solid var(--roxo); outline-offset: 2px; }
+.plano-item__seta { transition: transform 0.2s; }
+.plano-item__seta--aberta { transform: rotate(90deg); }
+.plano-detalhe {
+  display: grid; gap: 8px; padding: 14px 16px; border-radius: 12px;
+  background: rgba(12, 14, 28, 0.45); border: 1px solid var(--linha);
+  animation: secao-entra 0.2s ease both;
+}
+[data-tema="claro"] .plano-detalhe { background: #f8f5fb; border-color: rgba(28, 31, 58, 0.1); }
+.plano-detalhe p { margin: 0; font-size: 13.5px; line-height: 1.6; }
+.plano-detalhe__titulo { margin: 6px 0 0; font: 600 12px/1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ardosia); }
+.plano-detalhe__lista { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.6; }
+.plano-detalhe__ref { margin-top: 4px !important; font-size: 12px !important; }
+
+.contrib { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
+.contrib__linha { display: grid; grid-template-columns: minmax(120px, 1.2fr) 1.6fr 52px; align-items: center; gap: 10px; font-size: 12.5px; }
+.contrib__nome { color: var(--nevoa); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[data-tema="claro"] .contrib__nome { color: #1c1f3a; }
+.contrib__trilho { position: relative; height: 10px; border-radius: 6px; background: rgba(127, 131, 160, 0.14); }
+.contrib__trilho::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: rgba(127, 131, 160, 0.55); }
+.contrib__barra { position: absolute; top: 0; bottom: 0; border-radius: 6px; }
+.contrib__barra--mais { left: 50%; background: linear-gradient(90deg, rgba(214, 64, 69, 0.55), #d64045); }
+.contrib__barra--menos { right: 50%; background: linear-gradient(270deg, rgba(91, 191, 138, 0.55), #5bbf8a); }
+.contrib__valor { text-align: right; color: var(--nevoa); }
+[data-tema="claro"] .contrib__valor { color: #1c1f3a; }
+@media (max-width: 560px) {
+  .contrib__linha { grid-template-columns: 1fr 52px; }
+  .contrib__trilho { grid-column: 1 / -1; grid-row: 2; }
+}
+
+/* 5 · projeção de perda em 12 meses */
+.plano-premissas { margin-top: 12px; font-size: 13px; }
+.plano-premissas summary { cursor: pointer; color: var(--roxo); font-weight: 600; }
+.plano-premissas ul { margin: 8px 0 0; padding-left: 18px; line-height: 1.6; color: var(--ardosia); }
+@media print {
+  .plano-item__alternar { display: none !important; }
+}
+
+/* 6 · links legais no acesso e no questionário */
+.entrada__legal { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: var(--ardosia); text-align: center; }
+.entrada__legal a { color: var(--roxo); }
+.rq-links-legais { margin: 8px 0 0; font-size: 13px; }
+
+/* 7 · carregamento das telas sob demanda */
+.carregando-rota { min-height: 100vh; display: grid; place-items: center; background: var(--noite, #1c1f3a); }
+.carregando-rota__ponto { width: 14px; height: 14px; border-radius: 50%; background: var(--roxo, #bc84c3); animation: carregando-pulso 1s ease-in-out infinite; }
+@keyframes carregando-pulso { 0%, 100% { transform: scale(0.7); opacity: 0.5; } 50% { transform: scale(1.15); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .carregando-rota__ponto { animation: none; } }
+
+/* 8 · pedido de exclusão de conta (Configurações > Conta) */
+.config__excluir { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--linha); }
+.config__excluir h3 { margin: 0 0 6px; font: 600 14px/1.3 var(--corpo); color: var(--nevoa); }
+[data-tema="claro"] .config__excluir h3 { color: #1c1f3a; }
+.config__excluir p { margin: 0 0 10px; font-size: 13px; line-height: 1.55; color: var(--ardosia); max-width: 60ch; }
+.config__excluir-botao { color: #f3a1a4; border-color: rgba(214, 64, 69, 0.4); text-decoration: none; }
+[data-tema="claro"] .config__excluir-botao { color: #b3262b; }
+
+/* 9 · cabeçalho do painel no celular: título e empresa em uma linha cada */
+.topbar__esq { min-width: 0; }
+.topbar__esq > div { min-width: 0; }
+.topbar__titulo, .topbar__sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

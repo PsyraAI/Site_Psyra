@@ -312,9 +312,15 @@ export default function Responder() {
                 <input type="checkbox" checked={aceite} onChange={(e) => setAceite(e.target.checked)} />
                 <span>Li e concordo em participar.</span>
               </label>
-              <Link className="rq-link" to="/privacidade" target="_blank" rel="noreferrer">
-                Como a Psyra trata os dados
-              </Link>
+              <p className="rq-links-legais">
+                <Link className="rq-link" to="/privacidade" target="_blank" rel="noreferrer">
+                  Como a Psyra trata os dados
+                </Link>
+                {" · "}
+                <Link className="rq-link" to="/termos" target="_blank" rel="noreferrer">
+                  Termos de Uso
+                </Link>
+              </p>
             </div>
             <div className="rq-acoes">
               <button

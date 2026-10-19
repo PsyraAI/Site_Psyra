@@ -6,7 +6,12 @@ import react from "@vitejs/plugin-react";
 // então o navegador vê tudo na mesma origem e não há CORS no caminho.
 export default defineConfig({
   plugins: [react()],
-  build: { outDir: "../backend/static-react", emptyOutDir: true },
+  build: {
+    outDir: "../backend/static-react",
+    emptyOutDir: true,
+    // fontes nunca viram data: (a CSP só aceita font-src 'self'); o resto segue o padrão de 4 kB
+    assetsInlineLimit: (arquivo) => (/\.(woff2?|ttf|otf)$/.test(arquivo) ? false : undefined),
+  },
   server: {
     port: 5173,
     proxy: {

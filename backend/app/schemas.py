@@ -30,7 +30,8 @@ class LoginSaida(BaseModel):
 
 
 class TrocaSenhaEntrada(BaseModel):
-    """Troca de senha pelo próprio usuário (exige a senha atual). Sprint: S10 | Risco: R2"""
+    """Troca de senha pelo próprio usuário (exige a senha atual). Sprint: S10 | Risco:
+    R2"""
 
     senha_atual: str = Field(min_length=1, max_length=128)
     senha_nova: str = Field(min_length=1, max_length=128)
@@ -78,7 +79,9 @@ class ConviteEntrada(BaseModel):
 class SenhaTemporariaSaida(BaseModel):
     usuario: UsuarioEquipeSaida
     senha_temporaria: str
-    aviso: str = "Mostrada uma única vez. A pessoa cria a própria senha no primeiro acesso."
+    aviso: str = (
+        "Mostrada uma única vez. A pessoa cria a própria senha no primeiro acesso."
+    )
 
 
 class InicioEntrada(BaseModel):
@@ -107,12 +110,8 @@ class EmpresaAdminEntrada(BaseModel):
 
 
 class EmpresaAdminAtualizacao(BaseModel):
-    plano: str | None = Field(
-        default=None, pattern="^(starter|professional|enterprise)$"
-    )
-    porte: str | None = Field(
-        default=None, pattern="^(micro|pequena|media|grande)$"
-    )
+    plano: str | None = Field(default=None, pattern="^(starter|professional|enterprise)$")
+    porte: str | None = Field(default=None, pattern="^(micro|pequena|media|grande)$")
     atuacao: str | None = Field(
         default=None,
         pattern="^(saude|industria|servicos|comercio|tecnologia|outro)$",
@@ -220,7 +219,8 @@ class RespostaEntrada(BaseModel):
     likert: dict[str, int]
     texto_livre: str | None = Field(default=None, max_length=4000)
     consentimento: bool
-    # segundos gastos em cada parte (só para a verificação de pressa; nunca exibidos sozinhos)
+    # segundos gastos em cada parte (só para a verificação de pressa; nunca exibidos
+    # sozinhos)
     tempos_partes: list[int] | None = Field(default=None, max_length=20)
 
     @field_validator("likert")
@@ -275,3 +275,4 @@ class CapitalRiscoSaida(BaseModel):
     perda_anual_total: float
     setores: list[dict[str, Any]]
     ghes: list[dict[str, Any]]
+    projecao: dict[str, Any] = {}

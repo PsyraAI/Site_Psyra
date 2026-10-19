@@ -4,9 +4,9 @@
 // processo da ITC — tradução, revisão, piloto e equivalência).
 
 export const IDIOMAS = {
-  pt: { id: "pt", html: "pt-BR", locale: "pt-BR", nome: "Português", inicio: "/", privacidade: "/privacidade" },
-  en: { id: "en", html: "en", locale: "en-US", nome: "English", inicio: "/en", privacidade: "/en/privacy" },
-  zh: { id: "zh", html: "zh-Hans", locale: "zh-CN", nome: "简体中文", inicio: "/zh", privacidade: "/zh/privacy" },
+  pt: { id: "pt", html: "pt-BR", locale: "pt-BR", nome: "Português", inicio: "/", privacidade: "/privacidade", termos: "/termos" },
+  en: { id: "en", html: "en", locale: "en-US", nome: "English", inicio: "/en", privacidade: "/en/privacy", termos: "/en/terms" },
+  zh: { id: "zh", html: "zh-Hans", locale: "zh-CN", nome: "简体中文", inicio: "/zh", privacidade: "/zh/privacy", termos: "/zh/terms" },
 };
 
 export const ORDEM_IDIOMAS = ["pt", "en", "zh"];
@@ -43,9 +43,11 @@ export function idiomaDoNavegador() {
   return null;
 }
 
-/** Idioma das telas sem URL própria (acesso): escolha salva > navegador > pt. */
+/** Idioma das telas sem URL própria (acesso e painel): escolha salva > pt.
+ *  Português é sempre o padrão (17/10/2026): o idioma do navegador não troca nada
+ *  sozinho; o visitante muda pelo seletor e a escolha fica salva. */
 export function idiomaPreferido() {
-  return idiomaSalvo() || idiomaDoNavegador() || "pt";
+  return idiomaSalvo() || "pt";
 }
 
 /** Aplica lang, título e descrição da página ativa. */

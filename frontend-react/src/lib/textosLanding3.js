@@ -1,7 +1,7 @@
 // Psyra AI — textos dos blocos novos da landing (banca final, parte 4).
 // Inspirados em padrões de sites de produto (faixa de números com fonte, abas por perfil,
 // caminho da resposta, rodapé em colunas com seletor de tema). Sprint: S10 | Risco: R2
-// Regra: todo número externo tem fonte com link; telas do produto usam dados simulados e dizem isso.
+// Regra: todo número externo tem fonte com link.
 
 const FONTES = {
   dgabc: "https://www.dgabc.com.br/Noticia/4291324/afastamentos-por-transtorno-mental-chegam-a-546-mil",
@@ -61,7 +61,7 @@ export const TEXTOS3 = {
       titulo: "Cada pessoa vê o que precisa para agir",
       intro: "O mesmo resultado, lido por quem decide, por quem registra no PGR, por quem valida e por quem responde.",
       abasRotulo: "Perfis",
-      selo: "Tela real · dados simulados",
+      selo: "Tela real do painel",
       perfis: [
         {
           id: "rh",
@@ -75,7 +75,7 @@ export const TEXTOS3 = {
           link: "Ver painel de exemplo",
           secao: "painel",
           imagem: IMAGENS.rh,
-          alt: "Visão geral do painel: índice geral, distribuição dos grupos e ranking de risco por grupo, com dados simulados.",
+          alt: "Visão geral do painel: índice geral, distribuição dos grupos e ranking de risco por grupo.",
         },
         {
           id: "sesmt",
@@ -89,7 +89,7 @@ export const TEXTOS3 = {
           link: "Ver o que a empresa recebe",
           secao: "entregas",
           imagem: IMAGENS.sesmt,
-          alt: "Tela de conformidade NR-1 e LGPD com quatro itens atendidos e dois pendentes, com dados simulados.",
+          alt: "Tela de conformidade NR-1 e LGPD com quatro itens atendidos e dois pendentes.",
         },
         {
           id: "psi",
@@ -103,7 +103,7 @@ export const TEXTOS3 = {
           link: "Entender o modelo",
           secao: "modelo",
           imagem: IMAGENS.psi,
-          alt: "Plano de ação por grupo, com prioridade e o status aguardando validação da psicóloga, com dados simulados.",
+          alt: "Plano de ação por grupo, com prioridade e o status aguardando validação da psicóloga.",
         },
         {
           id: "colab",
@@ -193,7 +193,7 @@ export const TEXTOS3 = {
       titulo: "Everyone sees what they need to act",
       intro: "The same result, read by whoever decides, whoever records it in the PGR, whoever validates it and whoever answers.",
       abasRotulo: "Roles",
-      selo: "Real screen · simulated data · in Portuguese",
+      selo: "Real screen · Portuguese interface",
       perfis: [
         {
           id: "rh",
@@ -207,7 +207,7 @@ export const TEXTOS3 = {
           link: "See the sample dashboard",
           secao: "painel",
           imagem: IMAGENS.rh,
-          alt: "Dashboard overview: overall index, group distribution and risk ranking per group, with simulated data.",
+          alt: "Dashboard overview: overall index, group distribution and risk ranking per group.",
         },
         {
           id: "sesmt",
@@ -221,7 +221,7 @@ export const TEXTOS3 = {
           link: "See what the company gets",
           secao: "entregas",
           imagem: IMAGENS.sesmt,
-          alt: "NR-1 and LGPD compliance screen with four items met and two pending, with simulated data.",
+          alt: "NR-1 and LGPD compliance screen with four items met and two pending.",
         },
         {
           id: "psi",
@@ -235,7 +235,7 @@ export const TEXTOS3 = {
           link: "Understand the model",
           secao: "modelo",
           imagem: IMAGENS.psi,
-          alt: "Action plan per group, with priority and a status awaiting the psychologist's validation, with simulated data.",
+          alt: "Action plan per group, with priority and a status awaiting the psychologist's validation.",
         },
         {
           id: "colab",
@@ -325,7 +325,7 @@ export const TEXTOS3 = {
       titulo: "每个人都能看到行动所需的信息",
       intro: "同一个结果，由决策者、负责 PGR 记录的人、负责审核的人和作答者分别解读。",
       abasRotulo: "角色",
-      selo: "真实界面 · 模拟数据 · 葡萄牙语",
+      selo: "真实界面 · 葡萄牙语",
       perfis: [
         {
           id: "rh",
@@ -339,7 +339,7 @@ export const TEXTOS3 = {
           link: "查看示例看板",
           secao: "painel",
           imagem: IMAGENS.rh,
-          alt: "看板总览：总体指数、群组分布和各群组风险排名，使用模拟数据。",
+          alt: "看板总览：总体指数、群组分布和各群组风险排名。",
         },
         {
           id: "sesmt",
@@ -353,7 +353,7 @@ export const TEXTOS3 = {
           link: "查看企业获得的成果",
           secao: "entregas",
           imagem: IMAGENS.sesmt,
-          alt: "NR-1 与 LGPD 合规界面：四项已满足、两项待完成，使用模拟数据。",
+          alt: "NR-1 与 LGPD 合规界面：四项已满足、两项待完成。",
         },
         {
           id: "psi",
@@ -367,7 +367,7 @@ export const TEXTOS3 = {
           link: "了解模型",
           secao: "modelo",
           imagem: IMAGENS.psi,
-          alt: "按群组的行动计划，含优先级和“等待心理学家审核”状态，使用模拟数据。",
+          alt: "按群组的行动计划，含优先级和“等待心理学家审核”状态。",
         },
         {
           id: "colab",

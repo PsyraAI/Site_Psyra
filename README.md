@@ -4,9 +4,9 @@ Backend + frontend do produto rodando ponta a ponta: coleta anônima do question
 NR-1, agregação por Grupo Homogêneo de Exposição (GHE) com k-anonimato e painel de
 conformidade para o gestor.
 
-> **TCC FECAP · IA · entrega PTI out/2026**
+> **PTI de Inteligência Artificial · FECAP · out/2026**
 > Equipe: Vinícius de Lima (CTO) · Pedro Octávio Rodrigues Jorge (CPO) · Leandro Rodrigues Machado (CDO) · psicóloga CRP (consultora externa)
-> Orientação: Fabiana Traulino
+> Orientação: Prof. Glenarisson e Prof. Alexandre
 
 ---
 
@@ -60,6 +60,21 @@ FastAPI. Em sistemas com `make`, use `make instalar`, `make seed` e `make rodar`
 
 Passo a passo de deploy HTTPS, secrets, backups, superadmin e smoke test do
 Google Forms: [`docs/PRODUCAO.md`](docs/PRODUCAO.md).
+
+## Google, app Android e variáveis novas (17/10/2026)
+
+| Variável (Render → Environment) | Para quê |
+|---|---|
+| `PSYRA_URL_PUBLICA` | Domínio público usado no canônico, no sitemap e no Open Graph (padrão: `https://site-psyra.onrender.com`) |
+| `PSYRA_GOOGLE_SITE_VERIFICATION` | Código da tag HTML do Google Search Console |
+| `PSYRA_BING_SITE_VERIFICATION` | Código do Bing Webmaster Tools |
+| `PSYRA_TWA_PACOTE` / `PSYRA_TWA_SHA256` | Digital Asset Links do app Android (`/.well-known/assetlinks.json`) |
+
+- **SEO:** `backend/app/seo.py` gera título, descrição, canônico, hreflang, Open Graph e JSON-LD por rota; `/robots.txt` e `/sitemap.xml` são servidos pela API; painel, admin, questionário e acesso recebem `noindex`.
+- **Páginas públicas novas:** `/termos`, `/privacidade` (completas, pt/en; resumo em zh) e `/guia-nr1` (guia da NR-1 para busca orgânica).
+- **PWA e app Android:** `manifest.webmanifest`, `sw.js` (nunca guarda `/v1`) e o projeto TWA em `android-app/`. Passo a passo da Play Store em [`android-app/README.md`](android-app/README.md).
+- **Estratégia de crescimento e boas práticas:** [`docs/S10_COM_crescimento_organico_e_boas_praticas_v1.md`](docs/S10_COM_crescimento_organico_e_boas_praticas_v1.md).
+- **Revisão do modelo:** [`docs/S10_ML_revisao_ponta_a_ponta_v1.md`](docs/S10_ML_revisao_ponta_a_ponta_v1.md).
 
 ## Questionário no próprio site (padrão desde a banca final)
 

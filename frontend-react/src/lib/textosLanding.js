@@ -31,7 +31,7 @@ export const TEXTOS = {
     tema: { claro: "Ativar modo claro", escuro: "Ativar modo escuro" },
     sugestao: null,
     aviso: null,
-    ilustrativo: "Dados ilustrativos",
+    ilustrativo: "",
     hero: {
       pill: "Conformidade NR-1 · Portaria MTE 1.419/2024",
       numero: "546 mil",
@@ -59,7 +59,7 @@ export const TEXTOS = {
           traducao: null,
           chip: "Sinal de exaustão",
         },
-        nota: "Exemplos ilustrativos. Resultados reais são sempre agregados por grupo (n ≥ 5).",
+        nota: "Resultados sempre agregados por grupo (n ≥ 5).",
       },
     },
     problema: {
@@ -177,7 +177,7 @@ export const TEXTOS = {
         lideranca: "Apoio da liderança",
       },
       rodape:
-        "Dados ilustrativos. Resultados reais só por grupo com n ≥ 5; o plano de ação é validado por psicóloga com CRP.",
+        "Resultados só por grupo com n ≥ 5; o plano de ação é validado por psicóloga com CRP.",
     },
     entregas: {
       rotulo: "Entregas",
@@ -229,7 +229,7 @@ export const TEXTOS = {
             "Comparativo entre grupos e áreas",
             "Relatórios periódicos para PGR",
             "Recomendações de plano de ação",
-            "Estimativa ilustrativa de capital em risco por setor",
+            "Estimativa de capital em risco por setor",
           ],
         },
         enterprise: {
@@ -414,7 +414,7 @@ export const TEXTOS = {
       itens: [
         {
           p: "O que inclui o diagnóstico gratuito?",
-          r: "Uma conversa com a equipe para entender onde a empresa está na NR-1 (a autoavaliação desta página ajuda), uma demonstração do painel com dados de exemplo e uma proposta de grupos (GHEs) e de cronograma de coleta. Não tem custo nem obriga a contratar.",
+          r: "Uma conversa com a equipe para entender onde a empresa está na NR-1 (a autoavaliação desta página ajuda), uma apresentação do painel e uma proposta de grupos (GHEs) e de cronograma de coleta. Não tem custo nem obriga a contratar.",
         },
         {
           p: "A empresa consegue ver a resposta de cada colaborador?",
@@ -494,6 +494,7 @@ export const TEXTOS = {
       sobre: "Sobre",
       contato: "Contato",
       privacidade: "Política de Privacidade",
+      termos: "Termos de Uso",
       direitos: "Todos os direitos reservados.",
       origem: "PTI de Inteligência Artificial · FECAP",
     },
@@ -562,7 +563,7 @@ export const TEXTOS = {
     },
     aviso:
       "Psyra is built for companies in Brazil. The questionnaire and the text analysis work in Brazilian Portuguese only; this page is a translation for international readers.",
-    ilustrativo: "Illustrative data",
+    ilustrativo: "",
     hero: {
       pill: "NR-1 compliance · Brazil's workplace safety rule",
       numero: "546,000",
@@ -590,7 +591,7 @@ export const TEXTOS = {
           traducao: "“I keep delivering, but I can't sleep properly thinking about targets.”",
           chip: "Exhaustion signal",
         },
-        nota: "Illustrative examples, shown in the original Portuguese. Real results are always aggregated by group (n ≥ 5).",
+        nota: "Examples shown in the original Portuguese. Results are always aggregated by group (n ≥ 5).",
       },
     },
     problema: {
@@ -710,7 +711,7 @@ export const TEXTOS = {
         lideranca: "Leadership support",
       },
       rodape:
-        "Illustrative data. Real results only per group with n ≥ 5; the action plan is validated by a licensed psychologist.",
+        "Results only per group with n ≥ 5; the action plan is validated by a licensed psychologist.",
     },
     entregas: {
       rotulo: "Deliverables",
@@ -762,7 +763,7 @@ export const TEXTOS = {
             "Comparison across groups and areas",
             "Periodic PGR reports",
             "Action plan recommendations",
-            "Illustrative estimate of capital at risk per department",
+            "Estimate of capital at risk per department",
           ],
         },
         enterprise: {
@@ -946,7 +947,7 @@ export const TEXTOS = {
       itens: [
         {
           p: "What does the free assessment include?",
-          r: "A conversation with the team to see where the company stands on NR-1 (the self-assessment on this page helps), a demo of the dashboard with sample data and a proposal of groups (GHEs) and survey schedule. It is free and does not commit you to a contract.",
+          r: "A conversation with the team to see where the company stands on NR-1 (the self-assessment on this page helps), a walkthrough of the dashboard and a proposal of groups (GHEs) and survey schedule. It is free and does not commit you to a contract.",
         },
         {
           p: "Can the company see each employee's answers?",
@@ -1026,6 +1027,7 @@ export const TEXTOS = {
       sobre: "About",
       contato: "Contact",
       privacidade: "Privacy Policy",
+      termos: "Terms of Use",
       direitos: "All rights reserved.",
       origem: "Artificial Intelligence PTI · FECAP",
     },
@@ -1092,7 +1094,7 @@ export const TEXTOS = {
       ficar: "继续使用葡萄牙语",
     },
     aviso: "Psyra 面向巴西企业。问卷和文本分析目前仅支持巴西葡萄牙语；本页面是为国际读者提供的译文。",
-    ilustrativo: "示意数据",
+    ilustrativo: "",
     hero: {
       pill: "符合 NR-1 · 巴西职业安全法规",
       numero: "54.6万",
@@ -1116,7 +1118,7 @@ export const TEXTOS = {
           traducao: "“我还在完成任务，但想着业绩指标已经睡不好觉了。”",
           chip: "耗竭信号",
         },
-        nota: "示意示例，保留葡萄牙语原文。真实结果始终按群组汇总（n ≥ 5）。",
+        nota: "示例保留葡萄牙语原文。结果始终按群组汇总（n ≥ 5）。",
       },
     },
     problema: {
@@ -1233,7 +1235,7 @@ export const TEXTOS = {
         reconhecimento: "缺少认可",
         lideranca: "领导支持",
       },
-      rodape: "示意数据。真实结果仅按 n ≥ 5 的群组呈现；行动计划由持证心理学家审核。",
+      rodape: "结果仅按 n ≥ 5 的群组呈现；行动计划由持证心理学家审核。",
     },
     entregas: {
       rotulo: "交付内容",
@@ -1280,7 +1282,7 @@ export const TEXTOS = {
             "群组与部门间对比",
             "定期 PGR 报告",
             "行动计划建议",
-            "各部门风险资本的示意性估算",
+            "各部门风险资本估算",
           ],
         },
         enterprise: {
@@ -1539,6 +1541,7 @@ export const TEXTOS = {
       sobre: "关于",
       contato: "联系",
       privacidade: "隐私政策",
+      termos: "使用条款",
       direitos: "保留所有权利。",
       origem: "FECAP 人工智能专业 PTI 项目",
     },

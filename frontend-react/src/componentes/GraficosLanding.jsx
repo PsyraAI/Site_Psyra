@@ -68,7 +68,7 @@ export function GraficoRevelador({ t, idioma }) {
       <figcaption>
         <span className="gl-titulo">{r.grafico}</span>
         <span className="gl-sub">
-          {r.sub} · {t.ilustrativo}
+          {r.sub}{t.ilustrativo ? ` · ${t.ilustrativo}` : ""}
         </span>
       </figcaption>
       <div className="gl-legenda" aria-hidden="true">
@@ -118,7 +118,7 @@ export function GraficoRiscos({ t, idioma }) {
       <figcaption>
         <span className="gl-titulo">{p.riscos.titulo}</span>
         <span className="gl-sub">
-          {p.riscos.sub} · {t.ilustrativo}
+          {p.riscos.sub}{t.ilustrativo ? ` · ${t.ilustrativo}` : ""}
         </span>
       </figcaption>
       <div className="gl-lista">
@@ -154,7 +154,7 @@ export function GraficoFatores({ t, idioma }) {
       <figcaption>
         <span className="gl-titulo">{p.fatores.titulo}</span>
         <span className="gl-sub">
-          {p.fatores.sub} · {t.ilustrativo}
+          {p.fatores.sub}{t.ilustrativo ? ` · ${t.ilustrativo}` : ""}
         </span>
       </figcaption>
       <div className="gl-lista">

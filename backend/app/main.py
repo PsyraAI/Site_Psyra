@@ -9,19 +9,30 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
+import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import date
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    JSONResponse,
+    PlainTextResponse,
+    Response,
+)
 from fastapi.staticfiles import StaticFiles
 
 from .config import DIR_REACT, config
 from .db import conectar, criar_schema
 from .middleware import MiddlewareSeguranca
 from .routers import admin, auth, coleta, configuracoes, empresas, integracoes, painel
+from .seo import html_da_rota, ler_index, robots_txt, rota_privada, sitemap_xml
 
 logging.basicConfig(
     level=logging.INFO,
@@ -114,6 +125,22 @@ app = FastAPI(
     ),
 )
 
+
+class GZipSoArquivosPublicos(GZipMiddleware):
+    """Compacta HTML, JS e CSS do site; respostas da API (/v1) seguem sem compressão.
+
+    Evita misturar, numa mesma resposta compactada, segredo (token) e texto controlado por
+    terceiros (classe de ataque BREACH). Sprint: S10 | Risco: None
+    """
+
+    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
+        if scope.get("type") == "http" and str(scope.get("path", "")).startswith("/v1"):
+            await self.app(scope, receive, send)
+            return
+        await super().__call__(scope, receive, send)
+
+
+app.add_middleware(GZipSoArquivosPublicos, minimum_size=1024)
 app.add_middleware(MiddlewareSeguranca)
 app.add_middleware(
     CORSMiddleware,
@@ -185,17 +212,94 @@ def health_ready() -> JSONResponse:
     )
 
 
+@app.api_route("/robots.txt", methods=["GET", "HEAD"], include_in_schema=False)
+def robots() -> PlainTextResponse:
+    """robots.txt: páginas públicas liberadas; painel, admin e questionário fora do
+    Google."""
+    return PlainTextResponse(
+        robots_txt(), headers={"Cache-Control": "public, max-age=3600"}
+    )
+
+
+@app.api_route("/sitemap.xml", methods=["GET", "HEAD"], include_in_schema=False)
+def sitemap() -> Response:
+    """Mapa do site com as versões pt/en/zh (hreflang)."""
+    return Response(
+        sitemap_xml(os.getenv("PSYRA_DATA_SITEMAP", date.today().isoformat())),
+        media_type="application/xml",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
+@app.api_route(
+    "/.well-known/assetlinks.json", methods=["GET", "HEAD"], include_in_schema=False
+)
+def assetlinks() -> JSONResponse:
+    """Digital Asset Links do app Android (TWA): sem isto, o app abre com barra de
+    navegador.
+
+    PSYRA_TWA_PACOTE = id do app (ex.: ai.psyra.app) e PSYRA_TWA_SHA256 = impressões
+    SHA-256
+    separadas por vírgula (chave de upload E chave de assinatura do Play App Signing).
+    """
+    pacote = os.getenv("PSYRA_TWA_PACOTE", "ai.psyra.app").strip()
+    digitais = [
+        d.strip().upper()
+        for d in os.getenv("PSYRA_TWA_SHA256", "").split(",")
+        if d.strip()
+    ]
+    corpo = (
+        [
+            {
+                "relation": ["delegate_permission/common.handle_all_urls"],
+                "target": {
+                    "namespace": "android_app",
+                    "package_name": pacote,
+                    "sha256_cert_fingerprints": digitais,
+                },
+            }
+        ]
+        if digitais
+        else []
+    )
+    return JSONResponse(corpo, headers={"Cache-Control": "public, max-age=3600"})
+
+
 if (DIR_REACT / "index.html").is_file():
+
+    class ArquivosComHash(StaticFiles):
+        """Arquivos do build têm hash no nome: podem ficar em cache por 1 ano
+        (imutáveis)."""
+
+        def file_response(self, *args: Any, **kwargs: Any) -> Response:
+            resposta = super().file_response(*args, **kwargs)
+            resposta.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+            return resposta
+
     app.mount(
         "/assets",
-        StaticFiles(directory=DIR_REACT / "assets"),
+        ArquivosComHash(directory=DIR_REACT / "assets"),
         name="assets",
     )
 
-    @app.get("/{caminho:path}", include_in_schema=False)
-    def spa(caminho: str) -> FileResponse:
-        """Entrega o index.html do React para qualquer rota de navegação."""
-        arquivo = DIR_REACT / caminho
-        if caminho and arquivo.is_file():
-            return FileResponse(arquivo)
-        return FileResponse(DIR_REACT / "index.html")
+    @app.api_route("/{caminho:path}", methods=["GET", "HEAD"], include_in_schema=False)
+    def spa(caminho: str) -> Response:
+        """Entrega arquivos públicos ou o index.html do React com as tags de SEO da
+        rota."""
+        arquivo = (DIR_REACT / caminho).resolve()
+        if caminho and arquivo.is_file() and DIR_REACT.resolve() in arquivo.parents:
+            cabecalhos = {"Cache-Control": "public, max-age=3600"}
+            if arquivo.name == "sw.js":
+                cabecalhos = {"Cache-Control": "no-cache", "Service-Worker-Allowed": "/"}
+            elif arquivo.name.endswith(".webmanifest"):
+                return FileResponse(
+                    arquivo,
+                    media_type="application/manifest+json",
+                    headers={"Cache-Control": "public, max-age=86400"},
+                )
+            return FileResponse(arquivo, headers=cabecalhos)
+        conteudo = html_da_rota(ler_index(DIR_REACT / "index.html"), "/" + caminho)
+        cabecalhos = {"Cache-Control": "no-cache"}
+        if rota_privada("/" + caminho):
+            cabecalhos["X-Robots-Tag"] = "noindex, nofollow"
+        return HTMLResponse(conteudo, headers=cabecalhos)

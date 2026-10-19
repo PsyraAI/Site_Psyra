@@ -125,11 +125,14 @@ def receber_resposta(dados: RespostaEntrada, conexao: Conexao) -> RespostaSaida:
 def registrar_inicio(token: str, dados: InicioEntrada, conexao: Conexao) -> Response:
     """Conta quem começou o questionário, para medir a evasão (começaram × responderam).
 
-    Risco: R2 — guarda só a coleta, o grupo (na etapa "grupo") e o DIA; sem horário, sem IP,
+    Risco: R2 — guarda só a coleta, o grupo (na etapa "grupo") e o DIA; sem horário,
+    sem IP,
     sem identificador, para não dar para ligar o começo a uma resposta. Sprint: S10
     """
     coleta = buscar_um(
-        conexao, "SELECT id, empresa_id, status FROM coleta WHERE token_publico = ?", (token,)
+        conexao,
+        "SELECT id, empresa_id, status FROM coleta WHERE token_publico = ?",
+        (token,),
     )
     if not coleta or coleta["status"] != "aberta":
         return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -141,11 +144,20 @@ def registrar_inicio(token: str, dados: InicioEntrada, conexao: Conexao) -> Resp
             (coleta["empresa_id"], dados.ghe_codigo),
         )
         if not ghe:
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, "GHE invalido para a empresa")
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "GHE invalido para a empresa"
+            )
         ghe_id = ghe["id"]
     executar(
         conexao,
-        "INSERT INTO coleta_inicio (id, coleta_id, ghe_id, etapa, dia) VALUES (?,?,?,?,?)",
-        (uuid.uuid4().hex, coleta["id"], ghe_id, dados.etapa, datetime.now(UTC).date().isoformat()),
+        "INSERT INTO coleta_inicio (id, coleta_id, ghe_id, etapa, dia) VALUES "
+        "(?,?,?,?,?)",
+        (
+            uuid.uuid4().hex,
+            coleta["id"],
+            ghe_id,
+            dados.etapa,
+            datetime.now(UTC).date().isoformat(),
+        ),
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)

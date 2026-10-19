@@ -18,7 +18,10 @@ def test_health_declara_motor_provisorio(cliente: TestClient) -> None:
     assert corpo["n_minimo_ghe"] == 5
     csp = resposta.headers["content-security-policy"]
     assert "script-src 'self';" in csp
-    assert "font-src 'self' https://fonts.gstatic.com" in csp
+    # fontes servidas pelo próprio site (17/10/2026): nenhuma origem externa de
+    # fonte ou estilo
+    assert "font-src 'self';" in csp
+    assert "fonts.googleapis" not in csp and "fonts.gstatic" not in csp
 
 
 def test_formulario_publico_entrega_instrumento_e_consentimento(

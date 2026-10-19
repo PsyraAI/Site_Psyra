@@ -3,6 +3,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import pytest
 from xgboost import XGBClassifier
 
 from ml.features import FORBIDDEN_COLUMNS, carregar_dados_treino
@@ -12,6 +13,14 @@ DADOS = PROJETO.parent
 RESPOSTAS = DADOS / "S6_DADOS_base_sintetica_respostas_v1.csv"
 GABARITO = DADOS / "S6_DADOS_base_sintetica_gabarito_v1.csv"
 INSTRUMENTO = PROJETO / "backend" / "data" / "instrumento_psyra_form_v1.json"
+
+
+# A base sintética v1 fica FORA do repositório (pasta acima do projeto), para não versionar dado.
+# Sem ela, estes testes são pulados com o motivo explícito, em vez de falhar por arquivo ausente.
+pytestmark = pytest.mark.skipif(
+    not (RESPOSTAS.is_file() and GABARITO.is_file()),
+    reason=f"base sintética v1 ausente em {DADOS} (S6_DADOS_base_sintetica_*_v1.csv)",
+)
 
 
 def _dados() -> tuple[pd.DataFrame, pd.Series, dict[str, str], dict[str, Any]]:

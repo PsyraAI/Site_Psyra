@@ -29,6 +29,15 @@ _PADROES: list[tuple[str, re.Pattern[str]]] = [
         re.compile(r"(?<!\d)(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?9?\d{4}[-\s]?\d{4}(?!\d)"),
     ),
     ("<CEP>", re.compile(r"\b\d{5}-?\d{3}\b")),
+    # RG: formato com pontos (12.345.678-9 / 12.345.678-X) e "RG 123456789" (17/10/2026: o
+    # formato pontuado passava sem máscara).
+    ("<RG>", re.compile(r"\b\d{1,2}\.\d{3}\.\d{3}-?[\dXx]\b")),
+    (
+        "<RG>",
+        re.compile(
+            r"\b(?:RG|R\.G\.)\s*(?:n[ºo°]?\.?\s*)?:?\s*[\d.\-Xx]{5,14}", re.IGNORECASE
+        ),
+    ),
     ("<MATRICULA>", re.compile(r"\bmatr[íi]cula\s*:?\s*\w+", re.IGNORECASE)),
     # Nome próprio: o gatilho é case-insensitive (`(?i:...)`) porque a frase
     # costuma abrir o período — "Sou o Joao Pereira" não casava com `sou`
@@ -55,19 +64,28 @@ _PADROES: list[tuple[str, re.Pattern[str]]] = [
 # para achar nome de terceiro em qualquer posição ("falei com o Carlos Souza").
 _PRENOMES = frozenset(
     """
-    maria jose ana joao antonio francisco carlos paulo pedro lucas luiz marcos luis gabriel
-    rafael francisca daniel marcelo bruno eduardo felipe raimundo rodrigo manoel mateus andre
+    maria jose ana joao antonio francisco carlos paulo pedro lucas luiz marcos luis
+    gabriel
+    rafael francisca daniel marcelo bruno eduardo felipe raimundo rodrigo manoel
+    mateus andre
     fernando fabio leonardo gustavo guilherme leandro tiago anderson ricardo marcio jorge
-    sebastiao alexandre roberto edson diego vitor sergio claudio matheus thiago geraldo adriano
-    luciano julio renato alex vinicius rogerio samuel ronaldo mario flavio douglas igor davi
-    manuel jeferson cicero victor miguel robson mauricio danilo henrique caio reginaldo joaquim
-    benedito gilberto marco alan nelson cristiano elias wilson valdir emerson luan david renan
+    sebastiao alexandre roberto edson diego vitor sergio claudio matheus thiago
+    geraldo adriano
+    luciano julio renato alex vinicius rogerio samuel ronaldo mario flavio douglas
+    igor davi
+    manuel jeferson cicero victor miguel robson mauricio danilo henrique caio
+    reginaldo joaquim
+    benedito gilberto marco alan nelson cristiano elias wilson valdir emerson luan
+    david renan
     severino fabricio mauro jonas gilmar jean fabiano wesley diogo adilson jair alessandro
     everton osvaldo gilson willian joel silvio helio maicon reinaldo pablo artur vagner
     valter celso arthur heitor bernardo enzo murilo otavio
-    antonia adriana juliana marcia fernanda patricia aline sandra camila amanda bruna jessica
-    leticia julia luciana vanessa mariana gabriela vera vitoria larissa claudia beatriz luana
-    rita sonia renata eliane josefa simone natalia cristiane carla debora rosangela jaqueline
+    antonia adriana juliana marcia fernanda patricia aline sandra camila amanda bruna
+    jessica
+    leticia julia luciana vanessa mariana gabriela vera vitoria larissa claudia
+    beatriz luana
+    rita sonia renata eliane josefa simone natalia cristiane carla debora rosangela
+    jaqueline
     rosa daniela aparecida marlene terezinha raimunda andreia fabiana lucia raquel ivone
     tatiane thais regina sara cristina isabela rafaela priscila carolina rosana alessandra
     roberta helena valeria michele joana paula viviane laura sabrina silvia monica tania
@@ -77,22 +95,29 @@ _PRENOMES = frozenset(
     """.split()
 )
 _PALAVRA = r"[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõçà-ÿ]+"
-_SEQUENCIA = re.compile(rf"(?<![\wÀ-ÿ<])({_PALAVRA}(?:\s+(?:d[aeo]s?\s+)?{_PALAVRA}){{0,3}})")
+_SEQUENCIA = re.compile(
+    rf"(?<![\wÀ-ÿ<])({_PALAVRA}(?:\s+(?:d[aeo]s?\s+)?{_PALAVRA}){{0,3}})"
+)
 _LUGAR_ANTES = re.compile(r"(?:S[ãa]o|Sant[ao]|Rio|Porto|Belo|Campo|Vila)\s*$")
-# Começos que indicam lugar ou área da empresa, não pessoa ("São Paulo", "Recursos Humanos").
+# Começos que indicam lugar ou área da empresa, não pessoa ("São Paulo", "Recursos
+# Humanos").
 _NAO_PESSOA = frozenset(
     """
     sao santa santo rio porto belo campo campos vila nova novo minas mato espirito
-    recursos departamento setor diretoria gerencia tecnologia comercial financeiro operacional
+    recursos departamento setor diretoria gerencia tecnologia comercial financeiro
+    operacional
     marketing logistica atendimento juridico vendas compras seguranca qualidade producao
-    engenharia administrativo administracao contabilidade suporte operacoes comite conselho
+    engenharia administrativo administracao contabilidade suporte operacoes comite
+    conselho
     ministerio justica governo prefeitura receita caixa banco empresa grupo psyra
     """.split()
 )
 
 
 def _sem_acento(palavra: str) -> str:
-    return unicodedata.normalize("NFKD", palavra).encode("ascii", "ignore").decode().lower()
+    return (
+        unicodedata.normalize("NFKD", palavra).encode("ascii", "ignore").decode().lower()
+    )
 
 
 def _mascarar_nomes(texto: str) -> str:
@@ -112,7 +137,7 @@ def _mascarar_nomes(texto: str) -> str:
         palavras = [p for p in trecho.split() if not re.fullmatch(r"d[aeo]s?", p)]
         if _sem_acento(palavras[0]) in _NAO_PESSOA:
             return trecho
-        inicio_de_frase = not antes.strip() or antes.rstrip()[-1] in ".!?\n:;\"“("
+        inicio_de_frase = not antes.strip() or antes.rstrip()[-1] in '.!?\n:;"“('
         if _sem_acento(palavras[0]) in _PRENOMES:
             return "<PESSOA>"
         if len(palavras) >= 2 and not inicio_de_frase:

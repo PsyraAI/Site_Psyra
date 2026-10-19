@@ -154,7 +154,10 @@ def prints_questionario(pg: Page, base: str, saida: Path) -> None:
             pg.screenshot(path=str(saida / "S10_APP_print_questionario_5_pausa.png"))
         if pg.locator(".rq-texto").count():
             break
-    pg.fill(".rq-texto", "A meta dobrou e a equipe continua do mesmo tamanho. Falta tempo para pausa.")
+    pg.fill(
+        ".rq-texto",
+        "A meta dobrou e a equipe continua do mesmo tamanho. Falta tempo para pausa.",
+    )
     pg.locator(".rq-botao").click()
     pg.wait_for_selector(".rq-revisao")
     pg.locator(".rq-botao").click()

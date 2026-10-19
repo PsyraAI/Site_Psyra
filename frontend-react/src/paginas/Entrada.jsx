@@ -2,7 +2,7 @@
 // Fluxo: boas-vindas → escolha de perfil → login → /painel ou /admin.
 
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Building2, KeyRound, Lock, Mail, Shield, TimerReset } from "lucide-react";
 
 import { useAuth } from "../contexto/Auth";
@@ -306,6 +306,11 @@ export default function Entrada() {
 
               <p className="entrada__privacidade">
                 <Lock size={12} aria-hidden="true" /> {t.privacidade}
+              </p>
+              <p className="entrada__legal">
+                {t.aceiteLegal}{" "}
+                <Link to={IDIOMAS[idioma]?.termos || "/termos"}>{t.termos}</Link> {t.e}{" "}
+                <Link to={IDIOMAS[idioma]?.privacidade || "/privacidade"}>{t.politica}</Link>.
               </p>
             </div>
 

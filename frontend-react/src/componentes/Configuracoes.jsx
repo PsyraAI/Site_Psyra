@@ -25,7 +25,7 @@ import Dialogo from "./Dialogo";
 import { useAuth } from "../contexto/Auth";
 import { api } from "../lib/api";
 import { useTema } from "../lib/tema";
-import { IDIOMAS } from "../lib/idiomas";
+import { EMAIL_CONTATO, IDIOMAS } from "../lib/idiomas";
 import { formatarData } from "../lib/textosApp";
 
 const ABAS = [
@@ -94,7 +94,56 @@ function AbaConta({ tc, idioma }) {
         <Aviso>{estado.ok}</Aviso>
         <Aviso tipo="erro">{estado.erro}</Aviso>
       </div>
+      <ExcluirConta idioma={idioma} email={usuario.email} />
     </form>
+  );
+}
+
+// Caminho no app para pedir a exclusão da conta (exigência da Play Store e LGPD art. 18).
+// O pedido sai do e-mail cadastrado; a conta é apagada em até 15 dias (ver /privacidade#privacidade-9).
+const TEXTO_EXCLUSAO = {
+  pt: {
+    titulo: "Excluir minha conta",
+    texto: "Abre um e-mail pronto para a equipe Psyra. A conta e os dados de acesso são apagados em até 15 dias; os registros de acesso ficam 6 meses, como exige o Marco Civil. Os resultados da empresa não são afetados.",
+    botao: "Pedir exclusão da conta",
+    assunto: "Excluir conta",
+    corpo: (e) => `Peço a exclusão da minha conta do painel Psyra AI (${e}).`,
+    politica: "Como funciona",
+  },
+  en: {
+    titulo: "Delete my account",
+    texto: "Opens a ready e-mail to the Psyra team. The account and access data are deleted within 15 days; access logs are kept for 6 months as Brazilian law requires. Company results are not affected.",
+    botao: "Request account deletion",
+    assunto: "Delete account",
+    corpo: (e) => `Please delete my Psyra AI dashboard account (${e}).`,
+    politica: "How it works",
+  },
+  zh: {
+    titulo: "删除我的账户",
+    texto: "将打开一封发给 Psyra 团队的预填邮件。账户和访问数据会在 15 天内删除；访问记录按巴西法律保留 6 个月。公司的结果不受影响。",
+    botao: "申请删除账户",
+    assunto: "Excluir conta",
+    corpo: (e) => `请删除我的 Psyra AI 仪表盘账户（${e}）。`,
+    politica: "了解详情",
+  },
+};
+
+function ExcluirConta({ idioma, email }) {
+  const x = TEXTO_EXCLUSAO[idioma] || TEXTO_EXCLUSAO.pt;
+  const link = `mailto:${EMAIL_CONTATO}?subject=${encodeURIComponent(x.assunto)}&body=${encodeURIComponent(x.corpo(email || ""))}`;
+  return (
+    <div className="config__excluir">
+      <h3>{x.titulo}</h3>
+      <p>{x.texto}</p>
+      <div className="config__acoes">
+        <a className="botao botao--fantasma botao--pequeno config__excluir-botao" href={link}>
+          {x.botao}
+        </a>
+        <Link className="link-acao" to={idioma === "pt" ? "/privacidade#privacidade-9" : `/${idioma}/privacy#privacidade-9`} target="_blank" rel="noreferrer">
+          {x.politica}
+        </Link>
+      </div>
+    </div>
   );
 }
 

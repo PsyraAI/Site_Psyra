@@ -98,8 +98,25 @@ def test_painel_nao_expoe_resposta_individual(
         headers=sessao_gestor["headers"],
     ).text.lower()
 
-    for proibido in ("likert_json", "texto_anonimizado", "protocolo", "resposta_id"):
+    for proibido in ("likert_json", "texto_anonimizado", "resposta_id"):
         assert proibido not in bruto
+
+    # "protocolo" é checado nas CHAVES do JSON: a palavra aparece legitimamente no
+    # texto de
+    # ações sugeridas ("protocolo antiassédio"), mas nenhum campo pode se chamar assim.
+    import json as _json
+
+    def chaves(no: object) -> set[str]:
+        if isinstance(no, dict):
+            return set(no) | set().union(*(chaves(v) for v in no.values()))
+        if isinstance(no, list):
+            return set().union(*(chaves(v) for v in no)) if no else set()
+        return set()
+
+    todas = {c.lower() for c in chaves(_json.loads(bruto))}
+    assert not {
+        c for c in todas if "protocolo" in c or "resposta_id" in c or "likert_json" in c
+    }
 
 
 def test_coleta_real_bloqueada_sem_cep(cliente: TestClient, sessao_gestor: dict) -> None:
@@ -116,14 +133,18 @@ def test_coleta_real_bloqueada_sem_cep(cliente: TestClient, sessao_gestor: dict)
 
 def test_anonimizador_remove_nome_de_terceiro_em_qualquer_posicao() -> None:
     """Nome sem gatilho ("falei com o Carlos Souza") também cai no fallback."""
-    limpo, _ = anonimizar("Desde que a meta dobrou eu nao durmo. Falei com o Carlos Souza e nada mudou.")
+    limpo, _ = anonimizar(
+        "Desde que a meta dobrou eu nao durmo. Falei com o Carlos Souza e nada mudou."
+    )
     assert limpo is not None
     assert "Carlos" not in limpo and "Souza" not in limpo
     assert "meta dobrou" in limpo and "nao durmo" in limpo
 
 
 def test_anonimizador_remove_prenome_sozinho_e_preserva_lugar() -> None:
-    limpo, _ = anonimizar("A Juliana me cobra todo dia. Moro em São Paulo e pego dois ônibus.")
+    limpo, _ = anonimizar(
+        "A Juliana me cobra todo dia. Moro em São Paulo e pego dois ônibus."
+    )
     assert limpo is not None
     assert "Juliana" not in limpo
     assert "São Paulo" in limpo
@@ -132,3 +153,15 @@ def test_anonimizador_remove_prenome_sozinho_e_preserva_lugar() -> None:
 def test_anonimizador_nao_apaga_inicio_de_frase_comum() -> None:
     limpo, _ = anonimizar("Sinto cansaço. Trabalho demais e Não consigo descansar.")
     assert limpo == "Sinto cansaço. Trabalho demais e Não consigo descansar."
+
+
+def test_anonimizador_remove_rg_pontuado_e_com_rotulo() -> None:
+    """RG no texto livre não pode chegar ao banco (17/10/2026). Risco: R2"""
+    for texto in ("meu RG 12.345.678-9 está aqui", "RG: 123456789", "rg nº 1234567-x"):
+        limpo, _ = anonimizar(texto)
+        assert (
+            "12.345.678-9" not in limpo
+            and "123456789" not in limpo
+            and "1234567" not in limpo
+        )
+        assert "<RG>" in limpo

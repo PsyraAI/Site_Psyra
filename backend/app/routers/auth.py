@@ -13,7 +13,12 @@ from ..db import buscar_um, executar
 from ..deps import Conexao, Usuario, UsuarioTrocaSenha
 from ..rate_limit import limitar
 from ..schemas import ContaAtualizacao, LoginEntrada, LoginSaida, TrocaSenhaEntrada
-from ..security import criar_token, gerar_hash_senha, validar_politica_senha, verificar_senha
+from ..security import (
+    criar_token,
+    gerar_hash_senha,
+    validar_politica_senha,
+    verificar_senha,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
@@ -24,7 +29,11 @@ SESSAO_LEMBRAR_MIN = 7 * 24 * 60  # "manter conectado": 7 dias
 
 def _token(usuario: dict[str, Any], lembrar: bool) -> str:
     return criar_token(
-        {"sub": usuario["id"], "emp": usuario["empresa_id"], "sv": int(usuario.get("sessao_versao") or 0)},
+        {
+            "sub": usuario["id"],
+            "emp": usuario["empresa_id"],
+            "sv": int(usuario.get("sessao_versao") or 0),
+        },
         expira_min=SESSAO_LEMBRAR_MIN if lembrar else None,
     )
 
@@ -99,15 +108,20 @@ def perfil(usuario: UsuarioTrocaSenha) -> dict[str, Any]:
     }
 
 
-@router.post("/sair-de-todos", status_code=status.HTTP_204_NO_CONTENT, response_class=Response)
+@router.post(
+    "/sair-de-todos", status_code=status.HTTP_204_NO_CONTENT, response_class=Response
+)
 def sair_de_todos(usuario: UsuarioTrocaSenha, conexao: Conexao) -> Response:
-    """Encerra todas as sessões da conta (inclusive esta): o token antigo deixa de valer."""
+    """Encerra todas as sessões da conta (inclusive esta): o token antigo deixa de
+    valer."""
     executar(
         conexao,
         "UPDATE usuario_empresa SET sessao_versao = sessao_versao + 1 WHERE id = ?",
         (usuario["id"],),
     )
-    registrar(conexao, usuario["id"], "sair_de_todos", "usuario_empresa", usuario["empresa_id"])
+    registrar(
+        conexao, usuario["id"], "sair_de_todos", "usuario_empresa", usuario["empresa_id"]
+    )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -115,17 +129,28 @@ conta = APIRouter(prefix="/v1/conta", tags=["conta"])
 
 
 @conta.put("/senha", response_model=LoginSaida)
-def trocar_senha(dados: TrocaSenhaEntrada, usuario: UsuarioTrocaSenha, conexao: Conexao) -> LoginSaida:
-    """Troca a própria senha. Encerra as outras sessões e devolve um token novo para esta."""
+def trocar_senha(
+    dados: TrocaSenhaEntrada, usuario: UsuarioTrocaSenha, conexao: Conexao
+) -> LoginSaida:
+    """Troca a própria senha. Encerra as outras sessões e devolve um token novo para
+    esta."""
     if not verificar_senha(dados.senha_atual, usuario["senha_hash"]):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "A senha atual não confere.")
     if dados.senha_nova == dados.senha_atual:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "A nova senha precisa ser diferente da atual.")
-    problemas = validar_politica_senha(dados.senha_nova, usuario["email"], usuario["nome"])
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "A nova senha precisa ser diferente da atual."
+        )
+    problemas = validar_politica_senha(
+        dados.senha_nova, usuario["email"], usuario["nome"]
+    )
     if problemas:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={"codigo": "senha_fraca", "mensagem": "Senha fraca: " + "; ".join(problemas) + ".", "problemas": problemas},
+            detail={
+                "codigo": "senha_fraca",
+                "mensagem": "Senha fraca: " + "; ".join(problemas) + ".",
+                "problemas": problemas,
+            },
         )
     executar(
         conexao,
@@ -133,15 +158,31 @@ def trocar_senha(dados: TrocaSenhaEntrada, usuario: UsuarioTrocaSenha, conexao: 
         "sessao_versao = sessao_versao + 1 WHERE id = ?",
         (gerar_hash_senha(dados.senha_nova), usuario["id"]),
     )
-    registrar(conexao, usuario["id"], "trocar_senha", "usuario_empresa", usuario["empresa_id"])
-    atualizado = {**usuario, "trocar_senha": 0, "sessao_versao": int(usuario.get("sessao_versao") or 0) + 1}
+    registrar(
+        conexao, usuario["id"], "trocar_senha", "usuario_empresa", usuario["empresa_id"]
+    )
+    atualizado = {
+        **usuario,
+        "trocar_senha": 0,
+        "sessao_versao": int(usuario.get("sessao_versao") or 0) + 1,
+    }
     return _saida(atualizado, _token(atualizado, False), False)
 
 
 @conta.patch("")
-def atualizar_conta(dados: ContaAtualizacao, usuario: Usuario, conexao: Conexao) -> dict[str, str]:
+def atualizar_conta(
+    dados: ContaAtualizacao, usuario: Usuario, conexao: Conexao
+) -> dict[str, str]:
     """Atualiza o nome exibido. O e-mail é o login e só a equipe Psyra muda."""
     nome = dados.nome.strip()
-    executar(conexao, "UPDATE usuario_empresa SET nome = ? WHERE id = ?", (nome, usuario["id"]))
-    registrar(conexao, usuario["id"], "atualizar_conta", "usuario_empresa", usuario["empresa_id"])
+    executar(
+        conexao, "UPDATE usuario_empresa SET nome = ? WHERE id = ?", (nome, usuario["id"])
+    )
+    registrar(
+        conexao,
+        usuario["id"],
+        "atualizar_conta",
+        "usuario_empresa",
+        usuario["empresa_id"],
+    )
     return {"nome": nome}

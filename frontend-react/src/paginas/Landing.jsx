@@ -43,14 +43,13 @@ import {
   IDIOMAS,
   aplicarIdiomaNoDocumento,
   formatarReais,
-  idiomaDoNavegador,
-  idiomaSalvo,
-  salvarIdioma,
 } from "../lib/idiomas";
 import { useIdiomaEscolhido, useRestaurarPosicaoTroca, useRolarParaHash } from "../lib/navegacao";
 import { TEXTOS } from "../lib/textosLanding";
 import { TEXTOS3 } from "../lib/textosLanding3";
 import { EXPLICACOES } from "../lib/textosExplicacoes";
+import { DATA_LEGAL, TEXTOS_LEGAL, VERSAO_LEGAL } from "../lib/textosLegal";
+import { ATUALIZADO_GUIA, GUIA_NR1 } from "../lib/textosGuia";
 import { useTema } from "../lib/tema";
 
 const ICONES_PASSOS = [MessageSquareText, ShieldCheck, Users, ClipboardCheck];
@@ -61,7 +60,7 @@ const PONTOS_RESPOSTA = { sim: 2, parte: 1, nao: 0 };
 const SECOES_MENU = ["solucao", "como-funciona", "painel", "planos", "duvidas"];
 
 function Logo({ className = "lp-logo" }) {
-  return <MarcaLogo className={className} size={42} />;
+  return <MarcaLogo className={className} size={42} decorativo />;
 }
 
 function Reveal({ children, delay = 0, className = "" }) {
@@ -257,42 +256,6 @@ function Header({ t, idioma, destino }) {
   );
 }
 
-function SugestaoIdioma({ idioma }) {
-  const [sugerido, setSugerido] = useState(null);
-
-  useEffect(() => {
-    if (idioma !== "pt" || idiomaSalvo()) return;
-    const doNavegador = idiomaDoNavegador();
-    if (doNavegador && doNavegador !== "pt") setSugerido(doNavegador);
-  }, [idioma]);
-
-  if (!sugerido) return null;
-  const s = TEXTOS[sugerido].sugestao;
-  const cfg = IDIOMAS[sugerido];
-  return (
-    <div className="lp-sugestao" role="region" aria-label={s.texto} lang={cfg.html}>
-      <div className="lp-wrap lp-sugestao__inner">
-        <p>{s.texto}</p>
-        <div className="lp-sugestao__acoes">
-          <Link className="lp-btn lp-btn--primary" to={cfg.inicio} onClick={() => salvarIdioma(sugerido)}>
-            {s.ir}
-          </Link>
-          <button
-            type="button"
-            className="lp-btn lp-btn--ghost"
-            onClick={() => {
-              salvarIdioma("pt");
-              setSugerido(null);
-            }}
-          >
-            {s.ficar}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function AvisoTraducao({ t }) {
   if (!t.aviso) return null;
   return (
@@ -351,6 +314,8 @@ function Footer({ t, idioma, destino }) {
         ["privacidade", r3.anonimato],
         ["ia", r3.ia],
         [null, t.rodape.privacidade],
+        ["@termos", t.rodape.termos || "Termos de Uso"],
+        ["/guia-nr1", idioma === "pt" ? "Guia NR-1" : idioma === "en" ? "NR-1 guide (pt)" : "NR-1 指南（葡语）"],
       ],
     ],
     [
@@ -383,6 +348,8 @@ function Footer({ t, idioma, destino }) {
                 <li key={texto}>
                   {alvo === null ? (
                     <Link to={IDIOMAS[idioma].privacidade}>{texto}</Link>
+                  ) : alvo === "@termos" ? (
+                    <Link to={IDIOMAS[idioma].termos}>{texto}</Link>
                   ) : alvo.startsWith("/") ? (
                     <Link to={alvo}>{texto}</Link>
                   ) : (
@@ -419,7 +386,6 @@ export default function Landing({ idioma = "pt" }) {
 
   return (
     <div className="lp-root" lang={IDIOMAS[idioma].html}>
-      <SugestaoIdioma idioma={idioma} />
       <Header t={t} idioma={idioma} destino={destino} />
       <AvisoTraducao t={t} />
       <main>
@@ -483,7 +449,7 @@ function Hero({ t, idioma }) {
           <div className="lp-demo-card">
             <div className="lp-demo-card__topo">
               <p className="lp-demo-card__label">{c.rotulo}</p>
-              <span className="lp-selo">{t.ilustrativo}</span>
+              {t.ilustrativo ? <span className="lp-selo">{t.ilustrativo}</span> : null}
             </div>
             <div className="lp-demo-card__stack">
               {[
@@ -724,7 +690,7 @@ function Painel({ t, idioma }) {
                   </button>
                 ))}
               </div>
-              <span className="lp-selo">{t.ilustrativo}</span>
+              {t.ilustrativo ? <span className="lp-selo">{t.ilustrativo}</span> : null}
             </div>
             <div id="painel-riscos" role="tabpanel" aria-labelledby="aba-riscos" hidden={aba !== "riscos"}>
               <GraficoRiscos t={t} idioma={idioma} />
@@ -1278,41 +1244,282 @@ function CtaFixo({ t, idioma }) {
   );
 }
 
-export function Privacidade({ idioma = "pt" }) {
+/** Texto com **negrito** (marcação mínima dos textos legais). */
+function Rico({ texto }) {
+  const partes = String(texto).split(/(\*\*[^*]+\*\*)/g);
+  return partes.map((parte, i) =>
+    parte.startsWith("**") && parte.endsWith("**") ? <strong key={i}>{parte.slice(2, -2)}</strong> : <span key={i}>{parte}</span>
+  );
+}
+
+function BlocoLegal({ bloco }) {
+  if (bloco.p) return <p><Rico texto={bloco.p} /></p>;
+  if (bloco.ul)
+    return (
+      <ul>
+        {bloco.ul.map((item) => (
+          <li key={item}>
+            <Rico texto={item} />
+          </li>
+        ))}
+      </ul>
+    );
+  if (bloco.tabela)
+    return (
+      <div className="lp-legal__tabela" role="region" tabIndex={0} aria-label={bloco.tabela.cab.join(", ")}>
+        <table>
+          <thead>
+            <tr>
+              {bloco.tabela.cab.map((c) => (
+                <th key={c} scope="col">{c}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {bloco.tabela.linhas.map((linha, i) => (
+              <tr key={i}>
+                {linha.map((cel, k) => (
+                  <td key={k} data-rotulo={bloco.tabela.cab[k]}>
+                    <Rico texto={cel} />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  return null;
+}
+
+const ancoraSecao = (parte, i) => `${parte}-${i + 1}`;
+
+/** Termos de Uso e Política de Privacidade (rotas /termos e /privacidade, /en/... e /zh/...). */
+export function Privacidade({ idioma = "pt", parte = "privacidade" }) {
   const t = { ...(TEXTOS[idioma] || TEXTOS.pt), ...(TEXTOS3[idioma] || TEXTOS3.pt) };
-  const p = t.privacidade;
-  const destino = (id) => IDIOMAS[id].privacidade;
-  useIdiomaDaPagina(idioma, `${p.titulo} — Psyra AI`, p.intro, destino);
+  const L = TEXTOS_LEGAL[idioma] || TEXTOS_LEGAL.pt;
+  const destino = (id) => (parte === "termos" ? IDIOMAS[id].termos : IDIOMAS[id].privacidade);
+  useIdiomaDaPagina(idioma, L.meta.titulo, L.meta.descricao, destino);
+  const data = new Intl.DateTimeFormat(IDIOMAS[idioma].locale, { day: "2-digit", month: "2-digit", year: "numeric" }).format(
+    new Date(`${DATA_LEGAL}T12:00:00`)
+  );
+
+  useEffect(() => {
+    if (window.location.hash) return undefined;
+    if (parte === "termos") return undefined; // a parte A já é o começo da página
+    let cancelado = false;
+    const rolar = () => {
+      const alvo = document.getElementById(parte);
+      if (!cancelado && alvo) alvo.scrollIntoView({ block: "start" });
+    };
+    // espera fontes e layout assentarem; senão a posição muda depois da rolagem
+    const quadro = requestAnimationFrame(() => (document.fonts?.ready ?? Promise.resolve()).then(rolar));
+    return () => {
+      cancelado = true;
+      cancelAnimationFrame(quadro);
+    };
+  }, [parte]);
 
   return (
     <div className="lp-root" lang={IDIOMAS[idioma].html}>
       <Header t={t} idioma={idioma} destino={destino} />
       <AvisoTraducao t={t} />
-      <main className="lp-wrap lp-privacidade">
-        <h1>{p.titulo}</h1>
-        <p className="lp-section__intro">{p.intro}</p>
-        <p className="lp-privacidade__aviso">{p.aviso}</p>
-        <div className="lp-privacidade__blocos">
-          {p.blocos.map((b, i) => (
-            <section key={b.t} className="lp-card">
-              <h2>{b.t}</h2>
-              <p>
-                {b.d}
-                {i === p.blocos.length - 1 ? (
-                  <>
-                    {" "}
-                    <a href={`mailto:${EMAIL_CONTATO}`}>{EMAIL_CONTATO}</a>.
-                  </>
-                ) : null}
-              </p>
-            </section>
-          ))}
+      <main className="lp-wrap lp-legal" id="topo">
+        <p className="lp-legal__versao">{L.rotuloVersao(VERSAO_LEGAL, data)}</p>
+        <h1>{L.titulo}</h1>
+        {L.aviso ? <p className="lp-privacidade__aviso">{L.aviso}</p> : null}
+        {L.intro.map((p) => (
+          <p className="lp-legal__intro" key={p}>
+            <Rico texto={p} />
+          </p>
+        ))}
+
+        <section className="lp-card lp-legal__resumo" aria-labelledby="titulo-resumo">
+          <h2 id="titulo-resumo">{L.resumoTitulo}</h2>
+          <ul>
+            {L.resumo.map((item) => (
+              <li key={item}>
+                <Rico texto={item} />
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {L.partes.length ? (
+          <nav className="lp-legal__sumario" aria-label={L.sumario}>
+            <h2>{L.sumario}</h2>
+            {L.partes.map((pt) => (
+              <div key={pt.id}>
+                <a href={`#${pt.id}`}>{pt.titulo}</a>
+                <ol>
+                  {pt.secoes.map((sec, i) => (
+                    <li key={sec.t}>
+                      <a href={`#${ancoraSecao(pt.id, i)}`}>{sec.t.replace(/^\d+\.\s*/, "")}</a>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
+          </nav>
+        ) : (
+          <p>
+            <Link className="lp-btn lp-btn--primary" to={parte === "termos" ? "/termos" : "/privacidade"}>
+              {L.completo}
+            </Link>
+          </p>
+        )}
+
+        {L.partes.map((pt) => (
+          <section key={pt.id} id={pt.id} className="lp-legal__parte" aria-labelledby={`titulo-${pt.id}`}>
+            <h2 id={`titulo-${pt.id}`}>{pt.titulo}</h2>
+            {pt.secoes.map((sec, i) => (
+              <section key={sec.t} id={ancoraSecao(pt.id, i)} className="lp-legal__secao">
+                <h3>{sec.t}</h3>
+                {sec.b.map((bloco, k) => (
+                  <BlocoLegal key={k} bloco={bloco} />
+                ))}
+              </section>
+            ))}
+          </section>
+        ))}
+
+        <section className="lp-legal__normas">
+          <h2>{L.normasTitulo}</h2>
+          <ul>
+            {L.normas.map((n) => (
+              <li key={n}>{n}</li>
+            ))}
+          </ul>
+          <p>
+            <a href={`mailto:${EMAIL_CONTATO}?subject=Privacidade`}>{L.contato}</a>
+          </p>
+        </section>
+
+        <div className="lp-legal__acoes">
+          <Link className="lp-link" to={IDIOMAS[idioma].inicio}>
+            ← {L.voltar}
+          </Link>
+          <button type="button" className="lp-btn lp-btn--ghost" onClick={() => window.print()}>
+            {L.imprimir}
+          </button>
+          <a className="lp-link" href="#topo">
+            ↑ {L.topo}
+          </a>
         </div>
-        <Link className="lp-link lp-privacidade__voltar" to={IDIOMAS[idioma].inicio}>
-          ← {p.voltar}
-        </Link>
       </main>
       <Footer t={t} idioma={idioma} destino={destino} />
+    </div>
+  );
+}
+
+/** Guia público NR-1 (página pilar de busca orgânica, só em pt-BR). Sprint: S10 | Risco: R2 */
+export function GuiaNr1() {
+  const idioma = "pt";
+  const t = { ...TEXTOS.pt, ...TEXTOS3.pt };
+  const G = GUIA_NR1;
+  const destino = () => "/guia-nr1";
+  useIdiomaDaPagina(idioma, G.meta.titulo, G.meta.descricao, destino);
+  const data = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "long", year: "numeric" }).format(
+    new Date(`${ATUALIZADO_GUIA}T12:00:00`)
+  );
+  return (
+    <div className="lp-root" lang="pt-BR">
+      <Header t={t} idioma={idioma} destino={destino} />
+      <main className="lp-wrap lp-legal lp-guia" id="topo">
+        <article>
+          <p className="lp-legal__versao">{G.rotulo}</p>
+          <h1>{G.titulo}</h1>
+          <p className="lp-legal__intro">{G.lead}</p>
+          <p className="lp-guia__meta">
+            <time dateTime={ATUALIZADO_GUIA}>{G.atualizado(data)}</time> · {G.tempo}
+          </p>
+          <section className="lp-card lp-legal__resumo" aria-labelledby="titulo-resumo-guia">
+            <h2 id="titulo-resumo-guia">{G.resumoTitulo}</h2>
+            <ul>
+              {G.resumo.map((item) => (
+                <li key={item}>
+                  <Rico texto={item} />
+                </li>
+              ))}
+            </ul>
+          </section>
+          <nav className="lp-legal__sumario" aria-label="Nesta página">
+            <h2>Nesta página</h2>
+            <ol>
+              {G.secoes.map((sec) => (
+                <li key={sec.id}>
+                  <a href={`#${sec.id}`}>{sec.t.replace(/^\d+\.\s*/, "")}</a>
+                </li>
+              ))}
+              <li>
+                <a href="#perguntas">{G.faqTitulo}</a>
+              </li>
+            </ol>
+          </nav>
+          {G.secoes.map((sec) => (
+            <section key={sec.id} id={sec.id} className="lp-legal__secao lp-guia__secao">
+              <h2>{sec.t}</h2>
+              {sec.b.map((bloco, k) =>
+                bloco.callout ? (
+                  <p key={k} className="lp-guia__destaque">
+                    <Rico texto={bloco.callout} />
+                  </p>
+                ) : bloco.ol ? (
+                  <ol key={k} className="lp-guia__passos">
+                    {bloco.ol.map((item) => (
+                      <li key={item}>
+                        <Rico texto={item} />
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <BlocoLegal key={k} bloco={bloco} />
+                )
+              )}
+            </section>
+          ))}
+          <section id="perguntas" className="lp-legal__secao lp-guia__secao">
+            <h2>{G.faqTitulo}</h2>
+            {G.faq.map((item) => (
+              <details key={item.p} className="lp-guia__faq">
+                <summary>{item.p}</summary>
+                <p>{item.r}</p>
+              </details>
+            ))}
+          </section>
+          <section className="lp-card lp-guia__cta" aria-labelledby="titulo-cta-guia">
+            <h2 id="titulo-cta-guia">{G.ctaTitulo}</h2>
+            <p>{G.ctaTexto}</p>
+            <div className="lp-guia__cta-acoes">
+              <LinkSecao idioma="pt" secao="contato" className="lp-btn lp-btn--primary">
+                {G.ctaBotao}
+              </LinkSecao>
+              <LinkSecao idioma="pt" secao="prontidao" className="lp-btn lp-btn--ghost">
+                {G.ctaAuto}
+              </LinkSecao>
+            </div>
+          </section>
+          <section className="lp-legal__normas">
+            <h2>{G.fontesTitulo}</h2>
+            <ul>
+              {G.fontes.map((f) => (
+                <li key={f.url}>
+                  <a href={f.url} target="_blank" rel="noopener noreferrer">
+                    {f.t}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p>{G.aviso}</p>
+          </section>
+          <div className="lp-legal__acoes">
+            <Link className="lp-link" to="/">
+              ← {G.voltar}
+            </Link>
+          </div>
+        </article>
+      </main>
+      <Footer t={t} idioma={idioma} destino={() => "/"} />
     </div>
   );
 }
@@ -1457,7 +1664,7 @@ function CaminhoResposta({ t }) {
         <div className="lp-caminho__exemplo">
           <div className="lp-caminho__exemplo-topo">
             <p className="lp-eyebrow">{ex.rotulo}</p>
-            <span className="lp-selo">{t.ilustrativo}</span>
+            {t.ilustrativo ? <span className="lp-selo">{t.ilustrativo}</span> : null}
           </div>
           <div className="lp-caminho__grupo">
             <span className="lp-caminho__grupo-nome">{ex.visivel.nome}</span>

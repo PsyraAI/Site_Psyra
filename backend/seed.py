@@ -82,8 +82,10 @@ def _gerar_likert(perfil: str, aleatorio: random.Random) -> dict[str, int]:
     """Gera um vetor Likert sintético coerente com o perfil de risco.
 
     Cada pessoa tem um nível próprio, cada bloco um desvio e cada item um ruído pequeno
-    (como numa resposta atenta). Item com frase protetora (reverso) recebe a nota invertida:
-    no perfil alto, "meu gestor me apoia" sai baixo e "minhas metas são excessivas" sai alto.
+    (como numa resposta atenta). Item com frase protetora (reverso) recebe a nota
+    invertida:
+    no perfil alto, "meu gestor me apoia" sai baixo e "minhas metas são excessivas"
+    sai alto.
     """
     instrumento = carregar_instrumento(INSTRUMENTO)
     centro = CENTRO_PERFIL["baixo" if perfil == "revelador" else perfil]
@@ -104,7 +106,8 @@ def _gerar_likert(perfil: str, aleatorio: random.Random) -> dict[str, int]:
 
 
 def _gerar_descuidada(tipo: str, perfil: str, aleatorio: random.Random) -> dict[str, int]:
-    """Resposta sem atenção (Meade e Craig, 2012): mesma nota em tudo ou notas ao acaso."""
+    """Resposta sem atenção (Meade e Craig, 2012): mesma nota em tudo ou notas ao
+    acaso."""
     base = _gerar_likert(perfil, aleatorio)
     if tipo == "linha_reta":
         return {codigo: 4 for codigo in base}
@@ -114,12 +117,15 @@ def _gerar_descuidada(tipo: str, perfil: str, aleatorio: random.Random) -> dict[
 
 
 def _gerar_tempos(rapida: bool, aleatorio: random.Random) -> list[int]:
-    """Segundos por parte: 3,5 a 8 s por item, um pouco mais rápido no fim (cansaço leve)."""
+    """Segundos por parte: 3,5 a 8 s por item, um pouco mais rápido no fim (cansaço
+    leve)."""
     instrumento = carregar_instrumento(INSTRUMENTO)
     tempos = []
     for j, bloco in enumerate(instrumento["blocos"]):
         n = len(bloco["itens"])
-        seg_item = 1.2 if rapida and j >= 3 else aleatorio.uniform(3.5, 8.0) * (1 - 0.035 * j)
+        seg_item = (
+            1.2 if rapida and j >= 3 else aleatorio.uniform(3.5, 8.0) * (1 - 0.035 * j)
+        )
         tempos.append(max(1, int(round(n * seg_item))))
     return tempos
 
@@ -202,7 +208,11 @@ def popular(reset: bool = False) -> None:
             texto_perfil = variante if variante == "revelador" else perfil
             texto = aleatorio.choice(TEXTOS[texto_perfil])
             tipo = DESCUIDADAS.get((codigo, posicao))
-            likert = _gerar_descuidada(tipo, perfil, aleatorio) if tipo else _gerar_likert(perfil, aleatorio)
+            likert = (
+                _gerar_descuidada(tipo, perfil, aleatorio)
+                if tipo
+                else _gerar_likert(perfil, aleatorio)
+            )
             tempos = _gerar_tempos(tipo == "rapida", aleatorio)
             qualidade = avaliar(likert, INSTRUMENTO, tempos)
             executar(
@@ -229,14 +239,16 @@ def popular(reset: bool = False) -> None:
         for _ in range(quantidade + DESISTENCIAS[codigo]):
             executar(
                 conexao,
-                "INSERT INTO coleta_inicio (id, coleta_id, ghe_id, etapa, dia) VALUES (?,?,?,?, date('now'))",
+                "INSERT INTO coleta_inicio (id, coleta_id, ghe_id, etapa, dia) VALUES "
+                "(?,?,?,?, date('now'))",
                 (uuid.uuid4().hex, coleta_id, ghe_ids[codigo], "grupo"),
             )
     comecaram = total + sum(DESISTENCIAS.values()) + SAIRAM_ANTES_DO_GRUPO
     for _ in range(comecaram):
         executar(
             conexao,
-            "INSERT INTO coleta_inicio (id, coleta_id, ghe_id, etapa, dia) VALUES (?,?,NULL,?, date('now'))",
+            "INSERT INTO coleta_inicio (id, coleta_id, ghe_id, etapa, dia) VALUES "
+            "(?,?,NULL,?, date('now'))",
             (uuid.uuid4().hex, coleta_id, "inicio"),
         )
 

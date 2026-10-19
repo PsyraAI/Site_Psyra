@@ -259,7 +259,7 @@ export default function Painel() {
       return <QualidadeColeta dados={qualidade} carregando={!qualidade && !qualidadeErro} erro={qualidadeErro} tq={tc.qualidade} locale={t.locale} />;
     }
     if (secao === "capital") {
-      return <CapitalRisco t={t} bloqueado={!capitalLiberado} dados={capital} carregando={capitalCarregando} erro={capitalErro} />;
+      return <CapitalRisco t={t} idioma={idioma} bloqueado={!capitalLiberado} dados={capital} carregando={capitalCarregando} erro={capitalErro} />;
     }
     if (!painel) return <PainelSkeleton />;
     switch (secao) {
@@ -279,7 +279,7 @@ export default function Painel() {
       case "conformidade":
         return <Conformidade conformidade={painel.conformidade} t={t} />;
       case "plano":
-        return <PlanoAcao acoes={painel.planoAcao} t={t} idioma={idioma} />;
+        return <PlanoAcao acoes={painel.planoAcao} t={t} idioma={idioma} mostrarValor={capitalLiberado} />;
       default:
         return (
           <VisaoGeral

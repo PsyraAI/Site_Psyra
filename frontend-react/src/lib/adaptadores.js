@@ -104,6 +104,21 @@ export function adaptarPainel(payload) {
       dimensao: a.dimensao,
       acao: a.acao_sugerida,
       status: a.status,
+      // explicabilidade (17/10/2026): por que, quanto cada dimensão pesa, texto livre e ações
+      n: a.n_respostas ?? null,
+      indice: a.indice ?? null,
+      nivel: a.nivel ?? (a.prioridade === "alta" ? "alto" : "moderado"),
+      prazoDias: a.prazo_dias ?? null,
+      contribuicoes: a.contribuicoes ?? [],
+      textoLivre: a.texto_livre ?? null,
+      acoes: (a.acoes ?? []).map((x) => ({
+        dimensao: x.dimensao,
+        indice: x.indice,
+        contribuicao: x.contribuicao,
+        acao: x.acao,
+        responsavel: x.responsavel,
+      })),
+      perdaEvitavel: a.perda_evitavel_mensal ?? null,
     })),
 
     selo: {

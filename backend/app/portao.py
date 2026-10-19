@@ -26,7 +26,12 @@ from .security import TokenInvalido, criar_token, validar_token, verificar_senha
 COOKIE = "psyra_acesso"
 _CAMINHOS_LIVRES = ("/health", "/health/live", "/health/ready")
 # Arquivos públicos de que o questionário precisa para abrir (sem dado nenhum).
-_ARQUIVOS_PUBLICOS = ("/psyra-logo.svg", "/psyra-logo.png", "/tema-inicial.js", "/favicon.ico")
+_ARQUIVOS_PUBLICOS = (
+    "/psyra-logo.svg",
+    "/psyra-logo.png",
+    "/tema-inicial.js",
+    "/favicon.ico",
+)
 _TOKEN = re.compile(r"^[A-Za-z0-9_-]{6,64}$")
 
 

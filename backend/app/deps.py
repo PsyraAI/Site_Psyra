@@ -55,7 +55,10 @@ def usuario_atual(
     if int(usuario.get("trocar_senha") or 0):
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
-            detail={"codigo": "trocar_senha", "mensagem": "Crie a sua senha para continuar."},
+            detail={
+                "codigo": "trocar_senha",
+                "mensagem": "Crie a sua senha para continuar.",
+            },
         )
     return usuario
 
@@ -72,9 +75,12 @@ UsuarioTrocaSenha = Annotated[dict[str, Any], Depends(usuario_em_troca_de_senha)
 
 
 def exigir_gestao(usuario: dict[str, Any]) -> None:
-    """Configurações da empresa e equipe: só gestor e admin (a psicóloga CRP só consulta)."""
+    """Configurações da empresa e equipe: só gestor e admin (a psicóloga CRP só
+    consulta)."""
     if usuario.get("papel") not in ("gestor", "admin"):
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "papel sem permissao para gerenciar")
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN, "papel sem permissao para gerenciar"
+        )
 
 
 def superadmin_atual(

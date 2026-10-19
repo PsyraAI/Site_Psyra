@@ -1,6 +1,6 @@
 # Engenharia reversa de sites de produto: o que levamos para a Psyra
 
-Sprint S10 · Épico APP · 15/10/2026 · Risco: R2 (telas com dados simulados, sem logos ou depoimentos inventados)
+Sprint S10 · Épico APP · 15/10/2026 · Risco: R2 (sem logos ou depoimentos inventados)
 
 ## O que foi analisado
 
@@ -10,7 +10,7 @@ Analisamos o código e a estrutura das páginas iniciais de cinco empresas de so
 |---|---|---|---|
 | Stripe | Faixa com 4 números grandes | Sim | Faixa **Em números**: 4 dados públicos, cada um com fonte e link, e uma linha "por isso a Psyra faz…" |
 | Stripe | Botões que começam com verbo | Já tínhamos | "Agendar diagnóstico gratuito", "Ver painel de exemplo" |
-| Linear, Lattice | Tela real do produto logo no começo | Sim | Abas **Para quem** com telas reais do painel e o selo "Tela real · dados simulados" |
+| Linear, Lattice | Tela real do produto logo no começo | Sim | Abas **Para quem** com telas reais do painel e o selo "Tela real do painel" |
 | Culture Amp, Vercel | Abas por público (RH, gestor, colaborador) | Sim | Quatro perfis: RH, SESMT, Psicóloga (CRP) e Colaborador. Cada aba tem 3 pontos e um link para a seção certa; as setas do teclado trocam de aba |
 | Culture Amp, Lattice | Selos de segurança, mas **sem explicar o anonimato** na página inicial | Oportunidade | Bloco **O caminho de uma resposta**: 4 passos e um exemplo de grupo oculto (n < 5) |
 | Vercel, Linear | Rodapé em colunas, seletor de tema em 3 posições e status | Sim | Colunas Produto, Confiança e Projeto; seletor Sistema, Claro ou Escuro; linha de status "Piloto em preparação…" |
@@ -36,6 +36,6 @@ Analisamos o código e a estrutura das páginas iniciais de cinco empresas de so
 
 ## Cuidados mantidos
 
-- Toda tela do produto mostra o selo "dados simulados". As telas vêm do seed, com a empresa fictícia Nébula.
+- Por orientação do professor (15/10/2026), o site não exibe selos de "dados de demonstração", "simulados" ou "ilustrativos". Se a banca perguntar, a equipe explica que os dados do painel são sintéticos (empresa fictícia Nébula).
 - Nenhum número sem fonte e nenhum cliente, logo ou depoimento inventado.
-- As telas do painel aparecem em português também em /en e /zh, e o selo diz isso.
+- As telas do painel aparecem em português também em /en e /zh, e o selo diz isso ("Portuguese interface").

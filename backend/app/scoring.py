@@ -189,13 +189,17 @@ def calcular_sinal_texto(texto: str | None) -> float | None:
     pontos = 0.0
 
     for termo, peso in _LEXICO_RISCO.items():
-        ocorrencias = normalizado.count(termo)
-        if not ocorrencias:
-            continue
-        posicao = normalizado.find(termo)
-        prefixo = normalizado[max(0, posicao - 12) : posicao]
-        negado = any(negacao in prefixo for negacao in _NEGACOES)
-        pontos += (-0.5 if negado else 1.0) * peso * min(ocorrencias, 3)
+        # Cada ocorrência é lida com a própria negação (antes, a negação da 1ª ocorrência
+        # valia para todas: "não estou exausto... estou exausto" virava duas negações).
+        contadas = 0
+        for achado in re.finditer(re.escape(termo), normalizado):
+            if contadas >= 3:
+                break
+            posicao = achado.start()
+            prefixo = normalizado[max(0, posicao - 12) : posicao]
+            negado = any(negacao in prefixo for negacao in _NEGACOES)
+            pontos += (-0.5 if negado else 1.0) * peso
+            contadas += 1
 
     for termo, peso in _LEXICO_PROTECAO.items():
         if termo in normalizado:
@@ -269,14 +273,29 @@ def agregar_ghe(
 
     instrumento = carregar_instrumento(instrumento_codigo)
     nomes = {b["codigo"]: b["dimensao"] for b in instrumento["blocos"]}
+    pesos = {b["codigo"]: float(b.get("peso", 1.0)) for b in instrumento["blocos"]}
+    medias = {
+        codigo: sum(valores) / len(valores)
+        for codigo, valores in blocos_acumulados.items()
+    }
+    soma_pesos = sum(pesos.get(codigo, 1.0) for codigo in medias) or 1.0
     fatores = sorted(
         (
             {
                 "bloco": codigo,
                 "dimensao": nomes.get(codigo, codigo),
-                "indice": round(sum(valores) / len(valores), 1),
+                "indice": round(media, 1),
+                # Contribuição aditiva exata deste motor (média
+                # ponderada): quanto a dimensão
+                # empurra o índice do grupo acima (+) ou abaixo (−) do ponto neutro 50.
+                # A soma das contribuições de todas as dimensões ≈
+                # índice − 50. Com o modelo
+                # treinado, este campo passa a ser o valor SHAP (Art. 20 LGPD).
+                "contribuicao": round(
+                    pesos.get(codigo, 1.0) * (media - 50.0) / soma_pesos, 1
+                ),
             }
-            for codigo, valores in blocos_acumulados.items()
+            for codigo, media in medias.items()
         ),
         key=lambda item: item["indice"],
         reverse=True,

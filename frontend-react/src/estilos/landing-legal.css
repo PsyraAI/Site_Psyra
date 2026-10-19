@@ -1,0 +1,87 @@
+/* Termos de Uso e Política de Privacidade (17/10/2026). Sprint: S10 | Risco: R2 */
+.lp-legal { max-width: 52rem; padding-top: 3.5rem; padding-bottom: 5rem; line-height: 1.7; }
+.lp-legal h1 { margin: 0.25rem 0 0; font-size: clamp(2rem, 4vw, 2.6rem); line-height: 1.15; }
+.lp-legal__versao { margin: 0; font: 500 0.75rem/1.4 var(--lp-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--lp-primary); }
+.lp-legal__intro { margin: 1rem 0 0; color: rgba(240, 236, 246, 0.86); }
+.lp-legal strong { color: var(--lp-mist); font-weight: 650; }
+.lp-legal__resumo { margin-top: 2rem; }
+.lp-legal__resumo h2, .lp-legal__sumario h2, .lp-legal__normas h2 { margin: 0 0 0.75rem; font-size: 1.25rem; }
+.lp-legal__resumo ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.5rem; }
+.lp-legal__sumario { margin-top: 2rem; padding: 1.25rem 1.5rem; border: 1px solid var(--lp-border); border-radius: 16px; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.lp-legal__sumario h2 { grid-column: 1 / -1; margin-bottom: 0; }
+.lp-legal__sumario a { color: var(--lp-primary); text-decoration: none; }
+.lp-legal__sumario a:hover { text-decoration: underline; }
+.lp-legal__sumario > div > a { font-weight: 650; }
+.lp-legal__sumario ol { margin: 0.5rem 0 0; padding-left: 1.3rem; font-size: 0.9rem; display: grid; gap: 0.2rem; }
+.lp-legal__parte { margin-top: 3rem; scroll-margin-top: 6rem; }
+.lp-legal__parte > h2 { margin: 0; padding-bottom: 0.6rem; border-bottom: 1px solid var(--lp-border); font-size: clamp(1.5rem, 3vw, 1.9rem); }
+.lp-legal__secao { margin-top: 1.75rem; scroll-margin-top: 6rem; }
+.lp-legal__secao h3 { margin: 0 0 0.5rem; font: 650 1.08rem/1.35 var(--lp-sans); color: var(--lp-mist); }
+.lp-legal__secao p { margin: 0.5rem 0 0; color: rgba(240, 236, 246, 0.84); }
+.lp-legal__secao ul { margin: 0.5rem 0 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; color: rgba(240, 236, 246, 0.84); }
+.lp-legal__tabela { margin-top: 0.75rem; overflow-x: auto; border: 1px solid var(--lp-border); border-radius: 12px; }
+.lp-legal__tabela:focus-visible { outline: 2px solid var(--lp-primary); outline-offset: 2px; }
+.lp-legal__tabela table { width: 100%; border-collapse: collapse; font-size: 0.875rem; line-height: 1.55; }
+.lp-legal__tabela th, .lp-legal__tabela td { padding: 0.7rem 0.85rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--lp-border); }
+.lp-legal__tabela th { font: 600 0.72rem/1.3 var(--lp-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--lp-muted); background: rgba(240, 236, 246, 0.04); }
+.lp-legal__tabela tr:last-child td { border-bottom: 0; }
+.lp-legal__normas { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--lp-border); font-size: 0.92rem; }
+.lp-legal__normas ul { margin: 0; padding-left: 1.2rem; }
+.lp-legal__normas a { color: var(--lp-primary); }
+.lp-legal__acoes { margin-top: 2.5rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+
+/* tabela vira cartões no celular */
+@media (max-width: 640px) {
+  .lp-legal__tabela { border: 0; overflow: visible; }
+  .lp-legal__tabela thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .lp-legal__tabela tr { display: block; margin-bottom: 0.75rem; border: 1px solid var(--lp-border); border-radius: 12px; padding: 0.4rem 0; }
+  .lp-legal__tabela td { display: block; border: 0; padding: 0.35rem 0.85rem; }
+  .lp-legal__tabela td::before { content: attr(data-rotulo); display: block; font: 600 0.68rem/1.3 var(--lp-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--lp-muted); }
+}
+
+/* tema claro */
+:root[data-tema="claro"] .lp-legal__intro,
+:root[data-tema="claro"] .lp-legal__secao p,
+:root[data-tema="claro"] .lp-legal__secao ul { color: #33375a; }
+:root[data-tema="claro"] .lp-legal strong,
+:root[data-tema="claro"] .lp-legal__secao h3 { color: #1c1f3a; }
+:root[data-tema="claro"] .lp-legal__sumario,
+:root[data-tema="claro"] .lp-legal__tabela,
+:root[data-tema="claro"] .lp-legal__tabela th,
+:root[data-tema="claro"] .lp-legal__tabela td,
+:root[data-tema="claro"] .lp-legal__parte > h2,
+:root[data-tema="claro"] .lp-legal__normas,
+:root[data-tema="claro"] .lp-legal__tabela tr { border-color: rgba(28, 31, 58, 0.12); }
+:root[data-tema="claro"] .lp-legal__tabela th { background: #f6f2f9; color: #5d6180; }
+:root[data-tema="claro"] .lp-legal__versao,
+:root[data-tema="claro"] .lp-legal__sumario a,
+:root[data-tema="claro"] .lp-legal__normas a { color: #8e4e99; }
+
+@media print {
+  .lp-header, .lp-footer, .lp-legal__acoes, .lp-legal__sumario, .lp-progresso, .lp-cta-fixo { display: none !important; }
+  .lp-root, .lp-legal { background: #fff !important; color: #000 !important; }
+  .lp-legal * { color: #000 !important; }
+  .lp-legal__secao { break-inside: avoid; }
+}
+
+/* Guia NR-1 */
+.lp-guia__meta { margin: 0.75rem 0 0; font: 500 0.8rem/1.4 var(--lp-mono); color: var(--lp-muted); }
+.lp-guia__secao h2 { margin: 0 0 0.5rem; font-size: clamp(1.35rem, 2.6vw, 1.65rem); }
+.lp-guia__secao { margin-top: 2.5rem; }
+.lp-guia__destaque { margin-top: 1rem !important; padding: 0.9rem 1.1rem; border-left: 3px solid var(--lp-primary); border-radius: 0 12px 12px 0; background: rgba(188, 132, 195, 0.1); }
+.lp-guia__passos { margin: 0.75rem 0 0; padding-left: 1.4rem; display: grid; gap: 0.7rem; color: rgba(240, 236, 246, 0.86); }
+.lp-guia__passos li::marker { color: var(--lp-primary); font-weight: 700; }
+.lp-guia__faq { margin-top: 0.75rem; padding: 0.85rem 1rem; border: 1px solid var(--lp-border); border-radius: 12px; }
+.lp-guia__faq summary { cursor: pointer; font-weight: 600; color: var(--lp-mist); }
+.lp-guia__faq p { margin: 0.6rem 0 0; }
+.lp-guia__cta { margin-top: 3rem; }
+.lp-guia__cta h2 { margin: 0 0 0.5rem; }
+.lp-guia__cta p { margin: 0; }
+.lp-guia__cta-acoes { margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.lp-legal__sumario ol { grid-column: 1 / -1; }
+:root[data-tema="claro"] .lp-guia__passos { color: #33375a; }
+:root[data-tema="claro"] .lp-guia__faq { border-color: rgba(28, 31, 58, 0.12); }
+:root[data-tema="claro"] .lp-guia__faq summary { color: #1c1f3a; }
+:root[data-tema="claro"] .lp-guia__destaque { background: #f6eef8; }
+.lp-legal .lp-link { color: var(--lp-primary); }
+:root[data-tema="claro"] .lp-legal .lp-link { color: #8e4e99; }
