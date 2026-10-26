@@ -1,4 +1,4 @@
-"""Validação e persistência compartilhadas pelas coletas nativa e Google Forms."""
+"""Validação e persistência das respostas do questionário próprio da Psyra."""
 
 from __future__ import annotations
 
@@ -25,19 +25,24 @@ def gravar_resposta_anonima(
     id_externo: str | None = None,
     tempos_partes: list[int] | None = None,
 ) -> RespostaSaida:
-    """Valida, anonimiza, verifica a qualidade e grava sem aceitar identificadores do respondente."""
+    """Valida, anonimiza, verifica a qualidade e grava sem identificar o respondente."""
     calcular_indice_likert(likert, coleta["instrumento"])
     texto_limpo, motor = anonimizar(texto_livre)
     protocolo = secrets.token_hex(4).upper()
     qualidade = avaliar(likert, coleta["instrumento"], tempos_partes)
-    tempos = tempos_validos(tempos_partes, len(tempos_partes or [])) if qualidade["com_tempo"] else None
+    tempos = (
+        tempos_validos(tempos_partes, len(tempos_partes or []))
+        if qualidade["com_tempo"]
+        else None
+    )
     duracao = int(round(sum(tempos) / 10.0) * 10) if tempos else None
 
     executar(
         conexao,
         "INSERT INTO resposta (id, coleta_id, ghe_id, likert_json, "
         "texto_anonimizado, anonimizacao_ok, motor_anonimizacao, protocolo, "
-        "origem_externa, id_externo, duracao_s, tempos_partes_json, qualidade_json, sinalizada) "
+        "origem_externa, id_externo, duracao_s, tempos_partes_json, qualidade_json, "
+        "sinalizada) "
         "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         (
             uuid.uuid4().hex,

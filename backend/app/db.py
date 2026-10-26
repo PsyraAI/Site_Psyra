@@ -352,9 +352,7 @@ def _migrar_banca_v2(conexao: Any) -> None:
     )
     if _DRIVER == "postgres":
         conexao.execute("ALTER TABLE coleta_inicio ENABLE ROW LEVEL SECURITY")
-        conexao.execute(
-            "REVOKE ALL ON TABLE coleta_inicio FROM anon, authenticated"
-        )
+        conexao.execute("REVOKE ALL ON TABLE coleta_inicio FROM anon, authenticated")
     conexao.commit()
 
 
@@ -439,9 +437,7 @@ def criar_schema(conexao: Any) -> None:
         _migrar_banca_v2(conexao)
         _recriar_view_painel(conexao)
         if _DRIVER == "postgres":
-            conexao.execute(
-                "REVOKE ALL ON TABLE vw_painel_ghe FROM anon, authenticated"
-            )
+            conexao.execute("REVOKE ALL ON TABLE vw_painel_ghe FROM anon, authenticated")
             conexao.commit()
         logger.info("schema aplicado (%s)", _DRIVER)
     except Exception as erro:

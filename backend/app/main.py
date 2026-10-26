@@ -31,7 +31,7 @@ from fastapi.staticfiles import StaticFiles
 from .config import DIR_REACT, config
 from .db import conectar, criar_schema
 from .middleware import MiddlewareSeguranca
-from .routers import admin, auth, coleta, configuracoes, empresas, integracoes, painel
+from .routers import admin, auth, coleta, configuracoes, empresas, painel
 from .seo import html_da_rota, ler_index, robots_txt, rota_privada, sitemap_xml
 
 logging.basicConfig(
@@ -159,7 +159,6 @@ app.include_router(admin.router)
 app.include_router(empresas.router)
 app.include_router(coleta.router)
 app.include_router(painel.router)
-app.include_router(integracoes.router)
 
 
 @app.get("/health", tags=["infra"])

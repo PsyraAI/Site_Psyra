@@ -51,13 +51,8 @@ class Config:
     # JWT (HS256 implementado com hmac da stdlib — sem dependência externa).
     JWT_SEGREDO: str = os.getenv("PSYRA_JWT_SECRET", "dev-somente-local-trocar-em-prod")
     JWT_EXPIRA_MIN: int = int(os.getenv("PSYRA_JWT_EXP_MIN", "480"))
-    FORMS_WEBHOOK_SEGREDO: str = os.getenv(
-        "PSYRA_FORMS_WEBHOOK_SECRET",
-        "dev-forms-somente-local-trocar-em-prod",
-    )
     RATE_LOGIN: str = os.getenv("PSYRA_RATE_LOGIN", "5/minute")
     RATE_COLETA: str = os.getenv("PSYRA_RATE_COLETA", "30/minute")
-    RATE_WEBHOOK: str = os.getenv("PSYRA_RATE_WEBHOOK", "60/minute")
 
     # Conformidade (inegociável — ver SKILL Psyra, restrições absolutas).
     N_MINIMO_GHE: int = int(os.getenv("PSYRA_N_MINIMO", "5"))  # k-anonimato
@@ -140,12 +135,6 @@ class Config:
             erros.append("PSYRA_DATABASE_URL Postgres é obrigatória")
         if len(self.JWT_SEGREDO) < 32 or self.JWT_SEGREDO.startswith("dev-"):
             erros.append("PSYRA_JWT_SECRET deve ter ao menos 32 caracteres aleatórios")
-        if len(self.FORMS_WEBHOOK_SEGREDO) < 32 or self.FORMS_WEBHOOK_SEGREDO.startswith(
-            "dev-"
-        ):
-            erros.append(
-                "PSYRA_FORMS_WEBHOOK_SECRET deve ter ao menos 32 caracteres aleatórios"
-            )
         if not self.PUBLIC_URL.startswith("https://"):
             erros.append("PSYRA_PUBLIC_URL deve usar HTTPS")
         if not self.CORS_ORIGENS or any(

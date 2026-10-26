@@ -1,7 +1,7 @@
 """Porta de acesso do site. A frase vira hash PBKDF2; o cookie é um JWT HS256.
 
 Fica desligada em desenvolvimento. Em produção bloqueia o site, menos a
-sonda de saúde, o webhook do Google Forms (que já tem assinatura própria) e o
+sonda de saúde e o
 caminho do colaborador: o questionário anônimo precisa abrir pelo link do
 ciclo, sem frase de acesso. Esse caminho só expõe o formulário de um token
 válido e o envio anônimo; painel, login e dados continuam atrás da porta.
@@ -64,9 +64,7 @@ def _rota_do_colaborador(caminho: str, metodo: str) -> bool:
 def _caminho_livre(caminho: str, metodo: str = "GET") -> bool:
     if caminho in _CAMINHOS_LIVRES:
         return True
-    if _rota_do_colaborador(caminho, metodo):
-        return True
-    return caminho.startswith("/v1/integracoes/")
+    return _rota_do_colaborador(caminho, metodo)
 
 
 def _cookie_valido(request: Request) -> bool:
