@@ -1,0 +1,213 @@
+/* ============================================================================
+   Psyra AI — painel v5 (22/10/2026, depois da pré-banca). Sprint: S10 | Risco: R2
+   1) Escala de risco própria (azul → âmbar → vermelho): os três níveis se distinguem
+      também por claridade e o nome do nível vai sempre escrito ao lado da cor.
+   2) Cartão "Onde agir primeiro" no topo da Visão geral.
+   3) Phrona, a guia do painel (botão fixo + painel lateral).
+   ========================================================================== */
+
+:root {
+  --risco-baixo: #6fa8dc;
+  --risco-moderado: #e3a857;
+  --risco-alto: #e5555a;
+  --risco-baixo-texto: #a9cdee;
+  --risco-moderado-texto: #f0c27f;
+  --risco-alto-texto: #f6a4a7;
+}
+:root[data-tema="claro"] {
+  --risco-baixo: #2c6e9e;
+  --risco-moderado: #a5650f;
+  --risco-alto: #c2343a;
+  --risco-baixo-texto: #1f5682;
+  --risco-moderado-texto: #8a530a;
+  --risco-alto-texto: #a8262c;
+}
+
+/* ---- etiquetas e barra de distribuição ---- */
+.etiqueta--baixo { background: color-mix(in srgb, var(--risco-baixo) 18%, transparent); color: var(--risco-baixo-texto); }
+.etiqueta--moderado { background: color-mix(in srgb, var(--risco-moderado) 18%, transparent); color: var(--risco-moderado-texto); }
+.etiqueta--alto { background: color-mix(in srgb, var(--risco-alto) 18%, transparent); color: var(--risco-alto-texto); }
+[data-tema="claro"] .etiqueta--baixo { color: var(--risco-baixo-texto); }
+[data-tema="claro"] .etiqueta--moderado { color: var(--risco-moderado-texto); }
+[data-tema="claro"] .etiqueta--alto { color: var(--risco-alto-texto); }
+
+.distribuicao__rotulo { display: flex; align-items: center; gap: 6px; }
+.distribuicao__barra { gap: 4px; }
+.distribuicao__seg { border-radius: 8px; font-weight: 600; }
+.distribuicao__seg--baixo { background: var(--risco-baixo); color: #0c2133; }
+.distribuicao__seg--moderado { background: var(--risco-moderado); color: #231705; }
+.distribuicao__seg--alto { background: var(--risco-alto); color: #ffffff; }
+[data-tema="claro"] .distribuicao__seg--baixo,
+[data-tema="claro"] .distribuicao__seg--moderado { color: #ffffff; }
+
+.grafico-legenda { flex-wrap: wrap; row-gap: 6px; }
+
+/* ---- Onde agir primeiro ---- */
+.prioridade {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--s5);
+  align-items: center;
+  margin-bottom: var(--s5);
+  padding: var(--s5) var(--s6);
+  border-radius: var(--raio-lg);
+  border: 1px solid var(--linha-forte);
+  border-left: 6px solid var(--risco-moderado);
+  background: linear-gradient(110deg, color-mix(in srgb, var(--risco-moderado) 10%, transparent), var(--superficie-alta) 55%);
+  box-shadow: var(--sombra-2);
+}
+.prioridade--alto {
+  border-left-color: var(--risco-alto);
+  background: linear-gradient(110deg, color-mix(in srgb, var(--risco-alto) 12%, transparent), var(--superficie-alta) 55%);
+}
+.prioridade--calma {
+  display: flex;
+  gap: var(--s3);
+  border-left-color: var(--risco-baixo);
+  background: var(--superficie-alta);
+  color: var(--nevoa);
+  box-shadow: none;
+}
+.prioridade--calma p { margin: 0; }
+.prioridade__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--roxo);
+}
+.prioridade__nome { margin: 0 0 8px; font-family: var(--display); font-size: clamp(1.5rem, 2.4vw, 2rem); line-height: 1.15; color: var(--branco); }
+.prioridade__resumo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0; color: var(--ardosia); font-size: 14px; }
+.prioridade__detalhe { display: grid; gap: var(--s3); }
+.prioridade__rotulo { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ardosia); }
+.prioridade__fator-nome { display: flex; align-items: baseline; gap: 10px; margin: 2px 0 0; font-size: 17px; font-weight: 600; color: var(--branco); }
+.prioridade__fator-nome .numero { font-size: 15px; color: var(--ardosia); }
+.prioridade__texto { display: flex; gap: 8px; align-items: flex-start; margin: 0; font-size: 14px; line-height: 1.45; color: var(--nevoa); }
+.prioridade__texto svg { flex-shrink: 0; margin-top: 2px; color: var(--roxo); }
+.prioridade__acoes { display: flex; flex-wrap: wrap; gap: var(--s2); }
+@media (max-width: 860px) {
+  .prioridade { grid-template-columns: 1fr; padding: var(--s5); }
+}
+
+/* ---- Phrona: botão fixo ---- */
+.phrona-botao {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 1px solid color-mix(in srgb, var(--roxo) 45%, transparent);
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #3a2f57, #1c1f3a 70%);
+  color: #e8d9ef;
+  box-shadow: 0 14px 34px rgba(9, 10, 24, 0.45), 0 0 0 6px color-mix(in srgb, var(--roxo) 12%, transparent);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.phrona-botao:hover { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(9, 10, 24, 0.5), 0 0 0 8px color-mix(in srgb, var(--roxo) 16%, transparent); }
+.phrona-botao:focus-visible { outline: 3px solid var(--roxo); outline-offset: 3px; }
+.phrona-botao--aberta { background: #2a2e52; }
+
+/* ---- convite (primeira visita) ---- */
+.phrona-convite {
+  position: fixed;
+  right: 24px;
+  bottom: 96px;
+  z-index: 60;
+  width: min(330px, calc(100vw - 48px));
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--linha-forte);
+  background: var(--abismo);
+  color: var(--nevoa);
+  box-shadow: var(--sombra-3);
+  animation: phrona-sobe 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.phrona-convite__topo { display: flex; gap: 12px; align-items: flex-start; }
+.phrona-convite__topo p { margin: 0; font-size: 14px; line-height: 1.45; }
+.phrona-convite__coruja { color: var(--roxo); flex-shrink: 0; }
+.phrona-convite__acoes { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+
+/* ---- painel lateral ---- */
+.phrona-painel {
+  position: fixed;
+  right: 24px;
+  bottom: 96px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  width: min(400px, calc(100vw - 48px));
+  max-height: min(640px, calc(100dvh - 128px));
+  border-radius: 20px;
+  border: 1px solid var(--linha-forte);
+  background: var(--abismo);
+  color: var(--nevoa);
+  box-shadow: var(--sombra-3);
+  overflow: hidden;
+  animation: phrona-sobe 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.phrona-painel__topo { display: flex; align-items: center; gap: 12px; padding: 16px 18px 12px; border-bottom: 1px solid var(--linha); }
+.phrona-painel__coruja { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: color-mix(in srgb, var(--roxo) 16%, transparent); color: var(--roxo); }
+.phrona-painel__nome { margin: 0; font-family: var(--display); font-size: 20px; font-weight: 700; color: var(--branco); }
+.phrona-painel__papel { margin: 0; font-size: 12px; color: var(--ardosia); }
+.phrona-painel__fechar { margin-left: auto; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--linha); border-radius: 10px; background: transparent; color: var(--nevoa); cursor: pointer; }
+.phrona-painel__fechar:hover { background: var(--superficie-alta); }
+.phrona-abas { display: flex; gap: 4px; padding: 10px 14px 0; }
+.phrona-aba { flex: 1; padding: 8px 10px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--ardosia); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.phrona-aba--ativa { color: var(--branco); border-bottom-color: var(--roxo); }
+.phrona-painel__corpo { flex: 1; overflow-y: auto; padding: 16px 18px; }
+.phrona-painel__rodape { margin: 0; padding: 10px 18px 14px; font-size: 11.5px; line-height: 1.4; color: var(--ardosia); border-top: 1px solid var(--linha); }
+
+.phrona-tela h2 { margin: 0 0 6px; font-family: var(--display); font-size: 22px; color: var(--branco); }
+.phrona-tela p { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+.phrona-tela ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 14px; line-height: 1.45; }
+.phrona-rotulo { margin: 4px 0 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--roxo); }
+
+.phrona-busca { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--linha-forte); border-radius: 12px; background: var(--superficie); color: var(--ardosia); }
+.phrona-busca input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--branco); font: inherit; font-size: 14px; }
+.phrona-vazio { font-size: 13px; color: var(--ardosia); }
+.phrona-faq { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+.phrona-faq li { border: 1px solid var(--linha); border-radius: 12px; overflow: hidden; }
+.phrona-faq__pergunta { display: flex; width: 100%; gap: 10px; justify-content: space-between; align-items: center; padding: 10px 12px; border: 0; background: transparent; color: var(--branco); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
+.phrona-faq__pergunta svg { flex-shrink: 0; transition: transform 0.2s; }
+.phrona-faq__pergunta[aria-expanded="true"] svg { transform: rotate(180deg); }
+.phrona-faq__resposta { margin: 0; padding: 0 12px 12px; font-size: 13.5px; line-height: 1.5; color: var(--nevoa); }
+
+.phrona-tour__intro { margin: 0 0 12px; font-size: 14px; }
+.phrona-tour__trilha { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 4px; }
+.phrona-tour__trilha button { display: flex; width: 100%; gap: 10px; align-items: center; padding: 6px 8px; border: 0; border-radius: 10px; background: transparent; color: var(--ardosia); font: inherit; font-size: 13.5px; text-align: left; cursor: pointer; }
+.phrona-tour__trilha li.atual button { background: var(--roxo-12); color: var(--branco); font-weight: 600; }
+.phrona-tour__trilha li.feito button { color: var(--nevoa); }
+.phrona-tour__num { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--linha-forte); font-size: 12px; font-family: var(--mono); flex-shrink: 0; }
+.phrona-tour__trilha li.atual .phrona-tour__num { border-color: var(--roxo); color: var(--roxo); }
+.phrona-tour__trilha li.feito .phrona-tour__num { background: var(--roxo); border-color: var(--roxo); color: #1c1f3a; }
+.phrona-tour__cartao { padding: 14px; border-radius: 14px; border: 1px solid var(--linha-forte); background: var(--superficie); }
+.phrona-tour__cartao h3 { margin: 0 0 6px; font-size: 17px; color: var(--branco); }
+.phrona-tour__cartao p { margin: 0 0 10px; font-size: 14px; line-height: 1.45; }
+.phrona-tour__nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
+.phrona-tour__fim { margin: 10px 0 0; font-size: 13px; color: var(--roxo); }
+
+@keyframes phrona-sobe {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .phrona-painel, .phrona-convite { animation: none; }
+}
+@media (max-width: 640px) {
+  .phrona-botao { right: 16px; bottom: 16px; width: 52px; height: 52px; }
+  .phrona-painel, .phrona-convite { right: 12px; left: 12px; bottom: 80px; width: auto; }
+}
+@media print {
+  .phrona-botao, .phrona-painel, .phrona-convite, .prioridade__acoes { display: none !important; }
+}
+
+/* o rodapé do tour fica visível mesmo quando o conteúdo rola (celular) */
+.phrona-tour__nav { position: sticky; bottom: -16px; margin: 12px -18px -16px; padding: 12px 18px 16px; background: var(--abismo); }
