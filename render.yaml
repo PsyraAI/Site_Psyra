@@ -19,8 +19,6 @@ services:
         value: site-psyra.onrender.com,*.onrender.com
       - key: PSYRA_JWT_SECRET
         generateValue: true
-      - key: PSYRA_FORMS_WEBHOOK_SECRET
-        generateValue: true
       - key: PSYRA_DOCS
         value: "false"
       - key: PSYRA_CEP_APROVADO
@@ -33,5 +31,3 @@ services:
         value: 5/minute
       - key: PSYRA_RATE_COLETA
         value: 30/minute
-      - key: PSYRA_RATE_WEBHOOK
-        value: 60/minute

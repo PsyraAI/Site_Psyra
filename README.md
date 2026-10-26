@@ -58,8 +58,8 @@ FastAPI. Em sistemas com `make`, use `make instalar`, `make seed` e `make rodar`
 
 ## Produção (Render + Supabase)
 
-Passo a passo de deploy HTTPS, secrets, backups, superadmin e smoke test do
-Google Forms: [`docs/PRODUCAO.md`](docs/PRODUCAO.md).
+Passo a passo de deploy HTTPS, secrets, backups, superadmin e smoke test:
+[`docs/PRODUCAO.md`](docs/PRODUCAO.md).
 
 ## Google, app Android e variáveis novas (17/10/2026)
 
@@ -115,11 +115,27 @@ caracteres, sem e-mail/nome, sem senhas óbvias); "sair de todos os aparelhos" (
 sessão no token); equipe com convite, nova senha temporária e tirar acesso (gestão e
 administração; a psicóloga CRP só consulta).
 
-### Google Forms (legado, desligado na interface)
+### Phrona, a guia do painel (22/10/2026)
 
-O webhook continua no backend (`integracoes/google-forms/README.md`) para quem já
-tinha ciclos vinculados, mas a interface não oferece mais essa opção: o questionário
-do site protege melhor os dados e não depende de Apps Script.
+Botão com a coruja no canto do painel. Abre três abas: **Esta tela** (o que a tela mostra
+e como ler), **Perguntas** (12 dúvidas frequentes com busca) e **Tour** (seis passos do sinal
+à ação: Visão geral → Riscos por grupo → O Revelador → Plano de ação → Capital em risco →
+Conformidade NR-1). Os textos estão em `frontend-react/src/lib/textosPhrona.js` (pt, en, zh).
+A Phrona não usa IA nem rede: nada do painel sai do navegador. Na primeira visita ela
+oferece o tour uma vez (lembrado no `localStorage`, com fallback silencioso).
+
+A Visão geral abre com o cartão **Onde agir primeiro** (grupo de maior índice, a dimensão
+que mais pesa pelo mesmo critério do plano de ação e o aviso quando o texto mostra mais
+risco que as notas). A escala de risco passou a ser azul → âmbar → vermelho
+(`--risco-baixo|moderado|alto` em `estilos/app-v5.css`), sempre com o nome do nível escrito.
+
+### Coleta 100% própria
+
+A integração com o Google Forms (webhook e Apps Script) foi removida em 22/10/2026,
+depois da pré-banca. A coleta acontece só pelo questionário do site
+(`/responder/{token}`): nenhuma ferramenta de terceiros recebe as respostas, e o texto
+livre é anonimizado antes de gravar. As colunas `google_form_*` da tabela `coleta`
+ficam no schema só por compatibilidade com bancos antigos e não são mais usadas.
 
 ---
 
@@ -198,7 +214,6 @@ Para apresentação ou produção, use o build integrado e acesse tudo pela port
 | GET | `/v1/empresas/{id}/auditoria` | JWT | Eventos + integridade da cadeia |
 | GET | `/v1/coletas/{token}/formulario` | público | Instrumento + consentimento + GHEs |
 | POST | `/v1/coleta` | público | Recebe resposta anônima |
-| POST | `/v1/integracoes/google-forms/{coleta_id}` | HMAC | Recebe submissão do Apps Script |
 | GET | `/health` | público | Status |
 
 O respondente **não tem login**: acessa por link com token, responde e recebe apenas
@@ -238,7 +253,7 @@ python3 scripts/prints_site.py --base http://localhost:8000 --saida docs/prints
 
 Cobertura por arquivo: `test_privacidade.py` (12) · `test_scoring.py` (11) ·
 `test_qualidade.py` (9) · `test_api.py` (9) · `test_conta.py` (7) · `test_capital_risco.py` (7) ·
-`test_integracao_google_forms.py` (6) · `test_auth.py` (5) · `test_admin.py` (4) ·
+`test_auth.py` (5) · `test_admin.py` (4) ·
 `test_producao.py` (4) · `test_portao.py` (3) · `test_db_adaptador.py` (2).
 Se qualquer teste de `test_privacidade.py` falhar, **o produto não vai para piloto** —
 o CI trata esse arquivo como etapa separada e bloqueante.
