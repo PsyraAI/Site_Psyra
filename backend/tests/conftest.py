@@ -25,7 +25,6 @@ os.environ["PSYRA_ALLOWED_HOSTS"] = "localhost,127.0.0.1,testserver"
 os.environ["PSYRA_DOCS"] = "true"
 os.environ["PSYRA_RATE_LOGIN"] = "1000/minute"
 os.environ["PSYRA_RATE_COLETA"] = "1000/minute"
-os.environ["PSYRA_RATE_WEBHOOK"] = "1000/minute"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
