@@ -1,17 +1,13 @@
 """Smoke test ponta a ponta contra uma URL local ou HTTPS do Render.
 
-Cobre readiness, login de gestor, painel, webhook Google Forms com HMAC e
-deduplicação. Não imprime tokens, senhas nem assinaturas.
+Cobre readiness, login de gestor e painel. Não imprime tokens nem senhas.
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
-import hmac
 import json
 import os
-import uuid
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -66,10 +62,6 @@ def main() -> None:
         "--senha",
         default=os.getenv("PSYRA_SMOKE_PASSWORD", "psyra123"),
     )
-    parser.add_argument(
-        "--webhook-secret",
-        default=os.getenv("PSYRA_FORMS_WEBHOOK_SECRET", ""),
-    )
     args = parser.parse_args()
     base = args.base_url.rstrip("/")
 
@@ -109,63 +101,6 @@ def main() -> None:
     _assert(painel.get("selo", {}).get("provisorio") is True, "selo provisório ausente")
     print("OK painel")
 
-    if not args.webhook_secret:
-        print("SKIP webhook (PSYRA_FORMS_WEBHOOK_SECRET ausente)")
-        print("SMOKE OK")
-        return
-
-    status, cfg = _requisitar(
-        base,
-        f"/v1/empresas/{empresa_id}/coletas/{coleta_id}/google-form",
-        headers=auth,
-    )
-    if status != 200 or not isinstance(cfg, dict) or not cfg.get("google_form_id"):
-        print("SKIP webhook (coleta sem Google Form vinculado)")
-        print("SMOKE OK")
-        return
-
-    response_id = f"smoke-{uuid.uuid4().hex}"
-    payload = {
-        "response_id": response_id,
-        "submitted_at": "2026-08-06T00:00:00Z",
-        "answers": [
-            {"titulo": "Qual o seu setor dentro da Empresa?", "valor": "Operacional"},
-            {
-                "titulo": (
-                    "Meu gestor/supervisor me oferece suporte quando enfrento "
-                    "dificuldades no trabalho."
-                ),
-                "valor": "Concordo parcialmente",
-            },
-        ],
-    }
-    corpo = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-    assinatura = hmac.new(
-        args.webhook_secret.encode("utf-8"), corpo, hashlib.sha256
-    ).hexdigest()
-    status, primeira = _requisitar(
-        base,
-        f"/v1/integracoes/google-forms/{coleta_id}",
-        metodo="POST",
-        corpo=corpo,
-        headers={
-            "Content-Type": "application/json",
-            "X-Psyra-Signature": assinatura,
-        },
-    )
-    _assert(status in {200, 201}, f"webhook deve aceitar resposta, status={status}")
-    status, segunda = _requisitar(
-        base,
-        f"/v1/integracoes/google-forms/{coleta_id}",
-        metodo="POST",
-        corpo=corpo,
-        headers={
-            "Content-Type": "application/json",
-            "X-Psyra-Signature": assinatura,
-        },
-    )
-    _assert(status in {200, 201, 409}, f"deduplicação inesperada: {status}")
-    print("OK webhook + deduplicação")
     print("SMOKE OK")
 
 

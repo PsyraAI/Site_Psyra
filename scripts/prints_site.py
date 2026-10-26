@@ -5,6 +5,7 @@ Sprint: S10 | Risco: R2 (só dados sintéticos do seed; nenhum dado real)
 Uso (com o servidor local rodando e o banco recém-semeado):
     python3 scripts/prints_site.py --base http://localhost:8010 --saida docs/prints
 """
+
 from __future__ import annotations
 
 import argparse
@@ -58,7 +59,9 @@ def prints_painel(pg: Page, base: str, saida: Path) -> None:
     pg.evaluate("document.querySelector('.qualidade').scrollIntoView({block: 'start'})")
     pg.wait_for_timeout(400)
     pg.screenshot(path=str(saida / "S10_APP_print_qualidade.png"))
-    pg.evaluate("document.querySelector('.ritmo').closest('.superficie').scrollIntoView({block: 'center'})")
+    pg.evaluate(
+        "document.querySelector('.ritmo').closest('.superficie').scrollIntoView({block: 'center'})"
+    )
     pg.wait_for_timeout(400)
     pg.screenshot(path=str(saida / "S10_APP_print_qualidade_ritmo.png"))
     ir_para(pg, "Como a Psyra calcula")
@@ -97,12 +100,20 @@ def print_landing(pg: Page, base: str, saida: Path) -> None:
     alvo = pg.locator("#solucao")
     caixa = alvo.bounding_box()
     if caixa:
-        pg.evaluate(f"window.scrollTo(0, {max(0, caixa['y'] + pg.evaluate('window.scrollY') - 40)})")
+        pg.evaluate(
+            f"window.scrollTo(0, {max(0, caixa['y'] + pg.evaluate('window.scrollY') - 40)})"
+        )
         pg.wait_for_timeout(300)
     pg.screenshot(path=str(saida / "S10_APP_print_landing_explicacao.png"))
     pg.set_viewport_size({"width": 1440, "height": 900})
-    for seletor, nome in (("#numeros", "numeros"), ("#para-quem", "para_quem"), (".lp-caminho", "caminho")):
-        pg.evaluate(f"window.scrollTo(0, document.querySelector('{seletor}').getBoundingClientRect().top + window.scrollY - 90)")
+    for seletor, nome in (
+        ("#numeros", "numeros"),
+        ("#para-quem", "para_quem"),
+        (".lp-caminho", "caminho"),
+    ):
+        pg.evaluate(
+            f"window.scrollTo(0, document.querySelector('{seletor}').getBoundingClientRect().top + window.scrollY - 90)"
+        )
         pg.wait_for_timeout(1600)
         pg.screenshot(path=str(saida / f"S10_APP_print_landing_{nome}.png"))
     pg.evaluate("window.scrollTo(0, document.body.scrollHeight)")
@@ -178,7 +189,11 @@ def main() -> int:
     try:
         with sync_playwright() as p:
             nav = p.chromium.launch()
-            ctx = nav.new_context(viewport={"width": 1440, "height": 900}, locale="pt-BR", device_scale_factor=2)
+            ctx = nav.new_context(
+                viewport={"width": 1440, "height": 900},
+                locale="pt-BR",
+                device_scale_factor=2,
+            )
             pg = ctx.new_page()
             prints_painel(pg, base, saida)
             print_landing(pg, base, saida)
@@ -190,7 +205,11 @@ def main() -> int:
                 device_scale_factor=3,
             )
             prints_questionario(cel.new_page(), base, saida)
-            entrada = nav.new_context(viewport={"width": 1440, "height": 900}, locale="pt-BR", device_scale_factor=2).new_page()
+            entrada = nav.new_context(
+                viewport={"width": 1440, "height": 900},
+                locale="pt-BR",
+                device_scale_factor=2,
+            ).new_page()
             entrada.goto(f"{base}/entrar")
             entrada.locator(".entrada__perfil").first.click()
             entrada.fill("input[type=email]", "marina.alves@nebula.com.br")
