@@ -167,18 +167,31 @@ def main() -> int:
         botao.scroll_into_view_if_needed()
         botao.click()
         pg.wait_for_timeout(450)
-        c.conferir(botao.get_attribute("aria-expanded") == "true", "landing: seta abre a explicação da solução")
+        c.conferir(
+            botao.get_attribute("aria-expanded") == "true",
+            "landing: seta abre a explicação da solução",
+        )
         pg.locator("#solucao").screenshot(path=str(saida / "landing_solucao.png"))
         pg.locator("#como-funciona .lp-saiba__botao").nth(0).click()
         pg.wait_for_timeout(450)
         pg.locator("#como-funciona").screenshot(path=str(saida / "landing_como.png"))
-        c.conferir(pg.locator("#como-funciona .lp-saiba--aberto").count() == 1, "landing: passo 1 de Como funciona expandido")
+        c.conferir(
+            pg.locator("#como-funciona .lp-saiba--aberto").count() == 1,
+            "landing: passo 1 de Como funciona expandido",
+        )
         fontes = pg.locator("#numeros .lp-numeros__fonte")
         c.conferir(
-            fontes.count() == 4 and all((fontes.nth(i).get_attribute("href") or "").startswith("https://") for i in range(4)),
+            fontes.count() == 4
+            and all(
+                (fontes.nth(i).get_attribute("href") or "").startswith("https://")
+                for i in range(4)
+            ),
             "landing: os 4 números têm fonte com link",
         )
-        c.conferir(pg.locator(".lp-hero__fonte a").count() == 1, "landing: número do hero tem fonte")
+        c.conferir(
+            pg.locator(".lp-hero__fonte a").count() == 1,
+            "landing: número do hero tem fonte",
+        )
         pg.locator("#perfil-aba-rh").focus()
         pg.keyboard.press("ArrowRight")
         pg.keyboard.press("ArrowRight")
@@ -188,7 +201,8 @@ def main() -> int:
             "landing: abas por perfil andam pelo teclado",
         )
         c.conferir(
-            pg.locator(".lp-caminho__passo").count() == 4 and pg.locator(".lp-caminho__grupo--oculto").count() == 1,
+            pg.locator(".lp-caminho__passo").count() == 4
+            and pg.locator(".lp-caminho__grupo--oculto").count() == 1,
             "landing: caminho da resposta com grupo oculto (n < 5)",
         )
         pg.locator(".lp-tema-seg__opcao").nth(1).click()
@@ -196,39 +210,64 @@ def main() -> int:
         claro = pg.evaluate("document.documentElement.dataset.tema") == "claro"
         pg.locator(".lp-tema-seg__opcao").nth(2).click()
         pg.wait_for_timeout(300)
-        c.conferir(claro and pg.evaluate("document.documentElement.dataset.tema") == "escuro", "landing: seletor de tema do rodapé troca claro/escuro")
+        c.conferir(
+            claro and pg.evaluate("document.documentElement.dataset.tema") == "escuro",
+            "landing: seletor de tema do rodapé troca claro/escuro",
+        )
         for rota, titulo in (("/en", "By the numbers"), ("/zh", "数据")):
             pg.goto(f"{base}{rota}")
             pg.wait_for_selector("#numeros")
             c.conferir(
-                titulo in pg.locator("#numeros .lp-eyebrow").inner_text() or titulo.upper() in pg.locator("#numeros .lp-eyebrow").inner_text(),
+                titulo in pg.locator("#numeros .lp-eyebrow").inner_text()
+                or titulo.upper() in pg.locator("#numeros .lp-eyebrow").inner_text(),
                 f"landing {rota}: blocos novos traduzidos",
             )
 
         print("2. Painel")
         entrar(pg, base)
         corpo = texto_visivel(pg)
-        c.conferir(not re.search(r"\bdemo", corpo, re.I), "painel: nenhum texto com 'demo' na tela")
+        c.conferir(
+            not re.search(r"\bdemo", corpo, re.I),
+            "painel: nenhum texto com 'demo' na tela",
+        )
         pg.screenshot(path=str(saida / "painel_visao_escuro.png"), full_page=True)
 
         pg.locator(".risco-ranking__item--botao").first.click()
         pg.wait_for_selector(".grupo--destaque")
-        c.conferir(pg.locator(".nav-item--ativo").inner_text().startswith("Riscos por grupo"), "painel: clicar no grupo abre Riscos por grupo com destaque")
+        c.conferir(
+            pg.locator(".nav-item--ativo").inner_text().startswith("Riscos por grupo"),
+            "painel: clicar no grupo abre Riscos por grupo com destaque",
+        )
         pg.locator(".chip-filtro--alto").click()
-        c.conferir(pg.locator(".grupo--cartao").count() == 1, "painel: filtro 'Alto' mostra só os grupos em risco alto")
+        c.conferir(
+            pg.locator(".grupo--cartao").count() == 1,
+            "painel: filtro 'Alto' mostra só os grupos em risco alto",
+        )
 
         pg.locator(".tema-icone").click()
         pg.wait_for_timeout(500)
-        c.conferir(pg.evaluate("document.documentElement.dataset.tema") == "claro", "painel: botão troca para o modo claro")
+        c.conferir(
+            pg.evaluate("document.documentElement.dataset.tema") == "claro",
+            "painel: botão troca para o modo claro",
+        )
         pg.locator(".nav-item").first.click()
         pg.wait_for_timeout(500)
         pg.screenshot(path=str(saida / "painel_visao_claro.png"), full_page=True)
 
-        for codigo, nome, primeiro in (("en", "English", "Overview"), ("zh", "简体中文", "总览"), ("pt", "Português", "Visão geral")):
+        for codigo, nome, primeiro in (
+            ("en", "English", "Overview"),
+            ("zh", "简体中文", "总览"),
+            ("pt", "Português", "Visão geral"),
+        ):
             pg.locator(".topbar .seletor-idioma__botao").click()
-            pg.locator(f".topbar .seletor-idioma__lista button:has-text('{nome}')").click()
+            pg.locator(
+                f".topbar .seletor-idioma__lista button:has-text('{nome}')"
+            ).click()
             pg.wait_for_timeout(400)
-            c.conferir(pg.locator(".nav-item").first.inner_text().strip().startswith(primeiro), f"painel: idioma {codigo} aplicado na navegação")
+            c.conferir(
+                pg.locator(".nav-item").first.inner_text().strip().startswith(primeiro),
+                f"painel: idioma {codigo} aplicado na navegação",
+            )
             if codigo != "pt":
                 pg.screenshot(path=str(saida / f"painel_{codigo}.png"))
 
@@ -267,22 +306,41 @@ def main() -> int:
         pg.locator("#seletor-coleta").select_option(value=valor)
         pg.wait_for_timeout(1200)
         opcao = pg.locator("#seletor-coleta option:checked").inner_text()
-        c.conferir("1 resposta" in opcao, f"painel: o ciclo novo mostra a resposta recebida ({opcao})")
+        c.conferir(
+            "1 resposta" in opcao,
+            f"painel: o ciclo novo mostra a resposta recebida ({opcao})",
+        )
 
         banco = Path(args.banco)
         if banco.exists():
             con = sqlite3.connect(banco)
-            texto = con.execute("SELECT texto_anonimizado FROM resposta ORDER BY rowid DESC LIMIT 1").fetchone()[0] or ""
+            texto = (
+                con.execute(
+                    "SELECT texto_anonimizado FROM resposta ORDER BY rowid DESC LIMIT 1"
+                ).fetchone()[0]
+                or ""
+            )
             con.close()
-            c.conferir("Carlos" not in texto and "carlos@empresa" not in texto, f"banco: texto gravado sem nome e sem e-mail ({texto[:80]}…)")
+            c.conferir(
+                "Carlos" not in texto and "carlos@empresa" not in texto,
+                f"banco: texto gravado sem nome e sem e-mail ({texto[:80]}…)",
+            )
             con = sqlite3.connect(banco)
-            sinal, qualidade = con.execute("SELECT sinalizada, qualidade_json FROM resposta ORDER BY rowid DESC LIMIT 1").fetchone()
+            sinal, qualidade = con.execute(
+                "SELECT sinalizada, qualidade_json FROM resposta ORDER BY rowid DESC LIMIT 1"
+            ).fetchone()
             inicios = con.execute(
                 "SELECT COUNT(*) FROM coleta_inicio ci JOIN coleta c ON c.id = ci.coleta_id WHERE c.titulo LIKE '%ponta a ponta%'"
             ).fetchone()[0]
             con.close()
-            c.conferir(sinal == 1 and "rapida" in (qualidade or ""), "banco: resposta feita às pressas ficou sinalizada (qualidade)")
-            c.conferir(inicios == 2, f"banco: começo do questionário contado sem identificar ({inicios} registros: início e grupo)")
+            c.conferir(
+                sinal == 1 and "rapida" in (qualidade or ""),
+                "banco: resposta feita às pressas ficou sinalizada (qualidade)",
+            )
+            c.conferir(
+                inicios == 2,
+                f"banco: começo do questionário contado sem identificar ({inicios} registros: início e grupo)",
+            )
 
         print("4. Encerrar ciclo")
         pg.locator(".nav-item:has-text('Questionário')").click()
@@ -303,7 +361,10 @@ def main() -> int:
         mp.screenshot(path=str(saida / "celular_painel.png"))
         mp.locator(".topbar__menu").click()
         mp.wait_for_timeout(400)
-        c.conferir("app--menu" in (mp.locator(".app").get_attribute("class") or ""), "celular: menu lateral abre como gaveta")
+        c.conferir(
+            "app--menu" in (mp.locator(".app").get_attribute("class") or ""),
+            "celular: menu lateral abre como gaveta",
+        )
         mp.screenshot(path=str(saida / "celular_menu.png"))
         largura = mp.evaluate("document.documentElement.scrollWidth")
         c.conferir(largura <= 391, f"celular: sem rolagem lateral ({largura}px)")
@@ -317,23 +378,46 @@ def main() -> int:
         pg.wait_for_timeout(800)
         pg.locator(".nav-item:has-text('Qualidade da coleta')").click()
         pg.wait_for_selector(".qualidade")
-        c.conferir(pg.locator(".qualidade .kpi").count() == 4, "qualidade: participação, término, sinalizadas e tempo")
-        c.conferir(pg.locator(".qualidade__tabela tbody tr").count() == 5, "qualidade: tabela com os 5 grupos")
-        c.conferir("oculto" in pg.locator(".qualidade__tabela tbody tr").last.inner_text(), "qualidade: grupo com n < 5 sem contagem de sinalizadas")
-        c.conferir(pg.locator(".ritmo__barra").count() == 10, "qualidade: ritmo nas 10 partes")
+        c.conferir(
+            pg.locator(".qualidade .kpi").count() == 4,
+            "qualidade: participação, término, sinalizadas e tempo",
+        )
+        c.conferir(
+            pg.locator(".qualidade__tabela tbody tr").count() == 5,
+            "qualidade: tabela com os 5 grupos",
+        )
+        c.conferir(
+            "oculto" in pg.locator(".qualidade__tabela tbody tr").last.inner_text(),
+            "qualidade: grupo com n < 5 sem contagem de sinalizadas",
+        )
+        c.conferir(
+            pg.locator(".ritmo__barra").count() == 10, "qualidade: ritmo nas 10 partes"
+        )
         pg.screenshot(path=str(saida / "painel_qualidade.png"), full_page=True)
         pg.locator(".nav-item:has-text('Como a Psyra calcula')").click()
-        c.conferir(pg.locator(".metodo__passo").count() == 10, "metodologia: 10 passos explicados")
+        c.conferir(
+            pg.locator(".metodo__passo").count() == 10,
+            "metodologia: 10 passos explicados",
+        )
 
         print("7. Conta: menu, configurações, equipe e primeiro acesso")
         pg.locator(".menu-usuario__botao").click()
-        c.conferir(pg.locator(".menu-usuario__lista [role=menuitem]").count() == 3, "menu da conta: configurações, como calcula e sair")
+        c.conferir(
+            pg.locator(".menu-usuario__lista [role=menuitem]").count() == 3,
+            "menu da conta: configurações, como calcula e sair",
+        )
         pg.locator("[role=menuitem]:has-text('Configurações')").click()
-        c.conferir(pg.locator(".config__aba").count() == 6, "configurações: 6 abas para gestão de RH")
+        c.conferir(
+            pg.locator(".config__aba").count() == 6,
+            "configurações: 6 abas para gestão de RH",
+        )
         pg.locator(".config__aba:has-text('Aparência')").click()
         pg.locator(".config__opcao:has-text('Claro')").click()
         pg.wait_for_timeout(300)
-        c.conferir(pg.evaluate("document.documentElement.dataset.tema") == "claro", "configurações: tema claro escolhido na aba Aparência")
+        c.conferir(
+            pg.evaluate("document.documentElement.dataset.tema") == "claro",
+            "configurações: tema claro escolhido na aba Aparência",
+        )
         pg.locator(".config__opcao:has-text('Escuro')").click()
         pg.locator(".config__aba:has-text('Equipe')").click()
         novo_email = f"e2e.{uuid.uuid4().hex[:6]}@nebula.com.br"

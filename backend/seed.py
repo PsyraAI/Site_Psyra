@@ -69,12 +69,18 @@ TEXTOS = {
 FAIXAS_LIKERT = {"alto": (4, 5), "moderado": (2, 4), "baixo": (1, 3)}
 CENTRO_PERFIL = {"alto": 4.2, "moderado": 3.0, "baixo": 1.9}
 
-DESCUIDADAS = {("GHE-01", 2): "linha_reta", ("GHE-02", 1): "aleatoria", ("GHE-01", 6): "rapida"}
+DESCUIDADAS = {
+    ("GHE-01", 2): "linha_reta",
+    ("GHE-02", 1): "aleatoria",
+    ("GHE-01", 6): "rapida",
+}
 DESISTENCIAS = {"GHE-01": 4, "GHE-02": 3, "GHE-03": 2, "GHE-04": 1, "GHE-05": 1}
 SAIRAM_ANTES_DO_GRUPO = 6
 
 
-INSTRUMENTO = "psyra_form_v1"  # o mesmo instrumento do questionário no site (46 itens + Bloco K)
+INSTRUMENTO = (
+    "psyra_form_v1"  # o mesmo instrumento do questionário no site (46 itens + Bloco K)
+)
 TOKEN = "nebula-nr1-2026"
 
 

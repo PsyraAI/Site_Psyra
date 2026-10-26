@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from pydantic import AnyHttpUrl, BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class LoginEntrada(BaseModel):
@@ -181,34 +181,6 @@ class ColetaSaida(BaseModel):
     token_publico: str
     aberta_em: str
     total_respostas: int = 0
-
-
-class GoogleFormConfigEntrada(BaseModel):
-    url: AnyHttpUrl
-    ativo: bool = True
-
-
-class GoogleFormConfigSaida(BaseModel):
-    coleta_id: str
-    google_form_id: str | None = None
-    google_form_url: str | None = None
-    ativo: bool = False
-    atualizado_em: str | None = None
-    ultima_resposta_em: str | None = None
-    webhook_path: str
-    webhook_secret: str
-
-
-class GoogleFormsRespostaItem(BaseModel):
-    item_id: str | None = None
-    titulo: str = Field(min_length=1, max_length=1000)
-    valor: str | list[str] | int | float | bool | None = None
-
-
-class GoogleFormsWebhookEntrada(BaseModel):
-    response_id: str = Field(min_length=3, max_length=255)
-    submitted_at: str | None = Field(default=None, max_length=80)
-    answers: list[GoogleFormsRespostaItem] = Field(min_length=1, max_length=100)
 
 
 class RespostaEntrada(BaseModel):

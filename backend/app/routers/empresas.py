@@ -10,36 +10,17 @@ from fastapi import APIRouter, HTTPException, status
 
 from ..auditoria import registrar, verificar_cadeia
 from ..config import config
-from ..db import buscar_todos, buscar_um, executar
+from ..db import buscar_todos, executar
 from ..deps import Conexao, Usuario, exigir_empresa
-from ..forms_integracao import extrair_google_form_id, segredo_da_coleta
 from ..instrumento import carregar_instrumento
 from ..schemas import (
     ColetaEntrada,
     ColetaSaida,
     GHESaida,
-    GoogleFormConfigEntrada,
-    GoogleFormConfigSaida,
 )
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/v1/empresas", tags=["empresas"])
-
-
-def _config_google_form(
-    coleta: dict[str, object],
-) -> GoogleFormConfigSaida:
-    coleta_id = str(coleta["id"])
-    return GoogleFormConfigSaida(
-        coleta_id=coleta_id,
-        google_form_id=coleta.get("google_form_id"),
-        google_form_url=coleta.get("google_form_url"),
-        ativo=bool(coleta.get("google_form_ativo")),
-        atualizado_em=coleta.get("google_form_atualizado_em"),
-        ultima_resposta_em=coleta.get("google_form_ultima_resposta_em"),
-        webhook_path=f"/v1/integracoes/google-forms/{coleta_id}",
-        webhook_secret=segredo_da_coleta(coleta_id),
-    )
 
 
 @router.get("/{empresa_id}/ghes", response_model=list[GHESaida])
@@ -71,96 +52,6 @@ def listar_coletas(
         (empresa_id,),
     )
     return [ColetaSaida(**linha) for linha in linhas]
-
-
-@router.get(
-    "/{empresa_id}/coletas/{coleta_id}/google-form",
-    response_model=GoogleFormConfigSaida,
-)
-def consultar_google_form(
-    empresa_id: str,
-    coleta_id: str,
-    usuario: Usuario,
-    conexao: Conexao,
-) -> GoogleFormConfigSaida:
-    exigir_empresa(usuario, empresa_id)
-    coleta = buscar_um(
-        conexao,
-        "SELECT id, google_form_id, google_form_url, google_form_ativo, "
-        "google_form_atualizado_em, google_form_ultima_resposta_em "
-        "FROM coleta WHERE id = ? AND empresa_id = ?",
-        (coleta_id, empresa_id),
-    )
-    if not coleta:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "coleta nao encontrada")
-    return _config_google_form(coleta)
-
-
-@router.put(
-    "/{empresa_id}/coletas/{coleta_id}/google-form",
-    response_model=GoogleFormConfigSaida,
-)
-def configurar_google_form(
-    empresa_id: str,
-    coleta_id: str,
-    dados: GoogleFormConfigEntrada,
-    usuario: Usuario,
-    conexao: Conexao,
-) -> GoogleFormConfigSaida:
-    exigir_empresa(usuario, empresa_id)
-    coleta = buscar_um(
-        conexao,
-        "SELECT id, instrumento FROM coleta WHERE id = ? AND empresa_id = ?",
-        (coleta_id, empresa_id),
-    )
-    if not coleta:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "coleta nao encontrada")
-    if coleta["instrumento"] != "psyra_form_v1":
-        raise HTTPException(
-            status.HTTP_409_CONFLICT,
-            "crie uma coleta com o instrumento psyra_form_v1 para este Google Form",
-        )
-
-    url = str(dados.url)
-    try:
-        form_id = extrair_google_form_id(url)
-    except ValueError as erro:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(erro)) from erro
-
-    vinculo = buscar_um(
-        conexao,
-        "SELECT id FROM coleta WHERE google_form_id = ? AND id <> ?",
-        (form_id, coleta_id),
-    )
-    if vinculo:
-        raise HTTPException(
-            status.HTTP_409_CONFLICT,
-            "este Google Form ja esta vinculado a outra coleta",
-        )
-
-    executar(
-        conexao,
-        "UPDATE coleta SET google_form_id = ?, google_form_url = ?, "
-        "google_form_ativo = ?, google_form_atualizado_em = datetime('now') "
-        "WHERE id = ? AND empresa_id = ?",
-        (form_id, url, 1 if dados.ativo else 0, coleta_id, empresa_id),
-    )
-    registrar(
-        conexao,
-        usuario["id"],
-        "configurar_google_form",
-        f"coleta:{coleta_id}",
-        empresa_id,
-    )
-    configurada = buscar_um(
-        conexao,
-        "SELECT id, google_form_id, google_form_url, google_form_ativo, "
-        "google_form_atualizado_em, google_form_ultima_resposta_em "
-        "FROM coleta WHERE id = ?",
-        (coleta_id,),
-    )
-    assert configurada is not None
-    return _config_google_form(configurada)
 
 
 @router.post(

@@ -24,6 +24,7 @@ import "./estilos/landing-legal.css";
 import "./estilos/app-v2.css";
 import "./estilos/app-v3.css";
 import "./estilos/app-v4.css";
+import "./estilos/app-v5.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

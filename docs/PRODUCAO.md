@@ -5,7 +5,7 @@
 - Site único (API + frontend) com HTTPS automático no Render
 - Postgres no Supabase com schema, RLS ativo e revogação para `anon`/`authenticated`
 - Superadmin global em `/admin` para cadastrar empresas e usuários
-- Rate limit em login, coleta pública e webhook Google Forms
+- Rate limit em login e coleta pública (a coleta é só pelo questionário do site)
 - Health `live`/`ready`, request-id, headers de segurança e Sentry opcional
 - CI com backend, frontend, testes ML leves e build Docker
 
@@ -46,7 +46,7 @@ Requer `pg_dump` e `psql` no PATH.
    - `PSYRA_PUBLIC_URL` = `https://SEU-SERVICO.onrender.com`
    - `PSYRA_DATABASE_URL` = URI do pooler
    - `PSYRA_CORS` = a mesma URL pública (sem barra final)
-3. `PSYRA_JWT_SECRET` e `PSYRA_FORMS_WEBHOOK_SECRET` já são gerados pelo blueprint.
+3. `PSYRA_JWT_SECRET` já é gerado pelo blueprint.
 4. Após o primeiro deploy, anote a URL HTTPS.
 
 ### Domínio próprio (depois)
@@ -69,14 +69,7 @@ Remova as variáveis depois. Acesse `https://SEU-DOMINIO/admin`.
 
 Não rode `python backend/seed.py` em production — o seed está bloqueado.
 
-## 4. Google Forms ponta a ponta
-
-1. No painel da empresa, vincule a URL do Form à coleta.
-2. Copie `WEBHOOK_URL` = `{PSYRA_PUBLIC_URL}/v1/integracoes/google-forms/{coleta_id}`
-   e o `WEBHOOK_SECRET` exibido.
-3. No Apps Script do Form (`integracoes/google-forms/PsyraWebhook.gs`), configure as
-   propriedades e execute `instalarGatilho()`.
-4. Envie uma resposta de teste e confirme no painel.
+## 4. Smoke test
 
 Smoke automatizado (após o serviço estar no ar):
 
@@ -84,7 +77,6 @@ Smoke automatizado (após o serviço estar no ar):
 $env:PSYRA_SMOKE_BASE_URL="https://SEU-SERVICO.onrender.com"
 $env:PSYRA_SMOKE_EMAIL="gestor@empresa.com"
 $env:PSYRA_SMOKE_PASSWORD="..."
-$env:PSYRA_FORMS_WEBHOOK_SECRET="..."
 python scripts/smoke_producao.py
 ```
 

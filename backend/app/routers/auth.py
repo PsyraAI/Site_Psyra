@@ -61,7 +61,8 @@ def login(dados: LoginEntrada, conexao: Conexao) -> LoginSaida:
     """Autentica o gestor e devolve um JWT de curta duração."""
     usuario = buscar_um(
         conexao,
-        "SELECT u.*, e.razao_social, e.plano AS plano, e.porte AS porte, e.atuacao AS atuacao "
+        "SELECT u.*, e.razao_social, e.plano AS plano, e.porte AS porte, "
+        "e.atuacao AS atuacao "
         "FROM usuario_empresa u JOIN empresa e ON e.id = u.empresa_id "
         "WHERE u.email = ? AND u.ativo = 1 AND e.ativo = 1",
         (dados.email.lower(),),

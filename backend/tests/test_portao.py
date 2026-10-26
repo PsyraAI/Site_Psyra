@@ -46,11 +46,15 @@ def test_portao_deixa_o_colaborador_responder_sem_frase(monkeypatch) -> None:
         assert formulario.status_code != 401
         envio = isolado.post("/v1/coleta", json={})
         assert envio.status_code != 401
-        pagina = isolado.get("/responder/nebula-nr1-2026", headers={"accept": "text/html"})
+        pagina = isolado.get(
+            "/responder/nebula-nr1-2026", headers={"accept": "text/html"}
+        )
         assert pagina.status_code != 401
         assert "Acesso restrito" not in pagina.text
 
-        inicio = isolado.post("/v1/coletas/nebula-nr1-2026/inicio", json={"etapa": "inicio"})
+        inicio = isolado.post(
+            "/v1/coletas/nebula-nr1-2026/inicio", json={"etapa": "inicio"}
+        )
         assert inicio.status_code != 401
         painel = isolado.get("/painel", headers={"accept": "text/html"})
         assert painel.status_code != 401

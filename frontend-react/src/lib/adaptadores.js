@@ -18,9 +18,11 @@
 // número, nem barra vazia sugerindo risco baixo.
 
 export const NIVEIS = {
-  alto: { rotulo: "Alto", cor: "var(--perigo)", classe: "alto" },
-  moderado: { rotulo: "Moderado", cor: "var(--ambar)", classe: "moderado" },
-  baixo: { rotulo: "Baixo", cor: "var(--verde)", classe: "baixo" },
+  // v5 (22/10/2026): escala de risco própria, azul → âmbar → vermelho, legível para
+  // daltonismo vermelho-verde; o nome do nível sempre aparece escrito ao lado da cor.
+  alto: { rotulo: "Alto", cor: "var(--risco-alto)", classe: "alto" },
+  moderado: { rotulo: "Moderado", cor: "var(--risco-moderado)", classe: "moderado" },
+  baixo: { rotulo: "Baixo", cor: "var(--risco-baixo)", classe: "baixo" },
 };
 
 export const corDoNivel = (nivel) => NIVEIS[nivel]?.cor ?? "var(--ardosia)";

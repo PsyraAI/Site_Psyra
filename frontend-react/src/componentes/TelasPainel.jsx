@@ -20,6 +20,7 @@ import {
   Lock,
   ChevronRight,
   ArrowUpRight,
+  Target,
 } from "lucide-react";
 
 import { corDoNivel, formatarIndice } from "../lib/adaptadores";
@@ -76,7 +77,74 @@ function corGrafico(tema) {
 }
 
 /* ----------------------------------------------------------- Visão geral */
-export function VisaoGeral({ resumo, grupos, t, aoAbrirGrupo }) {
+/* ------------------------------------------------- Onde agir primeiro (v5) */
+function Prioridade({ grupos, revelador, planoAcao, planoPorGrupo, t, idioma, aoAbrirGrupo, aoVerPlano }) {
+  const tp = t.ondeAgir;
+  const candidatos = grupos
+    .filter((g) => !g.mascarado && g.indiceLikert != null && (g.nivelRisco === "alto" || g.nivelRisco === "moderado"))
+    .sort((a, b) => b.indiceLikert - a.indiceLikert);
+  const topo = candidatos[0];
+  if (!topo) {
+    return (
+      <section className="prioridade prioridade--calma" aria-label={tp.eyebrow}>
+        <Target size={18} aria-hidden="true" />
+        <p>{tp.semRisco}</p>
+      </section>
+    );
+  }
+  // Mesmo critério do plano de ação: a dimensão que mais contribui para o índice (peso ×
+  // distância do ponto neutro). Sem plano para o grupo, cai na dimensão de nota mais alta.
+  const plano = (planoAcao ?? []).find((a) => a.grupo === topo.nome);
+  const fatorPlano = plano?.dimensao
+    ? (topo.fatores ?? []).find((f) => f.dimensao === plano.dimensao) ?? { dimensao: plano.dimensao, indice: null }
+    : null;
+  const fator = fatorPlano ?? [...(topo.fatores ?? [])].sort((a, b) => (b.indice ?? 0) - (a.indice ?? 0))[0];
+  const texto = (revelador ?? []).find((r) => r.grupo === topo.nome && (r.divergencia ?? 0) > 0);
+  const fmt = (v) => formatarIndice(v, t.locale);
+  return (
+    <section className={`prioridade prioridade--${topo.nivelRisco}`} aria-label={tp.eyebrow}>
+      <div className="prioridade__principal">
+        <p className="prioridade__eyebrow">
+          <Target size={14} aria-hidden="true" /> {tp.eyebrow}
+          <Explicacao rotulo={t.oQueE}>{tp.explica}</Explicacao>
+        </p>
+        <h2 className="prioridade__nome">{tp.titulo(topo.nome)}</h2>
+        <p className="prioridade__resumo">
+          <span className={`etiqueta etiqueta--${topo.nivelRisco}`}>{t.nivel[topo.nivelRisco]}</span>
+          {tp.resumo(t.nivel[topo.nivelRisco].toLowerCase(), fmt(topo.indiceLikert), topo.nRespostas)}
+        </p>
+      </div>
+      <div className="prioridade__detalhe">
+        {fator ? (
+          <div className="prioridade__fator">
+            <p className="prioridade__rotulo">{tp.fator}</p>
+            <p className="prioridade__fator-nome">
+              {traduzirDimensao(fator.dimensao, idioma)}
+              {fator.indice != null ? <span className="numero">{fmt(fator.indice)}</span> : null}
+            </p>
+          </div>
+        ) : null}
+        {texto ? (
+          <p className="prioridade__texto">
+            <MessageSquareText size={15} aria-hidden="true" /> {tp.texto}
+          </p>
+        ) : null}
+        <div className="prioridade__acoes">
+          <button type="button" className="botao botao--pequeno" onClick={() => aoAbrirGrupo?.(topo.codigo)}>
+            {tp.verFatores} <ChevronRight size={14} aria-hidden="true" />
+          </button>
+          {planoPorGrupo?.has(topo.nome) ? (
+            <button type="button" className="botao botao--fantasma botao--pequeno" onClick={() => aoVerPlano?.()}>
+              <ClipboardList size={14} aria-hidden="true" /> {tp.verPlano}
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function VisaoGeral({ resumo, grupos, revelador, planoAcao, planoPorGrupo, t, idioma, aoAbrirGrupo, aoVerPlano }) {
   const { tema } = useTema();
   const cores = corGrafico(tema);
   const dados = grupos
@@ -90,6 +158,16 @@ export function VisaoGeral({ resumo, grupos, t, aoAbrirGrupo }) {
 
   return (
     <>
+      <Prioridade
+        grupos={grupos}
+        revelador={revelador}
+        planoAcao={planoAcao}
+        planoPorGrupo={planoPorGrupo}
+        t={t}
+        idioma={idioma}
+        aoAbrirGrupo={aoAbrirGrupo}
+        aoVerPlano={aoVerPlano}
+      />
       <div className="grade grade--4">
         <Kpi rotulo={t.kpi.respostas} valor={resumo.totalRespostas} nota={t.kpi.respostasNota} icone={MessageSquare} />
         <Kpi
@@ -114,7 +192,9 @@ export function VisaoGeral({ resumo, grupos, t, aoAbrirGrupo }) {
 
       {totalDist > 0 ? (
         <div className="distribuicao" aria-label={t.distribuicao}>
-          <p className="distribuicao__rotulo">{t.distribuicao}</p>
+          <p className="distribuicao__rotulo">
+            {t.distribuicao} <Explicacao rotulo={t.oQueE}>{t.explicaNiveis}</Explicacao>
+          </p>
           <div className="distribuicao__barra">
             {["alto", "moderado", "baixo"].map((n) =>
               dist[n] ? (
@@ -192,15 +272,11 @@ export function VisaoGeral({ resumo, grupos, t, aoAbrirGrupo }) {
               </ResponsiveContainer>
             </div>
             <div className="grafico-legenda">
-              <span>
-                <i style={{ background: "var(--verde)" }} /> {t.nivel.baixo}
-              </span>
-              <span>
-                <i style={{ background: "var(--ambar)" }} /> {t.nivel.moderado}
-              </span>
-              <span>
-                <i style={{ background: "var(--perigo)" }} /> {t.nivel.alto}
-              </span>
+              {["baixo", "moderado", "alto"].map((n) => (
+                <span key={n}>
+                  <i style={{ background: corDoNivel(n) }} /> {t.faixas?.[n] ?? t.nivel[n]}
+                </span>
+              ))}
             </div>
             <p className="aviso" style={{ marginTop: 12 }}>
               {t.rodapeVisao}

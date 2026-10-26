@@ -302,6 +302,12 @@ export default function Responder() {
                   <b>Texto protegido.</b> Antes de gravar, uma anonimização automática apaga nomes, CPF, e-mails e telefones. Mesmo assim, evite escrever nomes.
                 </span>
               </li>
+              <li>
+                <ShieldCheck size={18} aria-hidden="true" />
+                <span>
+                  <b>Sem terceiros.</b> O questionário é da própria Psyra: nenhuma ferramenta de fora recebe as suas respostas.
+                </span>
+              </li>
             </ul>
             <p className="rq-meta">
               <Clock size={15} aria-hidden="true" /> {totalItens} perguntas em {blocos.length} partes · cerca de 8 minutos · você pode voltar e mudar respostas

@@ -121,3 +121,15 @@ def test_auditoria_mantem_cadeia_integra(
     ).json()
     assert corpo["integridade"]["integra"] is True
     assert corpo["integridade"]["total"] > 0
+
+
+def test_coleta_so_pelo_questionario_proprio(cliente: TestClient) -> None:
+    """Webhook do Google Forms removido: nenhuma rota recebe respostas de terceiros."""
+    assert cliente.post("/v1/integracoes/google-forms/qualquer", json={}).status_code in {
+        404,
+        405,
+    }
+    rotas = cliente.get("/openapi.json").json()["paths"]
+    assert not any(
+        "integracoes" in caminho or "google-form" in caminho for caminho in rotas
+    )
