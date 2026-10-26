@@ -23,7 +23,7 @@ export const TEXTOS = {
     acoes: {
       entrar: "Entrar no painel",
       diagnostico: "Agendar diagnóstico gratuito",
-      verPainel: "Ver painel de exemplo",
+      verPainel: "Ver o painel",
       falar: "Falar com a Psyra",
       piloto: "Quero participar do piloto",
     },
@@ -148,7 +148,7 @@ export const TEXTOS = {
     painel: {
       rotulo: "Painel",
       titulo: "Por dentro do painel",
-      intro: "Um exemplo do que a empresa vê: onde agir primeiro e por quê. Nada aqui identifica uma pessoa.",
+      intro: "O que a empresa vê: onde agir primeiro e por quê. Nada aqui identifica uma pessoa.",
       abas: { riscos: "Riscos por grupo", fatores: "Fatores do grupo" },
       riscos: {
         titulo: "Atendimento pede atenção primeiro",
@@ -550,7 +550,7 @@ export const TEXTOS = {
     acoes: {
       entrar: "Sign in",
       diagnostico: "Book a free assessment",
-      verPainel: "See a sample dashboard",
+      verPainel: "See the dashboard",
       falar: "Talk to Psyra",
       piloto: "Join the pilot",
     },
@@ -682,7 +682,7 @@ export const TEXTOS = {
     painel: {
       rotulo: "Dashboard",
       titulo: "Inside the dashboard",
-      intro: "An example of what the company sees: where to act first and why. Nothing here identifies a person.",
+      intro: "What the company sees: where to act first and why. Nothing here identifies a person.",
       abas: { riscos: "Risk by group", fatores: "Group drivers" },
       riscos: {
         titulo: "Customer Service needs attention first",
@@ -1082,7 +1082,7 @@ export const TEXTOS = {
     acoes: {
       entrar: "登录",
       diagnostico: "预约免费诊断",
-      verPainel: "查看示例仪表板",
+      verPainel: "查看仪表板",
       falar: "联系 Psyra",
       piloto: "申请加入试点",
     },
@@ -1118,7 +1118,7 @@ export const TEXTOS = {
           traducao: "“我还在完成任务，但想着业绩指标已经睡不好觉了。”",
           chip: "耗竭信号",
         },
-        nota: "示例保留葡萄牙语原文。结果始终按群组汇总（n ≥ 5）。",
+        nota: "原文保留葡萄牙语。结果始终按群组汇总（n ≥ 5）。",
       },
     },
     problema: {
@@ -1207,7 +1207,7 @@ export const TEXTOS = {
     painel: {
       rotulo: "仪表板",
       titulo: "仪表板一览",
-      intro: "企业看到的内容示例：先在哪里采取行动，以及原因。这里没有任何信息能识别到个人。",
+      intro: "企业看到的内容：先在哪里采取行动，以及原因。这里没有任何信息能识别到个人。",
       abas: { riscos: "各群组风险", fatores: "群组影响因素" },
       riscos: {
         titulo: "客服组最需要优先关注",
@@ -1466,7 +1466,7 @@ export const TEXTOS = {
       itens: [
         {
           p: "免费诊断包括什么？",
-          r: "与团队沟通，了解公司在 NR-1 方面的现状（本页的自我评估会有帮助）；用示例数据演示仪表板；并提出群组（GHE）划分和调查时间表建议。免费，且不要求签约。",
+          r: "与团队沟通，了解公司在 NR-1 方面的现状（本页的自我评估会有帮助）；演示仪表板；并提出群组（GHE）划分和调查时间表建议。免费，且不要求签约。",
         },
         { p: "企业能看到每位员工的回答吗？", r: "不能。结果只按至少有 5 份回答的群组（GHE）呈现，更小的群组会被隐藏。" },
         {
