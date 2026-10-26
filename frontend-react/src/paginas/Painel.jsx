@@ -1,6 +1,6 @@
 // Psyra AI — painel do RH. Sprint: S10 | Risco: R2.
 // Shell com barra lateral, tema claro/escuro, idioma (pt/en/zh) e questionário próprio
-// (o link anônimo do ciclo substitui o Google Forms). Resultados sempre por grupo (n ≥ 5).
+// (coleta só pelo link anônimo do ciclo) e a Phrona como guia. Resultados sempre por grupo (n ≥ 5).
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +28,7 @@ import PainelQuestionario from "../componentes/PainelQuestionario";
 import QualidadeColeta from "../componentes/QualidadeColeta";
 import Metodologia from "../componentes/Metodologia";
 import Configuracoes from "../componentes/Configuracoes";
+import Phrona from "../componentes/Phrona";
 import MenuUsuario from "../componentes/MenuUsuario";
 import Dialogo from "../componentes/Dialogo";
 import AlternarTema from "../componentes/AlternarTema";
@@ -285,7 +286,12 @@ export default function Painel() {
           <VisaoGeral
             resumo={painel.resumo}
             grupos={painel.grupos}
+            revelador={painel.revelador}
+            planoAcao={painel.planoAcao}
+            planoPorGrupo={planoPorGrupo}
             t={t}
+            idioma={idioma}
+            aoVerPlano={() => irPara("plano")}
             aoAbrirGrupo={(codigo) => {
               setDestaque(codigo);
               irPara("grupos");
@@ -433,6 +439,8 @@ export default function Painel() {
           </section>
         </main>
       </div>
+
+      <Phrona secao={secao} idioma={idioma} aoIr={irPara} nomesSecoes={t.secoes} />
 
       <Dialogo
         aberto={novoAberto}
